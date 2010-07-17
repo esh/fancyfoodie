@@ -14,43 +14,61 @@
 
 
 <script type="text/javascript">
+	var lastClickLatLng = null
+	$(document).ready(function () {
+		var myOptions = {
+			zoom: 17,
+			mapTypeId: google.maps.MapTypeId.ROADMAP
+		}
+		var map = new google.maps.Map(document.getElementById("map_canvas"), myOptions)
 
-  function initialize() {
-	var myOptions = {
-		zoom: 17,
-		mapTypeId: google.maps.MapTypeId.ROADMAP
-	}
-	var map = new google.maps.Map(document.getElementById("map_canvas"), myOptions)
-        
-	if(navigator.geolocation) {
-    		navigator.geolocation.getCurrentPosition(
-			function(position) {
-      				map.setCenter(new google.maps.LatLng(position.coords.latitude,position.coords.longitude))
-    			},
-			function() {})
-	} else {
-		map.setCenter(new google.maps.LatLng(-34.397, 150.644))
-	}
+		if(navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition(
+				function(position) {
+					map.setCenter(new google.maps.LatLng(position.coords.latitude,position.coords.longitude))
+				},
+				function() {})
+		} else {
+			map.setCenter(new google.maps.LatLng(-34.397, 150.644))
+		}
 
-	google.maps.event.addListener(map, 'click', function(event) {
-		var marker = new google.maps.Marker({
-			position: event.latLng, 
-			map: map,
-			title: "testing yo"
+		$("#create_form").dialog({
+			autoOpen: false,
+			height: 300,
+			width: 350,
+			modal: true,
+			buttons: {
+				Add: function() {
+					var marker = new google.maps.Marker({
+						position: lastClickLatLng, 
+						map: map,
+						title: $("#name").val() 
+					})
+
+					var infowindow = new google.maps.InfoWindow({
+					    content: $("#name").val() 
+					})
+
+					infowindow.open(map, marker)
+
+					$(this).dialog('close')
+				},
+				Cancel: function() {
+					$(this).dialog('close')
+				}
+			},
+			close: function() {
+			}
 		})
 
-		var infowindow = new google.maps.InfoWindow({
-		    content: "testing yo" 
+		google.maps.event.addListener(map, 'click', function(event) {
+			lastClickLatLng = event.latLng
+			$("#create_form").dialog('open')
 		})
-
-		infowindow.open(map, marker)
-
-		$.dialog()
 	})
-  }
 </script>
 </head>
-<body onload="initialize()">
+<body>
 	<div id="map_canvas" style="width:100%; height:100%"></div>
 
 
@@ -58,6 +76,7 @@
 		<form>
 		<fieldset>
 			<label for="name">Name</label>
+			<input type="text" name="name" id="name" class="text ui-widget-content ui-corner-all"/>
 		</fieldset>
 		</form>
 	</div>
