@@ -1,6 +1,6 @@
 (function() {
 	function show() {
-		return ["ok", "ok"]
+		return ["ok", render("view/map.jhtml", {})]
 	}
 	
 	return {
