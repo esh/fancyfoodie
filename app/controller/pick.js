@@ -1,19 +1,15 @@
 (function() {
 	require("utils/json2.js")
-	var fb = require("utils/facebook.js")()
+	var fb = require("model/facebook.js")()
 	var model = require("model/pick.js")()
 	
 	return {
-		find: function() {
-
+		fetch: function() {
+			
 		},
 		post: function() {
-			if(fb.uid) {
-				log.info("post.pick:" + request.content)
-				return ["ok", JSON.stringify({ id: model.persist(null, fb.uid, JSON.parse(request.content)) }), "application/json"]
-			} else {
-				return ["error", "not logged in"]
-			}
+			log.info("post.pick:" + request.content)
+			return ["ok", JSON.stringify({ id: model.persist(null, fb.getUID(), JSON.parse(request.content)) }), "application/json"]
 		}
 	}
 })

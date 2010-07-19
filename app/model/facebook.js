@@ -14,10 +14,18 @@
 		}
 	})
 
-	if(DigestUtils.md5Hex(payload.sort().join("") + config.facebook_app_secret) == data.sig) {
-		log.info(data.toSource())
-		return data
-	} else {
+	if(DigestUtils.md5Hex(payload.sort().join("") + config.facebook_app_secret) != data.sig) {
 		throw "bad facebook creds"
+	} else {
+		log.info("verified facebook cookie")
+	}
+	
+	return {
+		getUID: function() {
+			return data.uid
+		},
+		getFriends: function() {
+			return eval("(" + hget("https://graph.facebook.com/me/friends?access_token=" + data.access_token) + ")")
+		}
 	}
 })
