@@ -1,9 +1,12 @@
 <appengine-web-app xmlns="http://appengine.google.com/ns/1.0">
-	<application>hotspot</application>
+	<application>ffoodie</application>
 	<version>dev</version>
 	<static-files>
         	<include path="/public/**.*"/>
 	</static-files>
 	<resource-files/>
 	<sessions-enabled>true</sessions-enabled>
+	<inbound-services>
+		<service>mail</service>
+	</inbound-services>
 </appengine-web-app>
