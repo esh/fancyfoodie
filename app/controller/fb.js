@@ -10,7 +10,7 @@
 		})
 
 		log.info("uid: " + fbObj["uid"] + " - access_token: " + fbObj["access_token"])
-		return ["ok", "access_token:" + fbObj["access_token"]]
+		return ["ok", hget("https://graph.facebook.com/me/friends?access_token=" + fbObj["access_token"])]
 	}
 	
 	return {

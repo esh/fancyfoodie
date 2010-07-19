@@ -8,6 +8,7 @@
   #map_canvas { height: 100% }
 </style>
 <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
+<script src="http://connect.facebook.net/en_US/all.js"></script>
 <script type="text/javascript" src="/public/js/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="/public/js/jquery-ui-1.8.2.custom.min.js"></script>   
 <link type="text/css" rel="stylesheet" href="public/css/ui-lightness/jquery-ui-1.8.2.custom.css" media="all"/>
@@ -17,6 +18,7 @@
 	$(document).ready(function () {
 		var myOptions = {
 			zoom: 17,
+			mapTypeControl: false,
 			mapTypeId: google.maps.MapTypeId.ROADMAP
 		}
 		var map = new google.maps.Map(document.getElementById("map_canvas"), myOptions)
@@ -30,6 +32,32 @@
 		} else {
 			map.setCenter(new google.maps.LatLng(-34.397, 150.644))
 		}
+
+		var controlText = document.createElement('DIV');
+		controlText.style.fontSize = '12px';
+		controlText.style.paddingLeft = '4px';
+		controlText.style.paddingRight = '4px';
+		controlText.innerHTML = 'hello world';
+		map.controls[google.maps.ControlPosition.TOP_RIGHT].push(controlText)
+
+		FB.init({appId: '<%= config.facebook_app_id %>', status: true, cookie: true, xfbml: true})
+		FB.Event.subscribe('auth.sessionChange', function(response) {
+			if (response.session) {
+				$("#login").dialog('close')			
+			} else {
+				login()
+			}
+		})
+
+		function login() {
+			$("#login").dialog({autoOpen: true,height: 300,width: 350,modal: true})
+		}
+
+		<%
+		if(!request.params["fbs_" + config.facebook_app_id]) {
+			echo("login()")
+		}
+		%>
 
 		google.maps.event.addListener(map, 'click', function(event) {
 			$("#create_form").dialog({
@@ -61,12 +89,17 @@
 				}
 			})
 		})
+
 	})
 </script>
 </head>
 <body>
 	<div id="map_canvas" style="width:100%; height:100%"></div>
 
+	<div id="login" title="login" style="display:none">
+		<p>We use facebook to find your friend's recommendations! Please log in! blah blah blah!</p>
+		<fb:login-button></fb:login-button>
+	</div>
 
 	<div id="create_form" title="add a hotspot" style="display:none">
 		<form>
@@ -76,5 +109,7 @@
 		</fieldset>
 		</form>
 	</div>
+
+	<div id="fb-root">
 </body>
 </html>
