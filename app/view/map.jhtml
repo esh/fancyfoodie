@@ -10,7 +10,8 @@
 <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
 <script src="http://connect.facebook.net/en_US/all.js"></script>
 <script type="text/javascript" src="/public/js/jquery-1.4.2.min.js"></script>
-<script type="text/javascript" src="/public/js/jquery-ui-1.8.2.custom.min.js"></script>   
+<script type="text/javascript" src="/public/js/jquery-ui-1.8.2.custom.min.js"></script> 
+<script type="text/javascript" src="/public/js/json2.js"></script>   
 <link type="text/css" rel="stylesheet" href="public/css/ui-lightness/jquery-ui-1.8.2.custom.css" media="all"/>
 
 
@@ -67,17 +68,24 @@
 				modal: true,
 				buttons: {
 					Add: function() {
-						var marker = new google.maps.Marker({
-							position: event.latLng, 
-							map: map,
-							title: $("#name").val() 
+						$.ajax({
+							type: "POST",
+							url: "/post/pick",
+							contentType: "application/json",
+							dataType: 'json',
+							data: JSON.stringify({
+								name: $("#name").val(),
+								lat: event.latLng.lat(),
+								lng: event.latLng.lng()
+							}),
+							success: function(msg) {
+								var marker = new google.maps.Marker({
+									position: event.latLng, 
+									map: map,
+									title: $("#name").val() 
+								})
+							}
 						})
-
-						var infowindow = new google.maps.InfoWindow({
-						    content: $("#name").val() 
-						})
-
-						infowindow.open(map, marker)
 
 						$(this).dialog('close')
 					},
