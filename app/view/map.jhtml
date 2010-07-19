@@ -70,7 +70,7 @@
 					Add: function() {
 						$.ajax({
 							type: "POST",
-							url: "/post/pick",
+							url: "/pick/post",
 							contentType: "application/json",
 							dataType: 'json',
 							data: JSON.stringify({
