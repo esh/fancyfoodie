@@ -5,7 +5,9 @@
 	
 	return {
 		fetch: function() {
-			
+			return ["ok", fb.getFriends().map(function(e) {
+				return e.id
+			}).toSource()]
 		},
 		post: function() {
 			log.info("post.pick:" + request.content)

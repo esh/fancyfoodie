@@ -25,7 +25,7 @@
 			return data.uid
 		},
 		getFriends: function() {
-			return eval("(" + hget("https://graph.facebook.com/me/friends?access_token=" + data.access_token) + ")")
+			return eval("(" + hget("https://graph.facebook.com/me/friends?access_token=" + data.access_token) + ")").data
 		}
 	}
 })
