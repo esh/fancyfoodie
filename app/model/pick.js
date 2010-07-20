@@ -3,25 +3,35 @@
 	require("utils/json2.js")
 	var ds = DatastoreServiceFactory.getDatastoreService()
 
-	function get(key) {
-		return JSON.parse(ds.get(KeyFactory.stringToKey(key)).getProperty("data").getValue())
-	}
-
 	return {
-		get: get,
-		persist: function(key, uid, data) {
+		fetch: function(ids) {
+			var t = new java.util.ArrayList()
+			ids.forEach(function(id) {
+				t.add(KeyFactory.createKey("pick", id))
+			})	
+			return ds.get(t).values().size()
+		},
+		persist: function(uid, pick) {
 			var transaction = ds.beginTransaction()
 			try {
-				log.info("saving: " + key + " " + uid + " " + data.name + " " + data.lat + ":" + data.lng)
-
+				log.info("saving: " + key + " " + uid + " " + pick.name + " " + pick.lat + ":" + pick.lng)
+				var key = KeyFactory.createKey("pick", uid)
 				var entity
-				if(key) {
-					entity = new Entity(KeyFactory.stringToKey(key))
-				} else {
-					entity = new Entity("pick")
+				try {
+					entity = ds.get(key)
+					log.info("existing uid")
+				} catch(e) {
+					entity = new Entity(key)
+					log.info("new uid")
 				}
-	
-				entity.setProperty("uid", new Text(uid))
+
+				var data 
+				if(entity.hasProperty("data")) {
+					data = JSON.parse(entity.getProperty("data").getValue())
+				} else {
+					data = []
+				}
+				data.push(pick)
 				entity.setProperty("data", new Text(JSON.stringify(data)))
 				ds.put(entity)
 				transaction.commit()

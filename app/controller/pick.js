@@ -5,13 +5,13 @@
 	
 	return {
 		fetch: function() {
-			return ["ok", fb.getFriends().map(function(e) {
-				return e.id
-			}).toSource()]
+			var ids = fb.getFriends().map(function(e) { return e.id })
+			ids.push(fb.getUID())
+			return ["ok", model.fetch(ids).toSource()]
 		},
 		post: function() {
 			log.info("post.pick:" + request.content)
-			return ["ok", JSON.stringify({ id: model.persist(null, fb.getUID(), JSON.parse(request.content)) }), "application/json"]
+			return ["ok", JSON.stringify({ id: model.persist(fb.getUID(), JSON.parse(request.content)) }), "application/json"]
 		}
 	}
 })
