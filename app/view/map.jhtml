@@ -44,7 +44,8 @@
 		FB.init({appId: '<%= config.facebook_app_id %>', status: true, cookie: true, xfbml: true})
 		FB.Event.subscribe('auth.sessionChange', function(response) {
 			if (response.session) {
-				$("#login").dialog('close')			
+				$("#login").dialog('close')
+				fetch()
 			} else {
 				login()
 			}
@@ -57,8 +58,22 @@
 		<%
 		if(!request.params["fbs_" + config.facebook_app_id]) {
 			echo("login()")
+		} else {
+			echo("fetch()")
 		}
 		%>
+
+		function fetch() {
+			$.getJSON("/pick/fetch", function(msg) {
+				for(var i = 0 ; i < msg.length ; i++) {
+					var marker = new google.maps.Marker({
+						position: new google.maps.LatLng(msg[i].lat, msg[i].lng), 
+						map: map,
+						title: msg[i].name 
+					})
+				}		
+			})
+		}
 
 		google.maps.event.addListener(map, 'click', function(event) {
 			$("#create_form").dialog({

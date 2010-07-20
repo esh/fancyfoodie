@@ -7,7 +7,7 @@
 		fetch: function() {
 			var ids = fb.getFriends().map(function(e) { return e.id })
 			ids.push(fb.getUID())
-			return ["ok", model.fetch(ids).toSource()]
+			return ["ok", JSON.stringify(model.fetch(ids)), "application/json"]
 		},
 		post: function() {
 			log.info("post.pick:" + request.content)
