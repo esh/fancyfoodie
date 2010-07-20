@@ -8,8 +8,15 @@
 			var t = new java.util.ArrayList()
 			ids.forEach(function(id) {
 				t.add(KeyFactory.createKey("pick", id))
-			})	
-			return ds.get(t).values().size()
+			})
+			var res = []
+			for(var e in Iterator(ds.get(t).values().iterator())) {
+				JSON.parse(e.getProperty("data").getValue()).forEach(function(e) {
+					res.push(e)
+				})
+			}
+
+			return res 
 		},
 		persist: function(uid, pick) {
 			var transaction = ds.beginTransaction()
