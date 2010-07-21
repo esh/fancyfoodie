@@ -39,7 +39,7 @@
 		controlText.style.fontSize = '12px';
 		controlText.style.paddingLeft = '4px';
 		controlText.style.paddingRight = '4px';
-		controlText.innerHTML = 'hello world';
+		controlText.innerHTML = "<a href=\"javascript:state.handle('PICK', null)\">add pick</a>";
 		map.controls[google.maps.ControlPosition.TOP_RIGHT].push(controlText)
 
 		state = new FSM({
@@ -48,7 +48,7 @@
 				if(!request.params["fbs_" + config.facebook_app_id]) {
 					echo("fsm.trans('login')")
 				} else {
-					echo("fsm.trans('map')")
+					echo("fsm.trans('init')")
 				}
 				%>
 			},
@@ -58,10 +58,10 @@
 				},
 				LOGIN: function(fsm, event) {
 					$("#login").dialog('close')
-					fsm.trans('map')
+					fsm.trans('init')
 				}
 			},
-			map: {
+			init: {
 				onenter: function(fsm, event) {
 					// TODO: reset
 
@@ -72,11 +72,68 @@
 								map: map,
 								title: msg[i].name 
 							})
-						}		
+						}	
+						fsm.trans('map')	
 					})
+				}
+			},
+			map: {
+				PICK: function(fsm, event) {
+					fsm.trans('new_pick')
 				},
 				LOGOUT: function(fsm, event) {
 					fsm.trans('login')
+				}
+			},
+			new_pick: {
+				onenter: function(fsm, event) {
+					google.maps.event.addListener(map, 'click', function(event) {
+						$("#create_form").dialog({
+							autoOpen: true,
+							height: 300,
+							width: 350,
+							modal: true,
+							buttons: {
+								Add: function() {
+									// TODO: start spinner?
+
+									$.ajax({
+										type: "POST",
+										url: "/pick/post",
+										contentType: "application/json",
+										dataType: 'json',
+										data: JSON.stringify({
+											name: $("#name").val(),
+											lat: event.latLng.lat(),
+											lng: event.latLng.lng()
+										}),
+										success: function(msg) {
+											var marker = new google.maps.Marker({
+												position: event.latLng, 
+												map: map,
+												title: $("#name").val() 
+											})
+										
+											// TODO: remove spinner
+										}
+									})
+
+
+									$(this).dialog('close')
+									google.maps.event.clearListeners(map, 'click')
+									fsm.trans('map')
+			
+								},
+								Cancel: function() {
+									$(this).dialog('close')
+									google.maps.event.clearListeners(map, 'click')
+									fsm.trans('map')
+								}
+							},
+							close: function() {
+							}
+						})
+					})
 				}
 			}
 		})
@@ -90,44 +147,6 @@
 			} else {
 				state.handle('LOGOUT', null)
 			}
-		})
-
-		google.maps.event.addListener(map, 'click', function(event) {
-			$("#create_form").dialog({
-				autoOpen: true,
-				height: 300,
-				width: 350,
-				modal: true,
-				buttons: {
-					Add: function() {
-						$.ajax({
-							type: "POST",
-							url: "/pick/post",
-							contentType: "application/json",
-							dataType: 'json',
-							data: JSON.stringify({
-								name: $("#name").val(),
-								lat: event.latLng.lat(),
-								lng: event.latLng.lng()
-							}),
-							success: function(msg) {
-								var marker = new google.maps.Marker({
-									position: event.latLng, 
-									map: map,
-									title: $("#name").val() 
-								})
-							}
-						})
-
-						$(this).dialog('close')
-					},
-					Cancel: function() {
-						$(this).dialog('close')
-					}
-				},
-				close: function() {
-				}
-			})
 		})
 
 		state.start('startup')

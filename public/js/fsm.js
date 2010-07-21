@@ -38,7 +38,7 @@ FSM.prototype.trans = function(target)
         if(this.ontrans) this.ontrans(this, target)
         this.state_name = target
         this.state = new_state
-	if(this.state.onenter) this.state.onenter()
+	if(this.state.onenter) this.state.onenter(this, null)
     } else if(this.onunknownstate) {
         this.onunknownstate(fsm, target)
     }
