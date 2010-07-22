@@ -21,17 +21,17 @@ FSM.prototype.handle = function(event, data) {
 	return res
 }
 
-FSM.prototype.trans = function(target) {
+FSM.prototype.trans = function(target, event) {
 	var new_state = this.states[target]
 	if(new_state) {
 		if(this.state.onexit) {
-			this.state.onexit(this, null)
+			this.state.onexit(this, event)
 		}
 
 		this.state_name = target
 		this.state = new_state
 		if(this.state.onenter) {
-			this.state.onenter(this, null)
+			this.state.onenter(this, event)
 		}
 	}
 }

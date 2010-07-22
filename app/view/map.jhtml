@@ -44,46 +44,7 @@
 		map.controls[google.maps.ControlPosition.TOP].push(controlText)
 
 		function dropPick(event) {
-			$("#create_form").dialog({
-				autoOpen: true,
-				height: 300,
-				width: 350,
-				modal: true,
-				buttons: {
-					Add: function() {
-						// TODO: start spinner?
-
-						$.ajax({
-							type: "POST",
-							url: "/pick/post",
-							contentType: "application/json",
-							dataType: 'json',
-							data: JSON.stringify({
-								name: $("#name").val(),
-								lat: event.latLng.lat(),
-								lng: event.latLng.lng()
-							}),
-							success: function(msg) {
-								var marker = new google.maps.Marker({
-									position: event.latLng, 
-									map: map,
-									title: $("#name").val() 
-								})
-							
-								// TODO: remove spinner
-							}
-						})
-
-						$(this).dialog('close')
-
-					},
-					Cancel: function() {
-						$(this).dialog('close')
-					}
-				},
-				close: function() {
-				}
-			})
+			
 		}
 
 		state = new FSM({
@@ -130,10 +91,60 @@
 			},
 			map: {
 				onenter: function(fsm, event) {
-					google.maps.event.addListener(map, 'dblclick', dropPick)
+					google.maps.event.addListener(map, 'dblclick', function(event) {
+						fsm.trans('new_pick', event)
+					})
 				},
 				onexit: function(fsm, event) {
 					google.maps.event.clearListeners(map, 'dblclick')
+				},
+				LOGOUT: function(fsm, event) {
+					fsm.trans('login')
+				}
+			},
+			new_pick: {
+				onenter: function(fsm, event) {
+					$("#create_form").dialog({
+						autoOpen: true,
+						height: 300,
+						width: 350,
+						modal: true,
+						closeOnEscape: false,
+   						open: function(event, ui) { $(".ui-dialog-titlebar-close").hide() },
+						buttons: {
+							Add: function() {
+								// TODO: start spinner?
+
+								$.ajax({
+									type: "POST",
+									url: "/pick/post",
+									contentType: "application/json",
+									dataType: 'json',
+									data: JSON.stringify({
+										name: $("#name").val(),
+										lat: event.latLng.lat(),
+										lng: event.latLng.lng()
+									}),
+									success: function(msg) {
+										var marker = new google.maps.Marker({
+											position: event.latLng, 
+											map: map,
+											title: $("#name").val() 
+										})
+									
+										// TODO: remove spinner
+									}
+								})
+
+								$(this).dialog('close')
+								fsm.trans('map')
+							},
+							Cancel: function() {
+								$(this).dialog('close')
+								fsm.trans('map')
+							}
+						}
+					})
 				},
 				LOGOUT: function(fsm, event) {
 					fsm.trans('login')
