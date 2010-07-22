@@ -21,6 +21,7 @@
 		var myOptions = {
 			zoom: 17,
 			mapTypeControl: false,
+			disableDoubleClickZoom: true,
 			mapTypeId: google.maps.MapTypeId.ROADMAP
 		}
 		var map = new google.maps.Map(document.getElementById("map_canvas"), myOptions)
@@ -39,8 +40,51 @@
 		controlText.style.fontSize = '12px';
 		controlText.style.paddingLeft = '4px';
 		controlText.style.paddingRight = '4px';
-		controlText.innerHTML = "<a href=\"javascript:state.handle('PICK', null)\">add pick</a>";
-		map.controls[google.maps.ControlPosition.TOP_RIGHT].push(controlText)
+		controlText.innerHTML = "double click map to drop your pick";
+		map.controls[google.maps.ControlPosition.TOP].push(controlText)
+
+		function dropPick(event) {
+			$("#create_form").dialog({
+				autoOpen: true,
+				height: 300,
+				width: 350,
+				modal: true,
+				buttons: {
+					Add: function() {
+						// TODO: start spinner?
+
+						$.ajax({
+							type: "POST",
+							url: "/pick/post",
+							contentType: "application/json",
+							dataType: 'json',
+							data: JSON.stringify({
+								name: $("#name").val(),
+								lat: event.latLng.lat(),
+								lng: event.latLng.lng()
+							}),
+							success: function(msg) {
+								var marker = new google.maps.Marker({
+									position: event.latLng, 
+									map: map,
+									title: $("#name").val() 
+								})
+							
+								// TODO: remove spinner
+							}
+						})
+
+						$(this).dialog('close')
+
+					},
+					Cancel: function() {
+						$(this).dialog('close')
+					}
+				},
+				close: function() {
+				}
+			})
+		}
 
 		state = new FSM({
 			start: function(fsm, event) {
@@ -54,7 +98,14 @@
 			},
 			login: {
 				onenter: function(fsm, event) {
-					$("#login").dialog({autoOpen: true,height: 300,width: 350,modal: true})
+					$("#login").dialog({
+						autoOpen: true,
+						height: 300,
+						width: 300,
+						modal: true,
+						closeOnEscape: false,
+   						open: function(event, ui) { $(".ui-dialog-titlebar-close").hide() }
+					})
 				},
 				LOGIN: function(fsm, event) {
 					$("#login").dialog('close')
@@ -78,67 +129,18 @@
 				}
 			},
 			map: {
-				PICK: function(fsm, event) {
-					fsm.trans('new_pick')
+				onenter: function(fsm, event) {
+					google.maps.event.addListener(map, 'dblclick', dropPick)
+				},
+				onexit: function(fsm, event) {
+					google.maps.event.clearListeners(map, 'dblclick')
 				},
 				LOGOUT: function(fsm, event) {
 					fsm.trans('login')
 				}
-			},
-			new_pick: {
-				onenter: function(fsm, event) {
-					google.maps.event.addListener(map, 'click', function(event) {
-						$("#create_form").dialog({
-							autoOpen: true,
-							height: 300,
-							width: 350,
-							modal: true,
-							buttons: {
-								Add: function() {
-									// TODO: start spinner?
-
-									$.ajax({
-										type: "POST",
-										url: "/pick/post",
-										contentType: "application/json",
-										dataType: 'json',
-										data: JSON.stringify({
-											name: $("#name").val(),
-											lat: event.latLng.lat(),
-											lng: event.latLng.lng()
-										}),
-										success: function(msg) {
-											var marker = new google.maps.Marker({
-												position: event.latLng, 
-												map: map,
-												title: $("#name").val() 
-											})
-										
-											// TODO: remove spinner
-										}
-									})
-
-
-									$(this).dialog('close')
-									google.maps.event.clearListeners(map, 'click')
-									fsm.trans('map')
-			
-								},
-								Cancel: function() {
-									$(this).dialog('close')
-									google.maps.event.clearListeners(map, 'click')
-									fsm.trans('map')
-								}
-							},
-							close: function() {
-							}
-						})
-					})
-				}
 			}
 		})
 
-	
 
 		FB.init({appId: '<%= config.facebook_app_id %>', status: true, cookie: true, xfbml: true})
 		FB.Event.subscribe('auth.sessionChange', function(response) {
