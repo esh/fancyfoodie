@@ -36,16 +36,12 @@
 			map.setCenter(new google.maps.LatLng(-34.397, 150.644))
 		}
 
-		var controlText = document.createElement('DIV');
-		controlText.style.fontSize = '12px';
-		controlText.style.paddingLeft = '4px';
-		controlText.style.paddingRight = '4px';
-		controlText.innerHTML = "double click map to drop your pick";
-		map.controls[google.maps.ControlPosition.TOP].push(controlText)
-
-		function dropPick(event) {
-			
-		}
+		var helperText = document.createElement('DIV')
+		helperText.id = "helperText"
+		helperText.style.fontSize = '14px'
+		helperText.style.marginTop= '5px'
+		helperText.innerHTML = "double click map to drop picks"
+		map.controls[google.maps.ControlPosition.TOP].push(helperText)
 
 		state = new FSM({
 			start: function(fsm, event) {
@@ -61,7 +57,7 @@
 				onenter: function(fsm, event) {
 					$("#login").dialog({
 						autoOpen: true,
-						height: 300,
+						height: 250,
 						width: 300,
 						modal: true,
 						closeOnEscape: false,
@@ -106,15 +102,14 @@
 				onenter: function(fsm, event) {
 					$("#create_form").dialog({
 						autoOpen: true,
-						height: 300,
-						width: 350,
+						height: 340,
+						width: 300,
 						modal: true,
 						closeOnEscape: false,
    						open: function(event, ui) { $(".ui-dialog-titlebar-close").hide() },
 						buttons: {
 							Add: function() {
 								// TODO: start spinner?
-
 								$.ajax({
 									type: "POST",
 									url: "/pick/post",
@@ -123,7 +118,8 @@
 									data: JSON.stringify({
 										name: $("#name").val(),
 										lat: event.latLng.lat(),
-										lng: event.latLng.lng()
+										lng: event.latLng.lng(),
+										comment: $("#comment").val()
 									}),
 									success: function(msg) {
 										var marker = new google.maps.Marker({
@@ -170,19 +166,24 @@
 	<div id="map_canvas" style="width:100%; height:100%"></div>
 
 	<div id="login" title="login" style="display:none">
-		<p>We use facebook to find your friend's recommendations! Please log in! blah blah blah!</p>
+		<p>We use facebook to find your friend's recommendations! Please log in!</p>
+		<p>This is an early ALPHA, its going to be alittle ugly</p>
 		<fb:login-button></fb:login-button>
 	</div>
 
-	<div id="create_form" title="add a hotspot" style="display:none">
+	<div id="create_form" title="Drop a pick" style="display:none">
 		<form>
-		<fieldset>
-			<label for="name">Name</label>
-			<input type="text" name="name" id="name" class="text ui-widget-content ui-corner-all"/>
-		</fieldset>
+			<p>
+				<label for="name">Name</label>
+				<input type="text" name="name" id="name"/>
+			</p>
+			<p>
+				<label for="comment">Add a comment</label>
+				<input type="textarea" name="comment" id="comment" style="height: 90px; width: 250px"/>
+			</p>
+
 		</form>
 	</div>
-
 	<div id="fb-root">
 </body>
 </html>
