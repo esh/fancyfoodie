@@ -38,7 +38,7 @@
 
 		var helperText = document.createElement('DIV')
 		helperText.id = "helperText"
-		helperText.display = "none"
+		helperText.style.display = "none"
 		helperText.style.fontSize = '14px'
 		helperText.style.marginTop= '5px'
 		helperText.innerHTML = "double click map to drop picks"

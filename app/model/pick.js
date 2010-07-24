@@ -15,7 +15,7 @@
 				for(var key in picks) {
 					var pick = picks[key]
 					pick.id = {
-						uid: e.getKey.getName(),
+						uid: e.getKey().getName(),
 						key: key
 					}
 					res.push(pick)
