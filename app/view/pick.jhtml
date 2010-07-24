@@ -1,0 +1,7 @@
+<head>
+<title>Fancy Foodie</title>
+</head>
+<body>
+	<h1><%= params["pick"].name %></h1> 
+</body>
+</html>

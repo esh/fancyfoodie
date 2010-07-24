@@ -5,7 +5,7 @@
 	return {
 		show: function(uid, key) {
 			var pick = model.get(uid, key)
-			return ["ok", pick.toSource()]
+			return ["ok", render("view/pick.jhtml", { pick: pick })]
 		},
 		fetch: function() {
 			var fb = require("model/facebook.js")()
