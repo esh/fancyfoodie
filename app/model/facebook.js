@@ -1,5 +1,7 @@
 (function() {
-	importPackage(org.apache.commons.codec.digest, java.net)
+	importPackage(com.google.appengine.api.memcache, org.apache.commons.codec.digest, java.net)
+
+	var cache = MemcacheServiceFactory.getMemcacheService()
 
 	var t = URLDecoder.decode(request.params["fbs_" + config.facebook_app_id], "UTF-8")
 	log.info("FB:" + t)
@@ -23,6 +25,20 @@
 	return {
 		getUID: function() {
 			return data.uid
+		},
+		getName: function(uid) {
+			if(uid == data.uid) {
+				return "Me"
+			}
+
+			var name = cache.get(uid)
+			if(name == null) {
+				log.info("cache miss (name): " + uid)
+				name = eval("(" + hget("https://graph.facebook.com/" + uid + "?access_token=" + data.access_token) + ")").name
+				cache.put(uid, name)
+			}
+
+			return name
 		},
 		getFriends: function() {
 			return eval("(" + hget("https://graph.facebook.com/me/friends?access_token=" + data.access_token) + ")").data

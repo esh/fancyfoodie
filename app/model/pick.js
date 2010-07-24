@@ -5,12 +5,13 @@
 
 	return {
 		get: function(uid, key) {
-			var pick = ds.get(KeyFactory.createKey("pick", uid))
-			pick = pick.hasProperty("data") ?
-				JSON.parse(pick.getProperty("data").getValue()).picks :
+			var e = ds.get(KeyFactory.createKey("pick", uid))
+			var pick = e.hasProperty("data") ?
+				JSON.parse(e.getProperty("data").getValue()).picks :
 				{}
 
 			if(key in pick) {
+				pick[key].referer = e.getProperty("referer")
 				return pick[key]
 			} else {
 				throw "pick not found: " + uid + ":" + key
@@ -30,13 +31,14 @@
 						uid: e.getKey().getName(),
 						key: key
 					}
+					pick.referer = e.getProperty("referer")
 					res.push(pick)
 				}
 			}
 
 			return res 
 		},
-		persist: function(uid, key, pick) {
+		persist: function(uid, key, referer, pick) {
 			var transaction = ds.beginTransaction()
 			try {
 				log.info("saving - uid:" + uid + " data: " + pick.toSource())
@@ -62,6 +64,7 @@
 				}
 
 				data.picks[key] = pick
+				entity.setProperty("referer", new Text(referer))
 				entity.setProperty("data", new Text(JSON.stringify(data)))
 				ds.put(entity)
 				transaction.commit()

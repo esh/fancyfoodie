@@ -16,7 +16,7 @@
 		post: function() {
 			var fb = require("model/facebook.js")()
 			var p = JSON.parse(request.content)
-			return ["ok", JSON.stringify(model.persist(fb.getUID(), p.key, { name: p.name, lat: p.lat, lng: p.lng })), "application/json"]
+			return ["ok", JSON.stringify(model.persist(fb.getUID(), p.key, fb.getName(fb.getUID()), { name: p.name, lat: p.lat, lng: p.lng })), "application/json"]
 		}
 	}
 })
