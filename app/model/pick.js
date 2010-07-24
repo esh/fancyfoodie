@@ -4,7 +4,19 @@
 	var ds = DatastoreServiceFactory.getDatastoreService()
 
 	return {
-		fetch: function(ids) {
+		get: function(uid, key) {
+			var pick = ds.get(KeyFactory.createKey("pick", uid))
+			pick = pick.hasProperty("data") ?
+				JSON.parse(pick.getProperty("data").getValue()).picks :
+				{}
+
+			if(key in pick) {
+				return pick[key]
+			} else {
+				throw "pick not found: " + uid + ":" + key
+			}
+		},
+		find: function(ids) {
 			var t = new java.util.ArrayList()
 			for(var i = 0 ; i < ids.length ; i++) {
 				t.add(KeyFactory.createKey("pick", ids[i]))

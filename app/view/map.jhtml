@@ -93,7 +93,7 @@
 			},
 			map: {
 				onenter: function(fsm, event) {
-					$("helperText").show()
+					$("#helperText").show()
 					google.maps.event.addListener(map, 'dblclick', function(event) {
 						fsm.trans('new_pick', event)
 					})
