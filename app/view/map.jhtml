@@ -45,7 +45,22 @@
 		map.controls[google.maps.ControlPosition.TOP].push(helperText)
 
 		var markers = []
-
+		function addMarker(title, lat, lng, id) {
+			var marker = new google.maps.Marker({
+				position: new google.maps.LatLng(lat, lng), 
+				map: map,
+				title: title 
+			})
+			marker.id = id
+			markers.push(marker)
+		}
+		
+		function addMarkerOnClick(marker, id) {
+			google.maps.event.addListener(marker, 'click', function(event) {
+				window.location = "/" + id.uid + "/" + id.key
+			})
+		}
+	
 		state = new FSM({
 			start: function(fsm, event) {
 				<%
@@ -81,11 +96,7 @@
 
 					$.getJSON("/pick/fetch", function(msg) {
 						for(var i = 0 ; i < msg.length ; i++) {
-							markers.push(new google.maps.Marker({
-								position: new google.maps.LatLng(msg[i].lat, msg[i].lng), 
-								map: map,
-								title: msg[i].name 
-							}))
+							addMarker(msg[i].name, msg[i].lat, msg[i].lng, msg[i].id)
 						}	
 						fsm.trans('map')	
 					})
@@ -99,9 +110,7 @@
 					})
 
 					for(var i = 0 ; i < markers.length ; i++) {
-						google.maps.event.addListener(markers[i], 'click', function(event) {
-							alert(event.toSource())
-						})
+						addMarkerOnClick(markers[i], markers[i].id)
 					}
 				},
 				onexit: function(fsm, event) {
@@ -124,7 +133,11 @@
 						width: 300,
 						modal: true,
 						closeOnEscape: false,
-   						open: function(event, ui) { $(".ui-dialog-titlebar-close").hide() },
+   						open: function(event, ui) { 
+							$(".ui-dialog-titlebar-close").hide()
+							$("#name").val("")
+							$("#comment").val("")
+						},
 						buttons: {
 							Add: function() {
 								$(this).dialog('close')
@@ -141,12 +154,8 @@
 										comment: $("#comment").val()
 									}),
 									success: function(msg) {
-										markers.push(new google.maps.Marker({
-											position: event.latLng, 
-											map: map,
-											title: $("#name").val() 
-										}))
-									
+										addMarker($("#name").val(), event.latLng.lat(), event.latLng.lng(), msg.id)
+
 										// TODO: remove spinner
 										fsm.trans('map')
 									},
