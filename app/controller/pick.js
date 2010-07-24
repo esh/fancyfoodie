@@ -10,9 +10,8 @@
 			return ["ok", JSON.stringify(model.fetch(ids)), "application/json"]
 		},
 		post: function() {
-			log.info("post.pick:" + request.content)
-			return ["ok", JSON.stringify({ id: model.persist(fb.getUID(), JSON.parse(request.content)) }), "application/json"]
+			var p = JSON.parse(request.content)
+			return ["ok", JSON.stringify(model.persist(fb.getUID(), p.key, { name: p.name, lat: p.lat, lng: p.lng })), "application/json"]
 		}
 	}
 })
-

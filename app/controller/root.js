@@ -1,1 +1,7 @@
-require("controller/map.js")
+(function() {
+	return {
+		show: function() {
+			return ["ok", render("view/map.jhtml", {})]
+		}
+	}
+})
