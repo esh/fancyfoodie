@@ -11,7 +11,7 @@
 				{}
 
 			if(key in pick) {
-				pick[key].referer = e.getProperty("referer")
+				pick[key].referer = e.getProperty("referer").getValue()
 				return pick[key]
 			} else {
 				throw "pick not found: " + uid + ":" + key
@@ -31,7 +31,7 @@
 						uid: e.getKey().getName(),
 						key: key
 					}
-					pick.referer = e.getProperty("referer")
+					pick.referer = e.getProperty("referer").getValue()
 					res.push(pick)
 				}
 			}

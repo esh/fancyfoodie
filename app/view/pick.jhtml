@@ -2,6 +2,11 @@
 <title>Fancy Foodie</title>
 </head>
 <body>
-	<h1><%= params["pick"].name %></h1> 
+	<h1><%= params["pick"].name %></h1>
+	<p>by <%= params["pick"].referer %></p>
+
+	<ul>
+
+	</ul>
 </body>
 </html>
