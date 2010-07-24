@@ -43,6 +43,8 @@
 		helperText.innerHTML = "double click map to drop picks"
 		map.controls[google.maps.ControlPosition.TOP].push(helperText)
 
+		var markers = []
+
 		state = new FSM({
 			start: function(fsm, event) {
 				<%
@@ -71,15 +73,18 @@
 			},
 			init: {
 				onenter: function(fsm, event) {
-					// TODO: reset
+					for(var i = 0 ; i < markers.length ; i++) {
+						markers.setMap(null)
+					}
+					markers = []
 
 					$.getJSON("/pick/fetch", function(msg) {
 						for(var i = 0 ; i < msg.length ; i++) {
-							var marker = new google.maps.Marker({
+							markers.push(new google.maps.Marker({
 								position: new google.maps.LatLng(msg[i].lat, msg[i].lng), 
 								map: map,
 								title: msg[i].name 
-							})
+							}))
 						}	
 						fsm.trans('map')	
 					})
@@ -90,9 +95,19 @@
 					google.maps.event.addListener(map, 'dblclick', function(event) {
 						fsm.trans('new_pick', event)
 					})
+
+					for(var i = 0 ; i < markers.length ; i++) {
+						google.maps.event.addListener(markers[i], 'click', function(event) {
+							alert(event.toSource())
+						})
+					}
 				},
 				onexit: function(fsm, event) {
 					google.maps.event.clearListeners(map, 'dblclick')
+
+					for(var i = 0 ; i < markers.length ; i++) {
+						google.maps.event.clearListeners(markers[i], 'click')
+					}
 				},
 				LOGOUT: function(fsm, event) {
 					fsm.trans('login')
@@ -109,6 +124,7 @@
    						open: function(event, ui) { $(".ui-dialog-titlebar-close").hide() },
 						buttons: {
 							Add: function() {
+								$(this).dialog('close')
 								// TODO: start spinner?
 								$.ajax({
 									type: "POST",
@@ -122,18 +138,21 @@
 										comment: $("#comment").val()
 									}),
 									success: function(msg) {
-										var marker = new google.maps.Marker({
+										markers.push(new google.maps.Marker({
 											position: event.latLng, 
 											map: map,
 											title: $("#name").val() 
-										})
+										}))
 									
 										// TODO: remove spinner
+										fsm.trans('map')
+									},
+									error: function(req, errorText, errorThrown) {
+										// TODO: remove spinner
+										fsm.trans('map')
 									}
 								})
 
-								$(this).dialog('close')
-								fsm.trans('map')
 							},
 							Cancel: function() {
 								$(this).dialog('close')
