@@ -1,12 +1,30 @@
 <head>
 <title>Fancy Foodie</title>
+<script type="text/javascript" src="/public/js/jquery-1.4.2.min.js"></script>
+<script type="text/javascript">
+	$(document).ready(function () {
+		$("#add").click(function() {
+			$.ajax({
+				type: "POST",
+				url: "/comments/post/<%= params["pick"].id.uid%>/<%= params["pick"].id.key %>",
+				contentType: "application/json",
+				dataType: 'json',
+				data: JSON.stringify($("#comment").val()),
+				success: function(msg) {
+					$("#comments").append("<li>" + msg.comment + " - " + msg.author + ",  Just now</li>")
+				}
+			})
+			$("#comment").val("")
+		})
+	})
+</script>
 </head>
 <body>
 	<h1><%= params["pick"].name %></h1>
 	<p>by <%= params["pick"].referer %></p>
 
 	<h2>comments</h2>
-	<ul>
+	<ul id="comments">
 		<%
 			var comments = params["comments"]
 			for(var i = 0 ; i < comments.length ; i++) {
@@ -16,5 +34,14 @@
 			}
 		%>
 	</ul>
+
+	<form>
+		<p>
+			<input type="textarea" id="comment" style="height: 90px; width: 250px"/>
+		</p>
+		<p>
+			<input type="button" id="add" value="Comment"/>
+		</p>
+	</form>
 </body>
 </html>
