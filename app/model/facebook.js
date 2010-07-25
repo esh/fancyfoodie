@@ -27,10 +27,6 @@
 			return data.uid
 		},
 		getName: function(uid) {
-			if(uid == data.uid) {
-				return "Me"
-			}
-
 			var name = cache.get(uid)
 			if(name == null) {
 				log.info("cache miss (name): " + uid)

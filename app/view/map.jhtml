@@ -45,13 +45,13 @@
 		map.controls[google.maps.ControlPosition.TOP].push(helperText)
 
 		var markers = []
-		function addMarker(title, referer, lat, lng, id) {
+		function addMarker(pick) {
 			var marker = new google.maps.Marker({
-				position: new google.maps.LatLng(lat, lng), 
+				position: new google.maps.LatLng(pick.lat, pick.lng), 
 				map: map,
-				title: title + " by " + referer
+				title: pick.name + " by " + pick.referer
 			})
-			marker.id = id
+			marker.id = pick.id
 			markers.push(marker)
 		}
 		
@@ -94,9 +94,9 @@
 					}
 					markers = []
 
-					$.getJSON("/pick/fetch", function(msg) {
-						for(var i = 0 ; i < msg.length ; i++) {
-							addMarker(msg[i].name, msg[i].referer, msg[i].lat, msg[i].lng, msg[i].id)
+					$.getJSON("/pick/fetch", function(msgs) {
+						for(var i = 0 ; i < msgs.length ; i++) {
+							addMarker(msgs[i])
 						}	
 						fsm.trans('map')	
 					})
@@ -154,7 +154,7 @@
 										comment: $("#comment").val()
 									}),
 									success: function(msg) {
-										addMarker($("#name").val(), "Me", event.latLng.lat(), event.latLng.lng(), msg.id)
+										addMarker(msg)
 
 										// TODO: remove spinner
 										fsm.trans('map')

@@ -68,8 +68,9 @@
 				entity.setProperty("data", new Text(JSON.stringify(data)))
 				ds.put(entity)
 				transaction.commit()
-				
-				return { id: { uid: uid, key: key } }
+			
+				pick.referer = referer	
+				return pick 
 			} catch(e) {
 				log.severe(e)
 				log.severe("rolling back")
