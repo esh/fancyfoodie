@@ -11,7 +11,7 @@
 				$("#remove").click(function() {
 					$.post("/pick/remove/<%= params["pick"].id.key %>",
 						function() {
-							history.back()	
+							window.location = "/"	
 						})					
 				})
 			}
