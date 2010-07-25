@@ -7,7 +7,7 @@
 		get: function(pick) {
 			return JSON.parse(ds.get(KeyFactory.createKey("comments", pick)).getProperty("data").getValue())
 		},
-		persist: function(pick, author, comment) {
+		persist: function(pick, uid, author, comment) {
 			var transaction = ds.beginTransaction()
 			try {
 				log.info("saving - comment:" + pick + " author: " + author + " text: " + comment)
@@ -26,6 +26,7 @@
 					[]	
 
 				data.push({
+					uid: uid,
 					author: author,
 					comment: comment,
 					timestamp: new Date()

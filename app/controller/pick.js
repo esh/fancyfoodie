@@ -27,7 +27,8 @@
 			if(p.comment != null && p.comment != "") {
 				var comment = {
 					pick: pick.id.uid + "/" + pick.id.key,
-					referer: referer,
+					uid: pick.id.uid,	
+					author: referer,
 					comment: p.comment
 				}
 				queue.add(TaskOptions.Builder.url("/_tasks/addComment").param("comment", comment.toSource()))

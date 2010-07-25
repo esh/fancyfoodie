@@ -10,7 +10,7 @@
 			if(request.params.comment != null) {
 				log.info("adding comment: " + request.params.comment)
 				var comment = eval(request.params.comment)
-				model.persist(comment.pick, comment.referer, comment.comment)	
+				model.persist(comment.pick, comment.uid, comment.author, comment.comment)	
 			}
 
 			return ["ok", "ok"]
