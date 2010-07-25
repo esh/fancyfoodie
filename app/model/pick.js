@@ -12,6 +12,10 @@
 
 			if(key in pick) {
 				pick[key].referer = e.getProperty("referer").getValue()
+				pick[key].id = {
+					uid: uid,
+					key: key
+				}
 				return pick[key]
 			} else {
 				throw "pick not found: " + uid + ":" + key
@@ -69,7 +73,12 @@
 				ds.put(entity)
 				transaction.commit()
 			
-				pick.referer = referer	
+				pick.referer = referer
+				pick.id = {
+					uid: uid,
+					key: key
+				}
+
 				return pick 
 			} catch(e) {
 				log.severe(e)

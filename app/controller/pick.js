@@ -1,5 +1,8 @@
 (function() {
+	importPackage(com.google.appengine.api.labs.taskqueue)
 	require("utils/json2.js")
+
+	var queue = QueueFactory.getQueue("tasks")
 	var model = require("model/pick.js")()
 	
 	return {
@@ -16,7 +19,21 @@
 		post: function() {
 			var fb = require("model/facebook.js")()
 			var p = JSON.parse(request.content)
-			return ["ok", JSON.stringify(model.persist(fb.getUID(), p.key, fb.getName(fb.getUID()), { name: p.name, lat: p.lat, lng: p.lng })), "application/json"]
+
+			var uid = fb.getUID()
+			var referer = fb.getName(uid)
+			var pick = model.persist(uid, p.key, referer, { name: p.name, lat: p.lat, lng: p.lng })
+			
+			if(p.comment != null && p.comment != "") {
+				var comment = {
+					pick: pick.id.uid + "/" + pick.id.key,
+					referer: referer,
+					comment: p.comment
+				}
+				queue.add(TaskOptions.Builder.url("/_tasks/addComment").param("comment", comment.toSource()))
+			}
+
+			return ["ok", JSON.stringify(pick), "application/json"]
 		}
 	}
 })
