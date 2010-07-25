@@ -5,7 +5,11 @@
 
 	return {
 		get: function(pick) {
-			return JSON.parse(ds.get(KeyFactory.createKey("comments", pick)).getProperty("data").getValue())
+			try {
+				return JSON.parse(ds.get(KeyFactory.createKey("comments", pick)).getProperty("data").getValue())
+			} catch(e) {
+				return []
+			}
 		},
 		persist: function(pick, uid, author, comment) {
 			var transaction = ds.beginTransaction()
