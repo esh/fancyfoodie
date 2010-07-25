@@ -4,11 +4,11 @@
 
 	var queue = QueueFactory.getQueue("tasks")
 	var model = require("model/pick.js")()
+	var comments = require("model/comments.js")()
 	
 	return {
 		show: function(uid, key) {
-			var pick = model.get(uid, key)
-			return ["ok", render("view/pick.jhtml", { pick: pick })]
+			return ["ok", render("view/pick.jhtml", { pick: model.get(uid, key), comments: comments.get(uid + "/" + key) })]
 		},
 		fetch: function() {
 			var fb = require("model/facebook.js")()
@@ -31,7 +31,7 @@
 					author: referer,
 					comment: p.comment
 				}
-				queue.add(TaskOptions.Builder.url("/_tasks/addComment").param("comment", comment.toSource()))
+				queue.add(TaskOptions.Builder.url("/_tasks/addComment").param("comment", JSON.stringify(comment)))
 			}
 
 			return ["ok", JSON.stringify(pick), "application/json"]

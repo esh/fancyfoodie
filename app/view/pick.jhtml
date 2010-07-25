@@ -5,8 +5,16 @@
 	<h1><%= params["pick"].name %></h1>
 	<p>by <%= params["pick"].referer %></p>
 
+	<h2>comments</h2>
 	<ul>
-
+		<%
+			var comments = params["comments"]
+			for(var i = 0 ; i < comments.length ; i++) {
+				echo("<li>")
+				echo(comments[i].comment + " - " + comments[i].author + ", " + comments[i].timestamp)
+				echo("</li>")
+			}
+		%>
 	</ul>
 </body>
 </html>
