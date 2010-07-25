@@ -65,7 +65,7 @@
 		state = new FSM({
 			start: function(fsm, event) {
 				FB.getLoginStatus(function(response) {
-					if (response.session) {
+					if(response.session) {
 						fsm.trans('init')
 					} else {
 						fsm.trans('login')

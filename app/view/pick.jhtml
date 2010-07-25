@@ -1,8 +1,16 @@
 <head>
 <title>Fancy Foodie</title>
+<script type="text/javascript" src="http://connect.facebook.net/en_US/all.js"></script>
 <script type="text/javascript" src="/public/js/jquery-1.4.2.min.js"></script>
 <script type="text/javascript">
 	$(document).ready(function () {
+		FB.init({appId: '<%= config.facebook_app_id %>', status: true, cookie: true, xfbml: true})
+		FB.getLoginStatus(function(response) {
+			if(response.session && FB.getSession().uid == "<%= params["pick"].id.uid%>") {
+				$("#admin").show()
+			}
+		})
+
 		$("#add").click(function() {
 			$.ajax({
 				type: "POST",
@@ -22,6 +30,9 @@
 <body>
 	<h1><%= params["pick"].name %></h1>
 	<p>by <%= params["pick"].referer %></p>
+	<div id="admin" style="display:none">
+		<input type="button" id="remove" value="remove"/>
+	</div>
 
 	<h2>comments</h2>
 	<ul id="comments">
@@ -43,5 +54,6 @@
 			<input type="button" id="add" value="Comment"/>
 		</p>
 	</form>
+	<div id="fb-root">
 </body>
 </html>
