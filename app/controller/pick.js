@@ -35,6 +35,13 @@
 			}
 
 			return ["ok", JSON.stringify(pick), "application/json"]
+		},
+		remove: function(key) {
+			var fb = require("model/facebook.js")()
+			var uid = fb.getUID()
+			model.remove(uid, key)
+			comments.remove(uid + "/" + key)
+			return ["ok", "ok"]
 		}
 	}
 })

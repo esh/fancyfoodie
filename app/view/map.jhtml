@@ -76,7 +76,7 @@
 				onenter: function(fsm, event) {
 					$("#login").dialog({
 						autoOpen: true,
-						height: 250,
+						height: 270,
 						width: 300,
 						modal: true,
 						closeOnEscape: false,
@@ -197,7 +197,7 @@
 
 	<div id="login" title="login" style="display:none">
 		<p>We use facebook to find your friend's recommendations! Please log in!</p>
-		<p>This is an early ALPHA, its going to be alittle ugly</p>
+		<p>This is an early ALPHA, it is pretty ugly, but the basic functionality is in place!</p>
 		<fb:login-button></fb:login-button>
 	</div>
 

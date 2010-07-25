@@ -46,6 +46,20 @@
 
 				throw e
 			}
+		},
+		remove: function(pick) {
+			var transaction = ds.beginTransaction()
+			try {
+				log.info("removing - comment:" + pick)
+				ds["delete"](KeyFactory.createKey("comments", pick))
+				transaction.commit()
+			} catch(e) {
+				log.severe(e)
+				log.severe("rolling back")
+				transaction.rollback()
+
+				throw e
+			}
 		}
 	}
 })

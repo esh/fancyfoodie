@@ -87,6 +87,25 @@
 
 				throw e
 			}
+		},
+		remove: function(uid, key) {
+			var transaction = ds.beginTransaction()
+			try {
+				log.info("removing - uid: " + uid + " key: " + key)
+				var entity = ds.get(KeyFactory.createKey("pick", uid))
+				var data = JSON.parse(entity.getProperty("data").getValue())
+
+				delete data.picks[key]
+				entity.setProperty("data", new Text(JSON.stringify(data)))
+				ds.put(entity)
+				transaction.commit()
+			} catch(e) {
+				log.severe(e)
+				log.severe("rolling back")
+				transaction.rollback()
+
+				throw e
+			}
 		}
 	}
 })

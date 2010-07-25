@@ -8,6 +8,12 @@
 		FB.getLoginStatus(function(response) {
 			if(response.session && FB.getSession().uid == "<%= params["pick"].id.uid%>") {
 				$("#admin").show()
+				$("#remove").click(function() {
+					$.post("/pick/remove/<%= params["pick"].id.key %>",
+						function() {
+							history.back()	
+						})					
+				})
 			}
 		})
 
