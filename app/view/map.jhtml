@@ -18,13 +18,12 @@
 
 <script type="text/javascript">
 	$(document).ready(function () {
-		var myOptions = {
+		var map = new google.maps.Map(document.getElementById("map_canvas"), {
 			zoom: 17,
 			mapTypeControl: false,
 			disableDoubleClickZoom: true,
 			mapTypeId: google.maps.MapTypeId.ROADMAP
-		}
-		var map = new google.maps.Map(document.getElementById("map_canvas"), myOptions)
+		})
 
 		if(navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(
@@ -61,15 +60,17 @@
 			})
 		}
 	
+		FB.init({appId: '<%= config.facebook_app_id %>', status: true, cookie: true, xfbml: true})
+
 		state = new FSM({
 			start: function(fsm, event) {
-				<%
-				if(!request.params["fbs_" + config.facebook_app_id]) {
-					echo("fsm.trans('login')")
-				} else {
-					echo("fsm.trans('init')")
-				}
-				%>
+				FB.getLoginStatus(function(response) {
+					if (response.session) {
+						fsm.trans('init')
+					} else {
+						fsm.trans('login')
+					}
+				})
 			},
 			login: {
 				onenter: function(fsm, event) {
@@ -179,8 +180,8 @@
 			}
 		})
 
+		state.start('startup')
 
-		FB.init({appId: '<%= config.facebook_app_id %>', status: true, cookie: true, xfbml: true})
 		FB.Event.subscribe('auth.sessionChange', function(response) {
 			if (response.session) {
 				state.handle('LOGIN', null)
@@ -188,8 +189,6 @@
 				state.handle('LOGOUT', null)
 			}
 		})
-
-		state.start('startup')
 	})
 </script>
 </head>
