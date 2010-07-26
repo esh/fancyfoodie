@@ -180,8 +180,8 @@
 		nav.style.marginTop = "10px"
 
 		var helperText = document.createElement('span')
-		helperText.style.fontSize = "18px"
-		helperText.innerHTML = "double click map to drop picks or"
+		helperText.style.fontSize = "14px"
+		helperText.innerHTML = "Double click map to add pick or"
 		nav.appendChild(helperText)
 
 		if(navigator.geolocation) {
@@ -189,7 +189,7 @@
 			currentLocationButton.id = "currentLocationButton"
 			currentLocationButton.type = "button"
 			currentLocationButton.value = "Add Current Location"
-			currentLocationButton.style.fontSize = "18px"
+			currentLocationButton.style.fontSize = "14px"
 			currentLocationButton.onclick = function() {
 				navigator.geolocation.getCurrentPosition(
 					function(position) {

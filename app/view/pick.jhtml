@@ -63,7 +63,7 @@
 
 	<form>
 		<p>
-			<input type="textarea" id="comment" style="height: 90px; width: 310px"/>
+			<input type="textarea" id="comment" style="height: 90px; width: 300px"/>
 		</p>
 		<p>
 			<input type="button" id="add" value="Comment"/>
