@@ -1,5 +1,14 @@
 <head>
 <title>Fancy Foodie</title>
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<style type="text/css">
+	@media screen and (max-device-width: 480px) {
+		body {
+			-webkit-text-size-adjust: none;
+			padding: 5px;
+		}
+	}
+</style>
 <script type="text/javascript" src="http://connect.facebook.net/en_US/all.js"></script>
 <script type="text/javascript" src="/public/js/jquery-1.4.2.min.js"></script>
 <script type="text/javascript">
@@ -54,7 +63,7 @@
 
 	<form>
 		<p>
-			<input type="textarea" id="comment" style="height: 90px; width: 250px"/>
+			<input type="textarea" id="comment" style="height: 90px; width: 310px"/>
 		</p>
 		<p>
 			<input type="button" id="add" value="Comment"/>
