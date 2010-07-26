@@ -35,14 +35,6 @@
 			map.setCenter(new google.maps.LatLng(-34.397, 150.644))
 		}
 
-		var helperText = document.createElement('DIV')
-		helperText.id = "helperText"
-		helperText.style.display = "none"
-		helperText.style.fontSize = '14px'
-		helperText.style.marginTop= '5px'
-		helperText.innerHTML = "double click map to drop picks"
-		map.controls[google.maps.ControlPosition.TOP].push(helperText)
-
 		var markers = []
 		function addMarker(pick) {
 			var marker = new google.maps.Marker({
@@ -105,7 +97,6 @@
 			},
 			map: {
 				onenter: function(fsm, event) {
-					$("#helperText").show()
 					google.maps.event.addListener(map, 'dblclick', function(event) {
 						fsm.trans('new_pick', event)
 					})
@@ -124,6 +115,9 @@
 				},
 				LOGOUT: function(fsm, event) {
 					fsm.trans('login')
+				},
+				ADD: function(fsm, event) {
+					fsm.trans('new_pick', event)
 				}
 			},
 			new_pick: {
@@ -165,7 +159,6 @@
 										fsm.trans('map')
 									}
 								})
-
 							},
 							Cancel: function() {
 								$(this).dialog('close')
@@ -181,6 +174,32 @@
 		})
 
 		state.start('startup')
+
+		var nav = document.createElement('div')
+		nav.style.marginTop = "10px"
+
+		var helperText = document.createElement('span')
+		helperText.style.fontSize = "18px"
+		helperText.innerHTML = "double click map to drop picks or"
+		nav.appendChild(helperText)
+
+		if(navigator.geolocation) {
+			var currentLocationButton = document.createElement('input')
+			currentLocationButton.id = "currentLocationButton"
+			currentLocationButton.type = "button"
+			currentLocationButton.value = "Add Current Location"
+			currentLocationButton.style.fontSize = "18px"
+			currentLocationButton.onclick = function() {
+				navigator.geolocation.getCurrentPosition(
+					function(position) {
+						state.handle('ADD', { latLng: new google.maps.LatLng(position.coords.latitude,position.coords.longitude) })
+					},
+					function() {})
+			}
+			nav.appendChild(currentLocationButton)
+		}
+
+		map.controls[google.maps.ControlPosition.TOP].push(nav)
 
 		FB.Event.subscribe('auth.sessionChange', function(response) {
 			if (response.session) {
