@@ -47,6 +47,8 @@
 	}
 
 	$(document).ready(function () {
+		FB.init({appId: '<%= config.facebook_app_id %>', status: true, cookie: true, xfbml: true})
+		
 		var map = new google.maps.Map(document.getElementById("map_canvas"), {
 			zoom: 17,
 			mapTypeControl: false,
@@ -63,8 +65,6 @@
 		} else {
 			map.setCenter(new google.maps.LatLng(35.65857, 139.74542))
 		}
-	
-		FB.init({appId: '<%= config.facebook_app_id %>', status: true, cookie: true, xfbml: true})
 
 		state = new FSM({
 			start: function(fsm, event) {
@@ -109,18 +109,11 @@
 			},
 			map: {
 				onenter: function(fsm, event) {
-					google.maps.event.addListener(map, 'dblclick', function(event) {
-						fsm.trans('new_pick', event)
-					})
-
 					for(var i = 0 ; i < markers.length ; i++) {
 						addMarkerOnClick(markers[i], markers[i].id)
 					}
 				},
 				onexit: function(fsm, event) {
-					$("helperText").hide()
-					google.maps.event.clearListeners(map, 'dblclick')
-
 					for(var i = 0 ; i < markers.length ; i++) {
 						google.maps.event.clearListeners(markers[i], 'click')
 					}
@@ -134,6 +127,28 @@
 			},
 			new_pick: {
 				onenter: function(fsm, event) {
+					var buttons = {
+						"Map it": function() {
+							$(this).dialog('close')
+							fsm.trans('pick_marker')
+						},
+						Cancel: function() {
+							$(this).dialog('close')
+							fsm.trans('map')
+						}
+					}
+					if(geolocation) {
+						buttons["Add Here"] = function() {
+							$(this).dialog('close')
+							fsm.trans('pick_marker')
+							geolocation.getCurrentPosition(
+								function(position) {
+									state.handle('ADD', { latLng: new google.maps.LatLng(position.coords.latitude,position.coords.longitude) })
+								},
+								function() {})
+						}
+					}
+
 					$("#create_form").dialog({
 						autoOpen: true,
 						height: 340,
@@ -145,70 +160,66 @@
 							$("#name").val("")
 							$("#comment").val("")
 						},
-						buttons: {
-							Add: function() {
-								$(this).dialog('close')
-								// TODO: start spinner?
-								$.ajax({
-									type: "POST",
-									url: "/pick/post",
-									contentType: "application/json",
-									dataType: 'json',
-									data: JSON.stringify({
-										name: $("#name").val(),
-										lat: event.latLng.lat(),
-										lng: event.latLng.lng(),
-										comment: $("#comment").val()
-									}),
-									success: function(msg) {
-										addMarker(map, msg)
-
-										// TODO: remove spinner
-										fsm.trans('map')
-									},
-									error: function(req, errorText, errorThrown) {
-										// TODO: remove spinner
-										fsm.trans('map')
-									}
-								})
-							},
-							Cancel: function() {
-								$(this).dialog('close')
-								fsm.trans('map')
-							}
-						}
+						buttons: buttons
 					})
 				},
-			LOGOUT: function(fsm, event) {
+				LOGOUT: function(fsm, event) {
 					fsm.trans('login')
+				}
+			},
+			pick_marker: {
+				onenter: function(fsm, event) {
+					google.maps.event.addListener(map, 'click', function(event) {
+						fsm.trans('add_marker', event)
+					})
+				},
+				onexit: function(fsm, event) {
+					google.maps.event.clearListeners(map, 'click')
+				},
+				LOGOUT: function(fsm, event) {
+					fsm.trans('login')
+				}
+			},
+			add_marker: {
+				onenter: function(fsm, event) {
+					// TODO: start spinner?
+					$.ajax({
+						type: "POST",
+						url: "/pick/post",
+						contentType: "application/json",
+						dataType: 'json',
+						data: JSON.stringify({
+							name: $("#name").val(),
+							lat: event.latLng.lat(),
+							lng: event.latLng.lng(),
+							comment: $("#comment").val()
+						}),
+						success: function(msg) {
+							addMarker(map, msg)
+
+							// TODO: remove spinner
+							fsm.trans('map')
+						},
+						error: function(req, errorText, errorThrown) {
+							// TODO: remove spinner
+							fsm.trans('map')
+						}
+					})
 				}
 			}
 		})
 
 		var nav = document.createElement('div')
 		nav.style.paddingBottom = "8px"
-
-		var helperText = document.createElement('span')
-		helperText.style.fontSize = "16px"
-		helperText.innerHTML = "Double click map to add pick or"
-		nav.appendChild(helperText)
-
-		if(geolocation) {
-			var currentLocationButton = document.createElement('input')
-			currentLocationButton.id = "currentLocationButton"
-			currentLocationButton.type = "button"
-			currentLocationButton.value = "Add Current Location"
-			currentLocationButton.style.fontSize = "16px"
-			currentLocationButton.onclick = function() {
-				geolocation.getCurrentPosition(
-					function(position) {
-						state.handle('ADD', { latLng: new google.maps.LatLng(position.coords.latitude,position.coords.longitude) })
-					},
-					function() {})
-			}
-			nav.appendChild(currentLocationButton)
+		var addButton = document.createElement('input')
+		addButton.id = "addButton"
+		addButton.type = "button"
+		addButton.value = "Add Pick"
+		addButton.style.fontSize = "16px"
+		addButton.onclick = function() {
+			state.handle('ADD')
 		}
-
+		nav.appendChild(addButton)
 		map.controls[google.maps.ControlPosition.BOTTOM].push(nav)
 
 		FB.Event.subscribe('auth.sessionChange', function(response) {
