@@ -112,6 +112,8 @@
 					for(var i = 0 ; i < markers.length ; i++) {
 						addMarkerOnClick(markers[i], markers[i].id)
 					}
+				
+					$("#addButton").show()
 				},
 				onexit: function(fsm, event) {
 					for(var i = 0 ; i < markers.length ; i++) {
@@ -172,9 +174,15 @@
 					google.maps.event.addListener(map, 'click', function(event) {
 						fsm.trans('add_marker', event)
 					})
+
+					$("#addButton").hide()
+					$("#helperText").show()
 				},
 				onexit: function(fsm, event) {
 					google.maps.event.clearListeners(map, 'click')
+
+					$("#addButton").show()
+					$("#helperText").hide()
 				},
 				LOGOUT: function(fsm, event) {
 					fsm.trans('login')
@@ -211,16 +219,26 @@
 
 		var nav = document.createElement('div')
 		nav.style.paddingBottom = "8px"
+		nav.style.width = "300px"
+		nav.style.fontSize = "16px"
+		nav.style.textAlign = "center"
+		
+		var helperText = document.createElement('span')
+		helperText.id = "helperText"
+		helperText.innerHTML = "Click on map to add pick"
+		helperText.style.display = "none"
+		nav.appendChild(helperText)
+
 		var addButton = document.createElement('input')
 		addButton.id = "addButton"
 		addButton.type = "button"
 		addButton.value = "Add Pick"
-		addButton.style.fontSize = "16px"
+		addButton.style.display = "none"
 		addButton.onclick = function() {
 			state.handle('ADD')
 		}
 		nav.appendChild(addButton)
-		map.controls[google.maps.ControlPosition.BOTTOM].push(nav)
+		map.controls[google.maps.ControlPosition.TOP].push(nav)
 
 		FB.Event.subscribe('auth.sessionChange', function(response) {
 			if (response.session) {
