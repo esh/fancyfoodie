@@ -78,6 +78,9 @@
 			},
 			login: {
 				onenter: function(fsm, event) {
+					$("#addButton").hide()
+					$("#helperText").hide()
+
 					$("#login").dialog({
 						autoOpen: true,
 						height: 270,
@@ -142,10 +145,9 @@
 					if(geolocation) {
 						buttons["Add Here"] = function() {
 							$(this).dialog('close')
-							fsm.trans('pick_marker')
 							geolocation.getCurrentPosition(
 								function(position) {
-									state.handle('ADD', { latLng: new google.maps.LatLng(position.coords.latitude,position.coords.longitude) })
+									fsm.trans('add_marker', { latLng: new google.maps.LatLng(position.coords.latitude,position.coords.longitude) })
 								},
 								function() {})
 						}
@@ -171,7 +173,7 @@
 			},
 			pick_marker: {
 				onenter: function(fsm, event) {
-					google.maps.event.addListener(map, 'click', function(event) {
+					google.maps.event.addListener(map, 'dblclick', function(event) {
 						fsm.trans('add_marker', event)
 					})
 
@@ -179,7 +181,7 @@
 					$("#helperText").show()
 				},
 				onexit: function(fsm, event) {
-					google.maps.event.clearListeners(map, 'click')
+					google.maps.event.clearListeners(map, 'dblclick')
 
 					$("#addButton").show()
 					$("#helperText").hide()
@@ -225,7 +227,7 @@
 		
 		var helperText = document.createElement('span')
 		helperText.id = "helperText"
-		helperText.innerHTML = "Click on map to add pick"
+		helperText.innerHTML = "Double click on map to add pick"
 		helperText.style.display = "none"
 		nav.appendChild(helperText)
 
