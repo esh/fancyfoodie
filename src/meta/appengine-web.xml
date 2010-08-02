@@ -1,6 +1,6 @@
 <appengine-web-app xmlns="http://appengine.google.com/ns/1.0">
 	<application>ffoodie</application>
-	<version>dev</version>
+	<version>prod</version>
 	<static-files>
         	<include path="/public/**.*"/>
 	</static-files>
