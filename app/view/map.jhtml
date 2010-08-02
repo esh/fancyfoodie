@@ -143,13 +143,11 @@
 						fsm.trans('add_marker', event)
 					})
 
-					$("#addButton").hide()
 					$("#helperText").show()
 				},
 				onexit: function(fsm, event) {
 					google.maps.event.clearListeners(map, 'dblclick')
 
-					$("#addButton").show()
 					$("#helperText").hide()
 				},
 			},
@@ -198,7 +196,6 @@
 		addButton.id = "addButton"
 		addButton.type = "button"
 		addButton.value = "Add Pick"
-		addButton.style.display = "none"
 		addButton.onclick = function() {
 			state.handle('ADD')
 		}
