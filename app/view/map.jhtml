@@ -11,7 +11,6 @@
 <title>Fancy Foodie</title>
 
 <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
-<script type="text/javascript" src="http://connect.facebook.net/en_US/all.js"></script>
 <script type="text/javascript" src="http://code.google.com/apis/gears/gears_init.js"></script>
 <script type="text/javascript" src="/public/js/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="/public/js/jquery-ui-1.8.2.custom.min.js"></script> 
@@ -47,8 +46,6 @@
 	}
 
 	$(document).ready(function () {
-		FB.init({appId: '<%= config.facebook_app_id %>', status: true, cookie: true, xfbml: true})
-		
 		var map = new google.maps.Map(document.getElementById("map_canvas"), {
 			zoom: 17,
 			mapTypeControl: false,
@@ -68,32 +65,7 @@
 
 		state = new FSM({
 			start: function(fsm, event) {
-				FB.getLoginStatus(function(response) {
-					if(response.session) {
-						fsm.trans('init')
-					} else {
-						fsm.trans('login')
-					}
-				})
-			},
-			login: {
-				onenter: function(fsm, event) {
-					$("#addButton").hide()
-					$("#helperText").hide()
-
-					$("#login").dialog({
-						autoOpen: true,
-						height: 270,
-						width: 300,
-						modal: true,
-						closeOnEscape: false,
-   						open: function(event, ui) { $(".ui-dialog-titlebar-close").hide() }
-					})
-				},
-				LOGIN: function(fsm, event) {
-					$("#login").dialog('close')
-					fsm.trans('init')
-				}
+				fsm.trans('init')
 			},
 			init: {
 				onenter: function(fsm, event) {
@@ -122,9 +94,6 @@
 					for(var i = 0 ; i < markers.length ; i++) {
 						google.maps.event.clearListeners(markers[i], 'click')
 					}
-				},
-				LOGOUT: function(fsm, event) {
-					fsm.trans('login')
 				},
 				ADD: function(fsm, event) {
 					fsm.trans('new_pick', event)
@@ -167,9 +136,6 @@
 						buttons: buttons
 					})
 				},
-				LOGOUT: function(fsm, event) {
-					fsm.trans('login')
-				}
 			},
 			pick_marker: {
 				onenter: function(fsm, event) {
@@ -186,9 +152,6 @@
 					$("#addButton").show()
 					$("#helperText").hide()
 				},
-				LOGOUT: function(fsm, event) {
-					fsm.trans('login')
-				}
 			},
 			add_marker: {
 				onenter: function(fsm, event) {
@@ -242,26 +205,12 @@
 		nav.appendChild(addButton)
 		map.controls[google.maps.ControlPosition.TOP].push(nav)
 
-		FB.Event.subscribe('auth.sessionChange', function(response) {
-			if (response.session) {
-				state.handle('LOGIN', null)
-			} else {
-				state.handle('LOGOUT', null)
-			}
-		})
-
 		state.start('startup')
 	})
 </script>
 </head>
 <body>
 	<div id="map_canvas" style="width:100%; height:100%"></div>
-
-	<div id="login" title="login" style="display:none">
-		<p>We use facebook to find your friend's recommendations! Please log in!</p>
-		<p>This is an early ALPHA, it is pretty ugly, but the basic functionality is in place!</p>
-		<fb:login-button></fb:login-button>
-	</div>
 
 	<div id="create_form" title="Drop a pick" style="display:none">
 		<form>
@@ -276,6 +225,5 @@
 
 		</form>
 	</div>
-	<div id="fb-root">
 </body>
 </html>
