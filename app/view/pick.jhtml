@@ -9,21 +9,15 @@
 		}
 	}
 </style>
-<script type="text/javascript" src="http://connect.facebook.net/en_US/all.js"></script>
 <script type="text/javascript" src="/public/js/jquery-1.4.2.min.js"></script>
 <script type="text/javascript">
 	$(document).ready(function () {
-		FB.init({appId: '<%= config.facebook_app_id %>', status: true, cookie: true, xfbml: true})
-		FB.getLoginStatus(function(response) {
-			if(response.session && FB.getSession().uid == "<%= params["pick"].id.uid%>") {
-				$("#admin").show()
-				$("#remove").click(function() {
-					$.post("/pick/remove/<%= params["pick"].id.key %>",
-						function() {
-							window.location = "/"	
-						})					
-				})
-			}
+		<% if(session["uid"] == params["pick"].id.uid) { echo("$(\"#admin\").show()") } %>
+		$("#remove").click(function() {
+			$.post("/pick/remove/<%= params["pick"].id.key %>",
+				function() {
+					window.location = "/"	
+				})					
 		})
 
 		$("#add").click(function() {
@@ -69,6 +63,5 @@
 			<input type="button" id="add" value="Comment"/>
 		</p>
 	</form>
-	<div id="fb-root">
 </body>
 </html>
