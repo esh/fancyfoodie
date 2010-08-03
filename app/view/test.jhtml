@@ -70,6 +70,31 @@
 		})
 	}
 
+	function loadMap() {
+		if(!map) {	
+			map = new google.maps.Map(document.getElementById("map"), {
+				zoom: 17,
+				mapTypeControl: false,
+				disableDoubleClickZoom: true,
+				mapTypeId: google.maps.MapTypeId.ROADMAP
+			})
+
+			if(geolocation) {
+				geolocation.getCurrentPosition(
+					function(position) {
+						map.setCenter(new google.maps.LatLng(position.coords.latitude,position.coords.longitude))
+					},
+					function() {})
+			} else {
+				map.setCenter(new google.maps.LatLng(35.65857, 139.74542))
+			}
+
+			for(var i = 0 ; i < picks.length ; i++) {
+				addMarker(picks[i])
+			}
+		}
+	}
+
 	pickListeners.push(function(pick) {
 		$("#list ul").append("<li>" + pick.name + " by " + pick.referer + "</li>")
 	})
@@ -131,28 +156,7 @@
 					$("#addButton").show()
 					$("#listButton").show()
 					
-					if(!map) {	
-						map = new google.maps.Map(document.getElementById("map"), {
-							zoom: 17,
-							mapTypeControl: false,
-							disableDoubleClickZoom: true,
-							mapTypeId: google.maps.MapTypeId.ROADMAP
-						})
-
-						if(geolocation) {
-							geolocation.getCurrentPosition(
-								function(position) {
-									map.setCenter(new google.maps.LatLng(position.coords.latitude,position.coords.longitude))
-								},
-								function() {})
-						} else {
-							map.setCenter(new google.maps.LatLng(35.65857, 139.74542))
-						}
-
-						for(var i = 0 ; i < picks.length ; i++) {
-							addMarker(picks[i])
-						}
-					}
+					loadMap()
 				},
 				onexit: function(fsm, event) {
 				},
@@ -204,12 +208,15 @@
 			},
 			pick_marker: {
 				onenter: function(fsm, event) {
-					$("list").hide()
+					$("#list").hide()
 					$("#map").show()
+					$("#mapButton").hide()
 					$("#listButton").hide()
 					$("#addButton").hide()
 					$("#helperText").show()
 					
+					loadMap()
+				
 					google.maps.event.addListener(map, 'dblclick', function(event) {
 						fsm.trans('add_marker', event)
 					})
@@ -238,8 +245,8 @@
 							notifyPickListeners(pick)
 
 							// TODO: remove spinner
+							fsm.trans("map")
 							map.setCenter(event.latLng)
-							fsm.trans('map')
 						},
 						error: function(req, errorText, errorThrown) {
 							// TODO: remove spinner
