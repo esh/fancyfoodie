@@ -48,22 +48,36 @@
 	})()
 
 	var map
-	var markers = []
-	function addMarker(map, pick) {
+	var picks = new Array()
+	var pickListeners = new Array()
+
+	function notifyPickListeners(pick) {
+		picks.push(pick)
+		for(var i = 0 ; i < pickListeners.length ; i++) {
+			pickListeners[i](pick)
+		}
+	}
+
+	function addMarker(pick) {
 		var marker = new google.maps.Marker({
 			position: new google.maps.LatLng(pick.lat, pick.lng), 
 			map: map,
 			title: pick.name + " by " + pick.referer
 		})
-		marker.id = pick.id
-		markers.push(marker)
-	}
 
-	function addMarkerOnClick(marker, id) {
 		google.maps.event.addListener(marker, 'click', function(event) {
-			window.location = "/" + id.uid + "/" + id.key
+			window.location = "/" + pick.id.uid + "/" + pick.id.key
 		})
 	}
+
+	pickListeners.push(function(pick) {
+		$("#list ul").append("<li>" + pick.name + " by " + pick.referer + "</li>")
+	})
+	pickListeners.push(function(pick) {
+		if(map) {
+			addMarker(pick)
+		}
+	})
 
 	$(document).ready(function () {
 		$("#map").height($(window).height() - 25)
@@ -73,6 +87,9 @@
 		$("#mapButton").click(function() {
 			state.handle("MAP")		
 		})
+		$("#addButton").click(function() {
+			state.handle("ADD")
+		})
 
 		state = new FSM({
 			start: function(fsm, event) {
@@ -80,25 +97,24 @@
 			},
 			init: {
 				onenter: function(fsm, event) {
-/*
-					$.getJSON("/pick/fetch", function(msgs) {
-						for(var i = 0 ; i < msgs.length ; i++) {
-							addMarker(map, msgs[i])
+					$.getJSON("/pick/fetch", function(picks) {
+						for(var i = 0 ; i < picks.length ; i++) {
+							notifyPickListeners(picks[i])
 						}	
 					})
-*/
+
 					fsm.trans('list')
 				}
 			},
 			list: {
 				onenter: function(fsm, event) {
+					$("#map").hide()
+					$("#listButton").hide()
 					$("#list").show()
 					$("#addButton").show()
-					$("#listButton").hide()
+					$("#mapButton").show()
 				},
 				onexit: function(fsm, event) {
-					$("#list").hide()
-					$("#listButton").show()
 				},
 				MAP: function(fsm, event) {
 					fsm.trans('map', event)
@@ -108,10 +124,12 @@
 				}
 			},
 			map: {
-				onenter: function(fsm, event) {
+				onenter: function(fsm, event) {	
+					$("#list").hide()
+					$("#mapButton").hide()
 					$("#map").show()
 					$("#addButton").show()
-					$("#mapButton").hide()
+					$("#listButton").show()
 					
 					if(!map) {	
 						map = new google.maps.Map(document.getElementById("map"), {
@@ -130,21 +148,13 @@
 						} else {
 							map.setCenter(new google.maps.LatLng(35.65857, 139.74542))
 						}
-					}
 
-/*
-					for(var i = 0 ; i < markers.length ; i++) {
-						addMarkerOnClick(markers[i], markers[i].id)
+						for(var i = 0 ; i < picks.length ; i++) {
+							addMarker(picks[i])
+						}
 					}
-*/
 				},
 				onexit: function(fsm, event) {
-					$("#map").hide()
-					$("#mapButton").show()
-
-					for(var i = 0 ; i < markers.length ; i++) {
-						google.maps.event.clearListeners(markers[i], 'click')
-					}
 				},
 				LIST: function(fsm, event) {
 					fsm.trans('list', event)
@@ -194,6 +204,7 @@
 			},
 			pick_marker: {
 				onenter: function(fsm, event) {
+					$("list").hide()
 					$("#map").show()
 					$("#listButton").hide()
 					$("#addButton").hide()
@@ -223,15 +234,17 @@
 							lng: event.latLng.lng(),
 							comment: $("#comment").val()
 						}),
-						success: function(msg) {
-							addMarker(map, msg)
+						success: function(pick) {
+							notifyPickListeners(pick)
 
 							// TODO: remove spinner
+							map.setCenter(event.latLng)
 							fsm.trans('map')
 						},
 						error: function(req, errorText, errorThrown) {
 							// TODO: remove spinner
-							fsm.trans('map')
+							alert("something blew up")
+							fsm.trans('list')
 						}
 					})
 				}
@@ -251,10 +264,7 @@
 	</div>
 	<div id="content">
 		<div id="list">
-			<ul>
-				<li>one banana</li>
-				<li>two banana</li>
-			</ul>
+			<ul/>
 		</div>
 		<div id="map" style="width:100%;height:100%"></div>
 	</div>
