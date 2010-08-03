@@ -32,7 +32,6 @@
 				log.info("got uid: " + uid)
     			}
 
-			log.info("rendering map")
 			return ["ok", render("view/map.jhtml", {})]
 		}
 	}
