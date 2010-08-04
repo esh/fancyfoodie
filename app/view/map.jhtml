@@ -107,7 +107,7 @@
 	}
 
 	pickListeners.push(function(pick) {
-		$("#list tbody").append("<tr><td>" + calcDist(position.coords.latitude, position.coords.longitude, pick.lat, pick.lng) + "</td><td>" + pick.name + "</td><td>" + pick.referer + "</td></tr>")
+		$("#list tbody").append("<tr><td>" + calcDist(position.coords.latitude, position.coords.longitude, pick.lat, pick.lng) + " km</td><td>" + pick.name + "</td><td>" + pick.referer + "</td></tr>")
 	})
 	pickListeners.push(function(pick) {
 		if(map) {
@@ -298,7 +298,7 @@
 	<div id="content">
 		<table id="list">
 			<thead>
-				<th>Dist.(km)</th>
+				<th>Dist.</th>
 				<th>Name</th>
 				<th>Referer</th>
 			</head>
