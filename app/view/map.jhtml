@@ -3,9 +3,28 @@
 <head>
 <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 <style type="text/css">
-  html { height: 100% }
-  body { height: 100%; margin: 0px; padding: 0px }
-  #map_canvas { height: 100% }
+	html {
+		height: 100% 
+	}
+	body { 
+		height: 100%;
+		margin: 0px;
+		padding: 0px
+	}
+	#nav {
+		position: absolute;
+		top: 0px;
+		height: 25px;
+	}
+	#content {
+		position: absolute;
+		top: 25px; 
+		width: 100%;
+	}
+	#listButton, #map, #helperText, #create_form {
+		display: none;
+	}
+
 </style>
 <link type="text/css" rel="stylesheet" href="public/css/ui-lightness/jquery-ui-1.8.2.custom.css" media="all"/>
 <title>Fancy Foodie</title>
@@ -14,6 +33,7 @@
 <script type="text/javascript" src="http://code.google.com/apis/gears/gears_init.js"></script>
 <script type="text/javascript" src="/public/js/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="/public/js/jquery-ui-1.8.2.custom.min.js"></script> 
+<script type="text/javascript" src="/public/js/jquery.tablesorter.min.js"></script> 
 <script type="text/javascript" src="/public/js/json2.js"></script>   
 <script type="text/javascript" src="/public/js/fsm.js"></script>   
 
@@ -28,40 +48,84 @@
 		}
 	})()
 
-	var markers = []
-	function addMarker(map, pick) {
+	var map
+	var picks = new Array()
+	var pickListeners = new Array()
+
+	function notifyPickListeners(pick) {
+		picks.push(pick)
+		for(var i = 0 ; i < pickListeners.length ; i++) {
+			pickListeners[i](pick)
+		}
+	}
+
+	function addMarker(pick) {
 		var marker = new google.maps.Marker({
 			position: new google.maps.LatLng(pick.lat, pick.lng), 
 			map: map,
 			title: pick.name + " by " + pick.referer
 		})
-		marker.id = pick.id
-		markers.push(marker)
-	}
 
-	function addMarkerOnClick(marker, id) {
 		google.maps.event.addListener(marker, 'click', function(event) {
-			window.location = "/" + id.uid + "/" + id.key
+			window.location = "/" + pick.id.uid + "/" + pick.id.key
 		})
 	}
+
+	function loadMap() {
+		if(!map) {	
+			map = new google.maps.Map(document.getElementById("map"), {
+				zoom: 17,
+				mapTypeControl: false,
+				disableDoubleClickZoom: true,
+				mapTypeId: google.maps.MapTypeId.ROADMAP
+			})
+
+			if(geolocation) {
+				geolocation.getCurrentPosition(
+					function(position) {
+						map.setCenter(new google.maps.LatLng(position.coords.latitude,position.coords.longitude))
+					},
+					function() {})
+			} else {
+				map.setCenter(new google.maps.LatLng(35.65857, 139.74542))
+			}
+
+			for(var i = 0 ; i < picks.length ; i++) {
+				addMarker(picks[i])
+			}
+		}
+	}
+
+	function calcDist(lat1, lon1, lat2, lon2) {	
+		var R = 6371 // km
+		var dLat = (lat2-lat1).toRad()
+		var dLon = (lon2-lon1).toRad() 
+		var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1.toRad()) * Math.cos(lat2.toRad()) * Math.sin(dLon/2) * Math.sin(dLon/2) 
+		var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+		return R * c
+	}
+
+	pickListeners.push(function(pick) {
+		$("#list tbody").append("<tr><td>" + "</td><td>" + pick.name + "</td><td>" + pick.referer + "</td></tr>")
+	})
+	pickListeners.push(function(pick) {
+		if(map) {
+			addMarker(pick)
+		}
+	})
 
 	$(document).ready(function () {
-		var map = new google.maps.Map(document.getElementById("map_canvas"), {
-			zoom: 17,
-			mapTypeControl: false,
-			disableDoubleClickZoom: true,
-			mapTypeId: google.maps.MapTypeId.ROADMAP
+		$("#map").height($(window).height() - 25)
+		$("#list").tablesorter()
+		$("#listButton").click(function() {
+			state.handle("LIST")		
 		})
-
-		if(geolocation) {
-			geolocation.getCurrentPosition(
-				function(position) {
-					map.setCenter(new google.maps.LatLng(position.coords.latitude,position.coords.longitude))
-				},
-				function() {})
-		} else {
-			map.setCenter(new google.maps.LatLng(35.65857, 139.74542))
-		}
+		$("#mapButton").click(function() {
+			state.handle("MAP")		
+		})
+		$("#addButton").click(function() {
+			state.handle("ADD")
+		})
 
 		state = new FSM({
 			start: function(fsm, event) {
@@ -69,31 +133,46 @@
 			},
 			init: {
 				onenter: function(fsm, event) {
-					for(var i = 0 ; i < markers.length ; i++) {
-						markers.setMap(null)
-					}
-					markers = []
-
-					$.getJSON("/pick/fetch", function(msgs) {
-						for(var i = 0 ; i < msgs.length ; i++) {
-							addMarker(map, msgs[i])
+					$.getJSON("/pick/fetch", function(picks) {
+						for(var i = 0 ; i < picks.length ; i++) {
+							notifyPickListeners(picks[i])
 						}	
-						fsm.trans('map')	
 					})
+
+					fsm.trans('list')
+				}
+			},
+			list: {
+				onenter: function(fsm, event) {
+					$("#map").hide()
+					$("#listButton").hide()
+					$("#list").show()
+					$("#addButton").show()
+					$("#mapButton").show()
+				},
+				onexit: function(fsm, event) {
+				},
+				MAP: function(fsm, event) {
+					fsm.trans('map', event)
+				},
+				ADD: function(fsm, event) {
+					fsm.trans('new_pick', event)
 				}
 			},
 			map: {
-				onenter: function(fsm, event) {
-					for(var i = 0 ; i < markers.length ; i++) {
-						addMarkerOnClick(markers[i], markers[i].id)
-					}
-				
+				onenter: function(fsm, event) {	
+					$("#list").hide()
+					$("#mapButton").hide()
+					$("#map").show()
 					$("#addButton").show()
+					$("#listButton").show()
+					
+					loadMap()
 				},
 				onexit: function(fsm, event) {
-					for(var i = 0 ; i < markers.length ; i++) {
-						google.maps.event.clearListeners(markers[i], 'click')
-					}
+				},
+				LIST: function(fsm, event) {
+					fsm.trans('list', event)
 				},
 				ADD: function(fsm, event) {
 					fsm.trans('new_pick', event)
@@ -108,7 +187,8 @@
 						},
 						Cancel: function() {
 							$(this).dialog('close')
-							fsm.trans('map')
+							// TODO: goto prev state
+							fsm.trans('list')
 						}
 					}
 					if(geolocation) {
@@ -139,16 +219,23 @@
 			},
 			pick_marker: {
 				onenter: function(fsm, event) {
+					$("#list").hide()
+					$("#map").show()
+					$("#mapButton").hide()
+					$("#listButton").hide()
+					$("#addButton").hide()
+					$("#helperText").show()
+					
+					loadMap()
+				
 					google.maps.event.addListener(map, 'dblclick', function(event) {
 						fsm.trans('add_marker', event)
 					})
 
-					$("#helperText").show()
 				},
 				onexit: function(fsm, event) {
-					google.maps.event.clearListeners(map, 'dblclick')
-
 					$("#helperText").hide()
+					google.maps.event.clearListeners(map, 'dblclick')
 				},
 			},
 			add_marker: {
@@ -165,51 +252,46 @@
 							lng: event.latLng.lng(),
 							comment: $("#comment").val()
 						}),
-						success: function(msg) {
-							addMarker(map, msg)
+						success: function(pick) {
+							notifyPickListeners(pick)
 
 							// TODO: remove spinner
-							fsm.trans('map')
+							fsm.trans("map")
+							map.setCenter(event.latLng)
 						},
 						error: function(req, errorText, errorThrown) {
 							// TODO: remove spinner
-							fsm.trans('map')
+							alert("something blew up")
+							fsm.trans('list')
 						}
 					})
 				}
 			}
 		})
-
-		var nav = document.createElement('div')
-		nav.style.paddingBottom = "8px"
-		nav.style.width = "300px"
-		nav.style.fontSize = "16px"
-		nav.style.textAlign = "center"
 		
-		var helperText = document.createElement('span')
-		helperText.id = "helperText"
-		helperText.innerHTML = "Double click on map to add pick"
-		helperText.style.display = "none"
-		nav.appendChild(helperText)
-
-		var addButton = document.createElement('input')
-		addButton.id = "addButton"
-		addButton.type = "button"
-		addButton.value = "Add Pick"
-		addButton.onclick = function() {
-			state.handle('ADD')
-		}
-		nav.appendChild(addButton)
-		map.controls[google.maps.ControlPosition.TOP].push(nav)
-
 		state.start('startup')
 	})
 </script>
 </head>
 <body>
-	<div id="map_canvas" style="width:100%; height:100%"></div>
-
-	<div id="create_form" title="Drop a pick" style="display:none">
+	<div id="nav">
+		<input type="button" id="addButton" value="Add Pick"/>
+		<input type="button" id="listButton" value="Listing"/>
+		<input type="button" id="mapButton" value="Map"/>
+		<span id="helperText">Double click on Map to add Pick</span> 
+	</div>
+	<div id="content">
+		<table id="list">
+			<thead>
+				<th>Dist.</th>
+				<th>Name</th>
+				<th>Referer</th>
+			</head>
+			<tbody/>
+		</table>
+		<div id="map" style="width:100%;height:100%"></div>
+	</div>
+	<div id="create_form" title="Drop a pick">
 		<form>
 			<p>
 				<label for="name">Name</label>
@@ -219,7 +301,6 @@
 				<label for="comment">Add a comment</label>
 				<input type="textarea" name="comment" id="comment" style="height: 90px; width: 250px"/>
 			</p>
-
 		</form>
 	</div>
 </body>
