@@ -21,6 +21,9 @@
 		top: 25px; 
 		width: 100%;
 	}
+	#list {
+		width: 100%;
+	}
 	#listButton, #map, #helperText, #create_form {
 		display: none;
 	}
@@ -49,6 +52,7 @@
 	})()
 
 	var map
+	var position
 	var picks = new Array()
 	var pickListeners = new Array()
 
@@ -80,15 +84,7 @@
 				mapTypeId: google.maps.MapTypeId.ROADMAP
 			})
 
-			if(geolocation) {
-				geolocation.getCurrentPosition(
-					function(position) {
-						map.setCenter(new google.maps.LatLng(position.coords.latitude,position.coords.longitude))
-					},
-					function() {})
-			} else {
-				map.setCenter(new google.maps.LatLng(35.65857, 139.74542))
-			}
+			map.setCenter(new google.maps.LatLng(position.coords.latitude,position.coords.longitude))
 
 			for(var i = 0 ; i < picks.length ; i++) {
 				addMarker(picks[i])
@@ -96,17 +92,22 @@
 		}
 	}
 
-	function calcDist(lat1, lon1, lat2, lon2) {	
+	function calcDist(lat1, lon1, lat2, lon2) {
+		lat1 = lat1 * Math.PI / 180
+		lat2 = lat2 * Math.PI / 180
+		lon1 = lon1 * Math.PI / 180
+		lon2 = lon2 * Math.PI / 180
+
 		var R = 6371 // km
-		var dLat = (lat2-lat1).toRad()
-		var dLon = (lon2-lon1).toRad() 
-		var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1.toRad()) * Math.cos(lat2.toRad()) * Math.sin(dLon/2) * Math.sin(dLon/2) 
-		var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
-		return R * c
+		var dLat = lat2-lat1
+		var dLon = lon2-lon1 
+		var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon/2) * Math.sin(dLon/2) 
+		var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+		return parseInt(R * c * 100) / 100
 	}
 
 	pickListeners.push(function(pick) {
-		$("#list tbody").append("<tr><td>" + "</td><td>" + pick.name + "</td><td>" + pick.referer + "</td></tr>")
+		$("#list tbody").append("<tr><td>" + calcDist(position.coords.latitude, position.coords.longitude, pick.lat, pick.lng) + "</td><td>" + pick.name + "</td><td>" + pick.referer + "</td></tr>")
 	})
 	pickListeners.push(function(pick) {
 		if(map) {
@@ -139,7 +140,25 @@
 						}	
 					})
 
-					fsm.trans('list')
+					if(geolocation) {
+						geolocation.getCurrentPosition(
+							function(p) {
+								position = p
+								fsm.trans("list")						
+							},
+							function() {
+								alert("something went wrong")
+							})
+					} else {
+						position = {
+							coords: {
+								latitude: 35.65857,
+								longitude: 139.74542
+							}
+
+						}
+						fsm.trans('list')
+					}
 				}
 			},
 			list: {
@@ -194,11 +213,7 @@
 					if(geolocation) {
 						buttons["Add Here"] = function() {
 							$(this).dialog('close')
-							geolocation.getCurrentPosition(
-								function(position) {
-									fsm.trans('add_marker', { latLng: new google.maps.LatLng(position.coords.latitude,position.coords.longitude) })
-								},
-								function() {})
+							fsm.trans('add_marker', { latLng: new google.maps.LatLng(position.coords.latitude,position.coords.longitude) })
 						}
 					}
 
@@ -283,7 +298,7 @@
 	<div id="content">
 		<table id="list">
 			<thead>
-				<th>Dist.</th>
+				<th>Dist.(km)</th>
 				<th>Name</th>
 				<th>Referer</th>
 			</head>
