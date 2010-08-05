@@ -107,7 +107,9 @@
 	}
 
 	pickListeners.push(function(pick) {
-		$("#list tbody").append("<tr><td>" + calcDist(position.coords.latitude, position.coords.longitude, pick.lat, pick.lng) + " km</td><td>" + pick.name + "</td><td>" + pick.referer + "</td></tr>")
+		$("#list tbody").append("<tr><td>" + calcDist(position.coords.latitude, position.coords.longitude, pick.lat, pick.lng) + " km</td><td><a href=\"/" + pick.id.uid + "/" + pick.id.key + "\">" + pick.name + "</a></td><td>" + pick.referer + "</td></tr>")
+		$("#list").trigger("update")
+		$("#list").trigger("sorton", [[[0, 0]]])
 	})
 	pickListeners.push(function(pick) {
 		if(map) {
