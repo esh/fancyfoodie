@@ -44,7 +44,7 @@
 	var geolocation = (function() {
 		if(navigator.geolocation) {
 			return navigator.geolocation
-		} else if (window.google || window.google.gears) {
+		} else if ((window.google || window.google.gears) && google.gears) {
 			return google.gears.factory.create('beta.geolocation')
 		} else {
 			return null
@@ -107,7 +107,7 @@
 	}
 
 	pickListeners.push(function(pick) {
-		$("#list tbody").append("<tr><td>" + calcDist(position.coords.latitude, position.coords.longitude, pick.lat, pick.lng) + " km</td><td><a href=\"/" + pick.id.uid + "/" + pick.id.key + "\">" + pick.name + "</a></td><td>" + pick.referer + "</td></tr>")
+		$("#list tbody").append("<tr><td>" + calcDist(position.coords.latitude, position.coords.longitude, pick.lat, pick.lng) + "</td><td><a href=\"/" + pick.id.uid + "/" + pick.id.key + "\">" + pick.name + "</a></td><td>" + pick.referer + "</td></tr>")
 		$("#list").trigger("update")
 		$("#list").trigger("sorton", [[[0, 0]]])
 	})
@@ -147,6 +147,13 @@
 							function(p) {
 								position = p
 								fsm.trans("list")						
+							},
+							function() {
+								alert("something went wrong")
+							},
+							{ maximumAge: 0 })
+						geolocation.watchPosition(function(p) {
+								position  = p
 							},
 							function() {
 								alert("something went wrong")
@@ -300,10 +307,10 @@
 	<div id="content">
 		<table id="list">
 			<thead>
-				<th>Dist.</th>
-				<th>Name</th>
-				<th>Referer</th>
-			</head>
+				<th>km away</th>
+				<th>name</th>
+				<th>referer</th>
+			</thead>
 			<tbody/>
 		</table>
 		<div id="map" style="width:100%;height:100%"></div>
