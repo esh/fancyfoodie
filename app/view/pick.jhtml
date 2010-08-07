@@ -75,6 +75,7 @@
 					user = new google.maps.Marker({
 						position: new google.maps.LatLng(position.coords.latitude,position.coords.longitude), 
 						map: map,
+						icon: "/public/img/user.gif",
 						title:"Me!"
 					})
 
