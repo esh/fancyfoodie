@@ -5,10 +5,12 @@
 		show: function() {
 			if(request.params["access_token"] && request.params["uid"]) {
 				// logged in previously
+				log.info("access token in cookie: " + request.params["uid"])
 				session["access_token"] = request.params["access_token"]
 				session["uid"] = request.params["uid"]
 			} else if(!session["access_token"] && !request.params["code"]) {
 				// step 1: authenticate user with facebook
+				log.info("redirecting to facebook for auth")
 				var mobile = request.headers["User-Agent"] && request.headers["User-Agent"].match(/(iPhone)|(android)/) ? "&display=touch" : ""
 				return ["redirect", "https://graph.facebook.com/oauth/authorize?client_id=" + config.facebook_app_id + "&redirect_uri=http://www.fancyfoodie.com/" + "&scope=email,offline_access" + mobile]			
 			} else if(request.params["code"]) {

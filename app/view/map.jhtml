@@ -14,11 +14,12 @@
 	#nav {
 		position: absolute;
 		top: 0px;
-		height: 25px;
+		height: 30px;
+		font-size: 25px;
 	}
 	#content {
 		position: absolute;
-		top: 25px; 
+		top: 30px; 
 		width: 100%;
 	}
 	#list {
