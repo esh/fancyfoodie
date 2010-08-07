@@ -78,6 +78,13 @@
 						title:"Me!"
 					})
 
+					map.fitBounds(new google.maps.LatLngBounds(
+							new google.maps.LatLng(Math.max(position.coords.latitude, pick.lat),
+									       Math.min(position.coords.longitude, pick.lng)),
+							new google.maps.LatLng(Math.min(position.coords.latitude, pick.lat),
+									       Math.max(position.coords.longitude, pick.lng))))
+
+
 				},
 				function() {
 					alert("something went wrong")
