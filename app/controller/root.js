@@ -1,6 +1,9 @@
 (function() {
 	importPackage(javax.servlet.http)
 
+	var fb = require("model/facebook.js")()
+	var picks = require("model/pick.js")()
+
 	return {
 		show: function() {
 			if(request.params["access_token"] && request.params["uid"]) {
@@ -34,7 +37,9 @@
 				log.info("got uid: " + uid)
     			}
 
-			return ["ok", render("view/map.jhtml", {})]
+			var ids = fb.getFriends().map(function(e) { return e.id })
+			ids.push(fb.getUID())
+			return ["ok", render("view/map.jhtml", { picks: picks.find(ids) })]
 		}
 	}
 })

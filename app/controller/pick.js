@@ -10,12 +10,6 @@
 		show: function(uid, key) {
 			return ["ok", render("view/pick.jhtml", { pick: model.get(uid, key), comments: comments.get(uid + "/" + key) })]
 		},
-		fetch: function() {
-			var fb = require("model/facebook.js")()
-			var ids = fb.getFriends().map(function(e) { return e.id })
-			ids.push(fb.getUID())
-			return ["ok", JSON.stringify(model.find(ids)), "application/json"]
-		},
 		post: function() {
 			var fb = require("model/facebook.js")()
 			var p = JSON.parse(request.content)

@@ -55,15 +55,7 @@
 
 	var map
 	var position
-	var picks = new Array()
-	var pickListeners = new Array()
-
-	function notifyPickListeners(pick) {
-		picks.push(pick)
-		for(var i = 0 ; i < pickListeners.length ; i++) {
-			pickListeners[i](pick)
-		}
-	}
+	var picks = <%= params["picks"].toSource() %> 
 
 	function addMarker(pick) {
 		var marker = new google.maps.Marker({
@@ -108,17 +100,6 @@
 		return parseInt(R * c * 100) / 100
 	}
 
-	pickListeners.push(function(pick) {
-		$("#list tbody").append("<tr><td>" + calcDist(position.coords.latitude, position.coords.longitude, pick.lat, pick.lng) + "</td><td><a href=\"/" + pick.id.uid + "/" + pick.id.key + "\">" + pick.name + "</a></td><td>" + pick.referer + "</td></tr>")
-		$("#list").trigger("update")
-		$("#list").trigger("sorton", [[[0, 0]]])
-	})
-	pickListeners.push(function(pick) {
-		if(map) {
-			addMarker(pick)
-		}
-	})
-
 	$(document).ready(function () {
 		$("#map").height($(window).height() - 30)
 		$("#list").tablesorter()
@@ -138,12 +119,6 @@
 			},
 			init: {
 				onenter: function(fsm, event) {
-					$.getJSON("/pick/fetch", function(picks) {
-						for(var i = 0 ; i < picks.length ; i++) {
-							notifyPickListeners(picks[i])
-						}	
-					})
-
 					if(geolocation) {
 						geolocation.getCurrentPosition(
 							function(p) {
@@ -174,6 +149,15 @@
 			},
 			list: {
 				onenter: function(fsm, event) {
+					$("#list tbody").html("")
+					for(var i = 0 ; i < picks.length ; i++) {
+						$("#list tbody").append("<tr><td>" + calcDist(position.coords.latitude, position.coords.longitude, picks[i].lat, picks[i].lng) + "</td><td><a href=\"/" + picks[i].id.uid + "/" + picks[i].id.key + "\">" + picks[i].name + "</a></td><td>" + picks[i].referer + "</td></tr>")
+					}
+
+					$("#list").trigger("update")
+					$("#list").trigger("sorton", [[[0, 0]]])
+
+
 					$("#map").hide()
 					$("#listButton").hide()
 					$("#list").show()
