@@ -4,6 +4,9 @@
 <title>Fancy Foodie</title>
 <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
 <style type="text/css">
+	#nav {
+		height: 30px;
+	}
 	body { 
 		margin: 0px;
 		padding: 0px
@@ -104,11 +107,13 @@
 </script>
 </head>
 <body>
+	<div id="nav">
+		<div id="admin" style="display:none; float: left">
+			<input type="button" id="remove" value="remove"/>
+		</div>
+	</div>
 	<h1><%= params["pick"].name %></h1>
 	<p>by <%= params["pick"].referer %></p>
-	<div id="admin" style="display:none">
-		<input type="button" id="remove" value="remove"/>
-	</div>
 
 	<div id="map"></div>
 

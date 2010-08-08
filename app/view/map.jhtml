@@ -78,6 +78,12 @@
 				mapTypeId: google.maps.MapTypeId.ROADMAP
 			})
 
+			new google.maps.Marker({
+				position: new google.maps.LatLng(position.coords.latitude,position.coords.longitude), 
+				map: map,
+				icon: "/public/img/user.gif",
+				title:"Me!"
+			})
 			map.setCenter(new google.maps.LatLng(position.coords.latitude,position.coords.longitude))
 
 			for(var i = 0 ; i < picks.length ; i++) {
@@ -141,7 +147,6 @@
 								latitude: 35.65857,
 								longitude: 139.74542
 							}
-
 						}
 						fsm.trans('list')
 					}
@@ -156,7 +161,6 @@
 
 					$("#list").trigger("update")
 					$("#list").trigger("sorton", [[[0, 0]]])
-
 
 					$("#map").hide()
 					$("#listButton").hide()
