@@ -25,7 +25,10 @@
 	#list {
 		width: 100%;
 	}
-	#listButton, #map, #helperText, #create_form {
+	#add_pick {
+		text-align: center;
+	}
+	#listButton, #map, #helperText, #create_form, #add_pick {
 		display: none;
 	}
 
@@ -263,7 +266,15 @@
 			},
 			add_marker: {
 				onenter: function(fsm, event) {
-					// TODO: start spinner?
+					$("#add_pick").dialog({
+						autoOpen: true,
+						modal: true,
+						closeOnEscape: false,
+   						open: function(event, ui) { 
+							$(".ui-dialog-titlebar-close").hide()
+						}
+					})
+
 					$.ajax({
 						type: "POST",
 						url: "/pick/post",
@@ -276,14 +287,10 @@
 							comment: $("#comment").val()
 						}),
 						success: function(pick) {
-							notifyPickListeners(pick)
-
-							// TODO: remove spinner
-							fsm.trans("map")
-							map.setCenter(event.latLng)
+							window.location = "/" + pick.id.uid + "/" + pick.id.key
 						},
 						error: function(req, errorText, errorThrown) {
-							// TODO: remove spinner
+							$("#add_pick").dialog("close")
 							alert("something blew up")
 							fsm.trans('list')
 						}
@@ -314,7 +321,7 @@
 		</table>
 		<div id="map" style="width:100%;height:100%"></div>
 	</div>
-	<div id="create_form" title="Drop a pick">
+	<div id="create_form" title="Add a pick">
 		<form>
 			<p>
 				<label for="name">Name</label>
@@ -325,6 +332,10 @@
 				<input type="textarea" name="comment" id="comment" style="height: 90px; width: 250px"/>
 			</p>
 		</form>
+	</div>
+	<div id="add_pick">
+		<p>Adding Pick...</p>
+		<img src="/public/img/spinner.gif"/>	
 	</div>
 </body>
 </html>
