@@ -28,7 +28,7 @@
 	#add_pick {
 		text-align: center;
 	}
-	#listButton, #map, #helperText, #create_form, #add_pick {
+	#nav, #content, #listButton, #list, #map, #helperText, #create_form, #add_pick {
 		display: none;
 	}
 
@@ -150,6 +150,11 @@
 						}
 						fsm.trans('list')
 					}
+				},
+				onexit: function(fsm, event) {
+					$("#loading").hide()
+					$("#nav").show()
+					$("#content").show()
 				}
 			},
 			list: {
@@ -292,6 +297,11 @@
 </script>
 </head>
 <body>
+	<div id="loading">
+		<p>Locating current position...</p>
+		<img src="/public/img/spinner.gif"/>	
+	</div>
+
 	<div id="nav">
 		<input type="button" id="addButton" value="Add Pick"/>
 		<input type="button" id="listButton" value="Listing"/>
