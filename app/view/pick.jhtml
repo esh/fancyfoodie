@@ -6,6 +6,7 @@
 <style type="text/css">
 	#nav {
 		height: 30px;
+		padding-bottom: 2px;
 	}
 	body { 
 		margin: 0px;
@@ -27,6 +28,7 @@
 	})()
 
 	var map
+	var user
 
 	$(document).ready(function () {
 		<% if(session["uid"] == params["pick"].id.uid) { echo("$(\"#admin\").show()") } %>
@@ -71,7 +73,6 @@
 			title: pick.name + " by " + pick.referer
 		})
 
-		var user
 		if(geolocation) {
 			geolocation.getCurrentPosition(
 				function(position) {
@@ -96,9 +97,17 @@
 				{ maximumAge: 0 })
 
 			geolocation.watchPosition(function(position) {
+					if(user) {
+						user.setMap(null)
+						user = new google.maps.Marker({
+							position: new google.maps.LatLng(position.coords.latitude,position.coords.longitude), 
+							map: map,
+							icon: "/public/img/user.gif",
+							title:"Me!"
+						})
+					}
 				},
 				function() {
-					alert("something went wrong")
 				})
 		} else {
 			map.setCenter(new google.maps.LatLng(pick.lat, pick.lng))
@@ -108,6 +117,8 @@
 </head>
 <body>
 	<div id="nav">
+		<input type="button" value="Listing" onclick="window.location='/'"/>
+		<input type="button" value="Map" onclick="window.location='/#map'"/>
 		<div id="admin" style="display:none; float: left">
 			<input type="button" id="remove" value="remove"/>
 		</div>

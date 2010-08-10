@@ -16,6 +16,7 @@
 		top: 0px;
 		height: 30px;
 		font-size: 25px;
+		padding-bottom: 2px;
 	}
 	#content {
 		position: absolute;
@@ -55,6 +56,7 @@
 
 	var map
 	var position
+	var user
 	var picks = <%= params["picks"].toSource() %> 
 
 	function addMarker(pick) {
@@ -78,7 +80,7 @@
 				mapTypeId: google.maps.MapTypeId.ROADMAP
 			})
 
-			new google.maps.Marker({
+			user = new google.maps.Marker({
 				position: new google.maps.LatLng(position.coords.latitude,position.coords.longitude), 
 				map: map,
 				icon: "/public/img/user.gif",
@@ -92,6 +94,7 @@
 		}
 	}
 
+
 	function calcDist(lat1, lon1, lat2, lon2) {
 		lat1 = lat1 * Math.PI / 180
 		lat2 = lat2 * Math.PI / 180
@@ -104,6 +107,29 @@
 		var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon/2) * Math.sin(dLon/2) 
 		var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
 		return parseInt(R * c * 100) / 100
+	}
+
+	function refreshList() {
+		$("#list tbody").html("")
+		for(var i = 0 ; i < picks.length ; i++) {
+			$("#list tbody").append("<tr><td>" + calcDist(position.coords.latitude, position.coords.longitude, picks[i].lat, picks[i].lng) + "</td><td><a href=\"/" + picks[i].id.uid + "/" + picks[i].id.key + "\">" + picks[i].name + "</a></td><td>" + picks[i].referer + "</td></tr>")
+		}
+	}
+
+	function updatePosition(p) {
+		position = p
+	
+		if(user) {
+			user.setMap(null)
+			user = new google.maps.Marker({
+				position: new google.maps.LatLng(position.coords.latitude,position.coords.longitude), 
+				map: map,
+				icon: "/public/img/user.gif",
+				title:"Me!"
+			})
+		}
+
+		refreshList()
 	}
 
 	$(document).ready(function () {
@@ -125,30 +151,35 @@
 			},
 			init: {
 				onenter: function(fsm, event) {
+					function initPosition(p) {
+						position = p
+
+						var tokens = window.location.href.split("#")
+						if(tokens.length > 1) {
+							fsm.trans(tokens[1])
+						} else {
+							fsm.trans("list")
+						}	
+					}
+
 					if(geolocation) {
 						geolocation.getCurrentPosition(
-							function(p) {
-								position = p
-								fsm.trans("list")						
-							},
+							initPosition,
 							function() {
 								alert("something went wrong")
 							},
 							{ maximumAge: 0 })
-						geolocation.watchPosition(function(p) {
-								position  = p
-							},
+						geolocation.watchPosition(
+							updatePosition,
 							function() {
-								alert("something went wrong")
 							})
 					} else {
-						position = {
+						initPosition({
 							coords: {
 								latitude: 35.65857,
 								longitude: 139.74542
 							}
-						}
-						fsm.trans('list')
+						})
 					}
 				},
 				onexit: function(fsm, event) {
@@ -159,10 +190,7 @@
 			},
 			list: {
 				onenter: function(fsm, event) {
-					$("#list tbody").html("")
-					for(var i = 0 ; i < picks.length ; i++) {
-						$("#list tbody").append("<tr><td>" + calcDist(position.coords.latitude, position.coords.longitude, picks[i].lat, picks[i].lng) + "</td><td><a href=\"/" + picks[i].id.uid + "/" + picks[i].id.key + "\">" + picks[i].name + "</a></td><td>" + picks[i].referer + "</td></tr>")
-					}
+					refreshList()
 
 					$("#list").trigger("update")
 					$("#list").trigger("sorton", [[[0, 0]]])
