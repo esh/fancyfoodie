@@ -27,12 +27,31 @@
 		}
 	})()
 
+	var pick = <%= params["pick"].toSource() %>
 	var map
 	var user
 
+	function updatePosition(position) {
+		if(user) {
+			user.setMap(null)
+		}
+
+		user = new google.maps.Marker({
+			position: new google.maps.LatLng(position.coords.latitude,position.coords.longitude), 
+			map: map,
+			icon: "/public/img/user.gif",
+			title:"Me!"
+		})
+
+		map.fitBounds(new google.maps.LatLngBounds(
+			new google.maps.LatLng(Math.max(position.coords.latitude, pick.lat),
+					       Math.min(position.coords.longitude, pick.lng)),
+			new google.maps.LatLng(Math.min(position.coords.latitude, pick.lat),
+					       Math.max(position.coords.longitude, pick.lng))))
+	}
+
 	$(document).ready(function () {
 		<% if(session["uid"] == params["pick"].id.uid) { echo("$(\"#admin\").show()") } %>
-		var pick = <%= params["pick"].toSource() %>
 
 		$("#remove").click(function() {
 			$.post("/pick/remove/" + pick.id.key,
@@ -75,40 +94,13 @@
 
 		if(geolocation) {
 			geolocation.getCurrentPosition(
-				function(position) {
-					user = new google.maps.Marker({
-						position: new google.maps.LatLng(position.coords.latitude,position.coords.longitude), 
-						map: map,
-						icon: "/public/img/user.gif",
-						title:"Me!"
-					})
-
-					map.fitBounds(new google.maps.LatLngBounds(
-							new google.maps.LatLng(Math.max(position.coords.latitude, pick.lat),
-									       Math.min(position.coords.longitude, pick.lng)),
-							new google.maps.LatLng(Math.min(position.coords.latitude, pick.lat),
-									       Math.max(position.coords.longitude, pick.lng))))
-
-
-				},
+				updatePosition,
 				function() {
-					alert("something went wrong")
+					map.setCenter(new google.maps.LatLng(pick.lat, pick.lng))
 				},
 				{ maximumAge: 0 })
 
-			geolocation.watchPosition(function(position) {
-					if(user) {
-						user.setMap(null)
-						user = new google.maps.Marker({
-							position: new google.maps.LatLng(position.coords.latitude,position.coords.longitude), 
-							map: map,
-							icon: "/public/img/user.gif",
-							title:"Me!"
-						})
-					}
-				},
-				function() {
-				})
+			geolocation.watchPosition(updatePosition, function() {})
 		} else {
 			map.setCenter(new google.maps.LatLng(pick.lat, pick.lng))
 		} 
