@@ -40,7 +40,6 @@
 <script type="text/javascript" src="http://code.google.com/apis/gears/gears_init.js"></script>
 <script type="text/javascript" src="/public/js/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="/public/js/jquery-ui-1.8.2.custom.min.js"></script> 
-<script type="text/javascript" src="/public/js/jquery.tablesorter.min.js"></script> 
 <script type="text/javascript" src="/public/js/json2.js"></script>   
 <script type="text/javascript" src="/public/js/fsm.js"></script>   
 <script type="text/javascript">
@@ -110,10 +109,11 @@
 	}
 
 	function refreshList() {
-		$("#list tbody").html("")
+		var contents = new Array()
 		for(var i = 0 ; i < picks.length ; i++) {
-			$("#list tbody").append("<tr><td>" + calcDist(position.coords.latitude, position.coords.longitude, picks[i].lat, picks[i].lng) + "</td><td><a href=\"/" + picks[i].id.uid + "/" + picks[i].id.key + "\">" + picks[i].name + "</a></td><td>" + picks[i].referer + "</td></tr>")
+			contents.push("<tr><td>" + calcDist(position.coords.latitude, position.coords.longitude, picks[i].lat, picks[i].lng) + "</td><td><a href=\"/" + picks[i].id.uid + "/" + picks[i].id.key + "\">" + picks[i].name + "</a></td><td>" + picks[i].referer + "</td></tr>")
 		}
+		$("#list tbody").html(contents.join(""))
 	}
 
 	function updatePosition(p) {
@@ -129,12 +129,16 @@
 			})
 		}
 
+		picks = picks.sort(function(a, b) {
+			return calcDist(position.coords.latitude, position.coords.longitude, a.lat, a.lng) >
+			       calcDist(position.coords.latitude, position.coords.longitude, b.lat, b.lng)
+		})
+
 		refreshList()
 	}
 
 	$(document).ready(function () {
 		$("#map").height($(window).height() - 30)
-		$("#list").tablesorter()
 		$("#listButton").click(function() {
 			state.handle("LIST")		
 		})
