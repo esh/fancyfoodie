@@ -7,7 +7,7 @@
 		find: function(keys) {
 			var t = new java.util.ArrayList()
 			for(var i = 0 ; i < keys.length ; i++) {
-				t.add(KeyFactory.createKey("links", keys[i]))
+				t.add(KeyFactory.createKey("links", parseInt(keys[i])))
 			}
 
 			var set = {}

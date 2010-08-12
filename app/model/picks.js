@@ -8,6 +8,7 @@
 			var e = ds.get(KeyFactory.createKey("picks", key))
 			if(e) {
 				var pick = JSON.parse(e.getProperty("data").getValue())
+				pick.key = e.getKey().getId()
 				pick.comments = JSON.parse(e.getProperty("comments").getValue())
 				return pick
 			} else {
@@ -22,7 +23,9 @@
 			}
 			var res = []
 			for(var e in Iterator(ds.get(t).values().iterator())) {
-				res.push(JSON.parse(e.getProperty("data").getValue()))
+				var pick = JSON.parse(e.getProperty("data").getValue())
+				pick.key = e.getKey().getId()
+				res.push(pick)
 			}
 
 			return res 
@@ -62,10 +65,10 @@
 					entity.setProperty("comments", new Text("[]"))
 				}
 
-				var id = ds.put(entity).getId()
+				data.key = ds.put(entity).getId()
 				transaction.commit()
 			
-				return id 
+				return data
 			} catch(e) {
 				log.severe(e)
 				log.severe("rolling back")

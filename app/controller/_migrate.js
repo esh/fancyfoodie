@@ -22,7 +22,7 @@
 					links.push(ds.put(p).getId())
 				}
 
-				var link = new Entity(KeyFactory.createKey("links", pick.getKey().getName()))
+				var link = new Entity(KeyFactory.createKey("links", parseInt(pick.getKey().getName())))
 				link.setProperty("data", new Text(JSON.stringify(links)))
 				ds.put(link)		
 			}
