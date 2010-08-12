@@ -32,11 +32,11 @@
 				var entity
 				var links
 				try {
-					entity = ds.get(KeyFactory.createKey("links", key))
+					entity = ds.get(KeyFactory.createKey("links", parseInt(key)))
 					links = JSON.parse(entity.getProperty("data"))
 					log.info("existing key: " + key + "links: " + links.toSource())
 				} catch(e) {
-					entity = new Entity("links")
+					entity = new Entity(KeyFactory.createKey("links", parseInt(key)))
 					links = []
 					log.info("new key")
 				}
@@ -58,7 +58,7 @@
 			var transaction = ds.beginTransaction()
 			try {
 				log.info("removing - key:" + key + " pick_key: " + pick_key)
-				var entity = ds.get(KeyFactory.createKey("links", key))
+				var entity = ds.get(KeyFactory.createKey("links", parseInt(key)))
 				entity.setProperty("data", new Text(JSON.stringify(JSON.parse(entity.getProperty("data")).filter(function(e) {
 					return e != pick_key
 				}))))

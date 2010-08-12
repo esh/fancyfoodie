@@ -5,7 +5,7 @@
 
 	return {
 		get: function(key) {
-			var e = ds.get(KeyFactory.createKey("picks", key))
+			var e = ds.get(KeyFactory.createKey("picks", parseInt(key)))
 			if(e) {
 				var pick = JSON.parse(e.getProperty("data").getValue())
 				pick.key = e.getKey().getId()
@@ -34,7 +34,7 @@
 			var transaction = ds.beginTransaction()
 			try {
 				log.info("saving - key:" + key + " comment: " + comment.toSource())
-				var entity = ds.get(KeyFactory.createKey("picks", key))
+				var entity = ds.get(KeyFactory.createKey("picks", parseInt(key)))
 				entity.setProperty("comments", new Text(JSON.stringify(JSON.parse(entity.getProperty("comments")).push(comment))))
 
 				ds.put(entity)
@@ -53,7 +53,7 @@
 				log.info("saving - key:" + key + " data: " + data.toSource())
 				var entity
 				try {
-					entity = ds.get(KeyFactory.createKey("picks", key))
+					entity = ds.get(KeyFactory.createKey("picks", parseInt(key)))
 					log.info("existing key: " + key)
 				} catch(e) {
 					entity = new Entity("picks")

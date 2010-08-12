@@ -4,11 +4,15 @@
 
 	var queue = QueueFactory.getQueue("tasks")
 	var model = require("model/pick.js")()
+	var picks = require("model/picks.js")()
 	var comments = require("model/comments.js")()
 	
 	return {
 		show: function(uid, key) {
 			return ["ok", render("view/pick.jhtml", { pick: model.get(uid, key), comments: comments.get(uid + "/" + key) })]
+		},
+		test: function(key) {
+			return ["ok", render("view/pick2.jhtml", { pick: picks.get(key) })]
 		},
 		post: function() {
 			var fb = require("model/facebook.js")()
