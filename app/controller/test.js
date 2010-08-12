@@ -35,13 +35,13 @@
     			}
 
 			var fb = require("model/facebook.js")()
-			var picks = require("model/links.js")()
+			var links = require("model/links.js")()
 			var picks = require("model/picks.js")()
 
 			var ids = fb.getFriends().map(function(e) { return e.id })
 			ids.push(fb.getUID())
 			
-			return ["ok", links.find(ids).toSource()]
+			return ["ok", picks.find(links.find(ids)).toSource()]
 			//return ["ok", render("view/map.jhtml", { picks: picks.find(ids) })]
 		}
 	}

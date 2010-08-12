@@ -15,9 +15,10 @@
 			}
 		},
 		find: function(keys) {
+			log.info("finding: " + keys.toSource())
 			var t = new java.util.ArrayList()
 			for(var i = 0 ; i < keys.length ; i++) {
-				t.add(KeyFactory.createKey("picks", keys[i]))
+				t.add(KeyFactory.createKey("picks", parseInt(keys[i])))
 			}
 			var res = []
 			for(var e in Iterator(ds.get(t).values().iterator())) {
@@ -52,10 +53,9 @@
 					entity = ds.get(KeyFactory.createKey("picks", key))
 					log.info("existing key: " + key)
 				} catch(e) {
-					entity = new Entity(KeyFactory.createKey("picks"))
+					entity = new Entity("picks")
 					log.info("new key")
 				}
-
 								
 				entity.setProperty("data", new Text(JSON.stringify(data)))
 				if(!entity.hasProperty("comments")) {

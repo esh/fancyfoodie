@@ -36,7 +36,7 @@
 					links = JSON.parse(entity.getProperty("data"))
 					log.info("existing key: " + key + "links: " + links.toSource())
 				} catch(e) {
-					entity = new Entity(KeyFactory.createKey("links"))
+					entity = new Entity("links")
 					links = []
 					log.info("new key")
 				}
