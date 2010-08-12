@@ -52,7 +52,7 @@
 					entity = ds.get(KeyFactory.createKey("picks", key))
 					log.info("existing key: " + key)
 				} catch(e) {
-					entity = new Entity(KeyFactory.createKey("picks")
+					entity = new Entity(KeyFactory.createKey("picks"))
 					log.info("new key")
 				}
 

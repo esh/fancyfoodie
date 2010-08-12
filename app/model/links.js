@@ -4,14 +4,26 @@
 	var ds = DatastoreServiceFactory.getDatastoreService()
 
 	return {
-		get: function(key) {
-			var e = ds.get(KeyFactory.createKey("links", key))
-
-			if(e) {
-				return JSON.parse(e.getProperty("data").getValue())
-			} else {
-				throw "link not found: " + key
+		find: function(keys) {
+			var t = new java.util.ArrayList()
+			for(var i = 0 ; i < keys.length ; i++) {
+				t.add(KeyFactory.createKey("links", keys[i]))
 			}
+
+			var set = {}
+			for(var e in Iterator(ds.get(t).values().iterator())) {
+				var links = JSON.parse(e.getProperty("data").getValue())
+				for(var i = 0 ; i < links.length ; i++) {
+					set[links[i]] = 0
+				}
+			}
+
+			var links = []
+			for(var link in set) {
+				links.push(link)
+			}
+			return links 
+
 		},
 		add: function(key, pick_key) {
 			var transaction = ds.beginTransaction()
@@ -24,7 +36,7 @@
 					links = JSON.parse(entity.getProperty("data"))
 					log.info("existing key: " + key + "links: " + links.toSource())
 				} catch(e) {
-					entity = new Entity(KeyFactory.createKey("links")
+					entity = new Entity(KeyFactory.createKey("links"))
 					links = []
 					log.info("new key")
 				}
