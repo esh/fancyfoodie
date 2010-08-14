@@ -116,7 +116,7 @@
 		</div>
 	</div>
 	<h1><%= params["pick"].name %></h1>
-	<p>by <%= params["pick"].referer %></p>
+	<p>by <%= params["pick"].referer_name %></p>
 
 	<div id="map"></div>
 

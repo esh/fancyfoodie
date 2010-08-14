@@ -7,6 +7,9 @@
 	var model = require("model/comments.js")()
 
 	return {
+		addLink: function() {
+			return ["ok", "ok"]
+		},
 		addComment: function() {
 			if(request.params.comment != null) {
 				log.info("adding comment: " + request.params.comment)
