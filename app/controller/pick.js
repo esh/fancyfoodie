@@ -72,7 +72,7 @@
 		remove2: function(key) {
 			var fb = require("model/facebook.js")()
 			picks.remove(key)
-			queue.add(TaskOptions.Builder.url("/_tasks/removeLink").param("link", JSON.stringify({ uid: uid, pick: pick.key })))
+			queue.add(TaskOptions.Builder.url("/_tasks/removeLink").param("link", JSON.stringify({ uid: fb.getUID(), pick: pick.key })))
 
 			return ["ok", "ok"]
 		}
