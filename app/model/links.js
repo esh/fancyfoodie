@@ -33,7 +33,7 @@
 				var links
 				try {
 					entity = ds.get(KeyFactory.createKey("links", parseInt(key)))
-					links = JSON.parse(entity.getProperty("data"))
+					links = JSON.parse(entity.getProperty("data").getValue())
 					log.info("existing key: " + key + "links: " + links.toSource())
 				} catch(e) {
 					entity = new Entity(KeyFactory.createKey("links", parseInt(key)))
