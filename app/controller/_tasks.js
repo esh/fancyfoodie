@@ -13,7 +13,7 @@
 			if(request.params.link != null) {
 				log.info("adding link: " + request.params.link)
 				var link = JSON.parse(request.params.link)
-				links.add(link.pick_key, link.uid)
+				links.add(link.pick, link.uid)
 			}
 
 			return ["ok", "ok"]
@@ -22,7 +22,7 @@
 			if(request.params.link != null) {
 				log.info("removing link: " + request.params.link)
 				var link = JSON.parse(request.params.link)
-				links.remove(link.pick_key, link.uid)
+				links.remove(link.pick, link.uid)
 			}
 
 			return ["ok", "ok"]

@@ -57,7 +57,7 @@
 					author: referer,
 					comment: p.comment
 				}
-				queue.add(TaskOptions.Builder.url("/_tasks/addComment").param("comment", JSON.stringify(comment)))
+				queue.add(TaskOptions.Builder.url("/_tasks/addComment2").param("comment", JSON.stringify(comment)))
 			}
 
 			return ["ok", JSON.stringify(pick), "application/json"]

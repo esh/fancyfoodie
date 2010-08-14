@@ -41,7 +41,7 @@
 					log.info("new key")
 				}
 				
-				links.push(pick_key)
+				links.push(parseInt(pick_key))
 					
 				entity.setProperty("data", new Text(JSON.stringify(links)))
 				ds.put(entity)
