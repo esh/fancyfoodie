@@ -34,12 +34,48 @@
 
 			return ["ok", JSON.stringify(pick), "application/json"]
 		},
+		post2: function() {
+			var fb = require("model/facebook.js")()
+			var p = JSON.parse(request.content)
+
+			var uid = fb.getUID()
+			var referer = fb.getName(uid)
+			var pick = picks.persist(
+				null, {
+				name: p.name, 
+				lat: p.lat,
+				lng: p.lng,
+				referer_uid: uid,
+				referer_name: referer })
+		
+			queue.add(TaskOptions.Builder.url("/_tasks/addLink").param("link", JSON.stringify({ uid: uid, pick: pick.key })))
+	
+			if(p.comment != null && p.comment != "") {
+				var comment = {
+					pick: pick.key,
+					uid: uid,	
+					author: referer,
+					comment: p.comment
+				}
+				queue.add(TaskOptions.Builder.url("/_tasks/addComment").param("comment", JSON.stringify(comment)))
+			}
+
+			return ["ok", JSON.stringify(pick), "application/json"]
+		},
 		remove: function(key) {
 			var fb = require("model/facebook.js")()
 			var uid = fb.getUID()
 			model.remove(uid, key)
 			comments.remove(uid + "/" + key)
 			return ["ok", "ok"]
+		},
+		remove2: function(key) {
+			var fb = require("model/facebook.js")()
+			picks.remove(key)
+			queue.add(TaskOptions.Builder.url("/_tasks/removeLink").param("link", JSON.stringify({ uid: uid, pick: pick.key })))
+
+			return ["ok", "ok"]
 		}
+
 	}
 })
