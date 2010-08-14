@@ -42,7 +42,7 @@
 				log.info("adding comment: " + request.params.comment)
 				var comment = JSON.parse(request.params.comment)
 				picks.addComment(
-					comment.pick, {
+					comment.key, {
 						comment: comment.comment,
 						author: comment.author,
 						uid: comment.uid,

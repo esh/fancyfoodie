@@ -22,11 +22,12 @@
 		},
 		post2: function(key) {
 			var comment = JSON.parse(request.content)
-			var author = fb.getName(fb.getUID())
+			var uid = fb.getUID()
+			var author = fb.getName(uid)
 			log.info("adding comment - uid: " + uid + " key: " + key + " author:" + author + " text:" + comment)			
 			var comment = {
 				key: key,
-				uid: fb.getUID(),	
+				uid: uid,	
 				author: author,
 				comment: comment
 			}
