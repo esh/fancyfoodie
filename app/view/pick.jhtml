@@ -51,10 +51,10 @@
 	}
 
 	$(document).ready(function () {
-		<% if(session["uid"] == params["pick"].id.uid) { echo("$(\"#admin\").show()") } %>
+		<% if(session["uid"] == params["pick"].referer_uid) { echo("$(\"#admin\").show()") } %>
 
 		$("#remove").click(function() {
-			$.post("/pick/remove/" + pick.id.key,
+			$.post("/pick/remove/" + pick.key,
 				function() {
 					window.location = "/"	
 				})					
@@ -63,7 +63,7 @@
 		$("#add").click(function() {
 			$.ajax({
 				type: "POST",
-				url: "/comments/post/" + pick.id.uid + "/" + pick.id.key,
+				url: "/comments/post/" + pick.key,
 				contentType: "application/json",
 				dataType: 'json',
 				data: JSON.stringify($("#comment").val()),
@@ -89,7 +89,7 @@
 		var marker = new google.maps.Marker({
 			position: new google.maps.LatLng(pick.lat, pick.lng), 
 			map: map,
-			title: pick.name + " by " + pick.referer
+			title: pick.name + " by " + pick.referer_name
 		})
 
 		if(geolocation) {
@@ -116,21 +116,11 @@
 		</div>
 	</div>
 	<h1><%= params["pick"].name %></h1>
-	<p>by <%= params["pick"].referer %></p>
+	<p>by <%= params["pick"].referer_name %></p>
 
 	<div id="map"></div>
 
 	<h2>comments</h2>
-	<ul id="comments">
-		<%
-			var comments = params["comments"]
-			for(var i = 0 ; i < comments.length ; i++) {
-				echo("<li>")
-				echo(comments[i].comment + " - " + comments[i].author + ", " + comments[i].timestamp)
-				echo("</li>")
-			}
-		%>
-	</ul>
 
 	<form>
 		<p>
@@ -140,5 +130,16 @@
 			<input type="button" id="add" value="Comment"/>
 		</p>
 	</form>
+
+	<ul id="comments">
+		<%
+			var comments = params["pick"].comments
+			for(var i = 0 ; i < comments.length ; i++) {
+				echo("<li>")
+				echo(comments[i].comment + " - " + comments[i].author + ", " + comments[i].timestamp)
+				echo("</li>")
+			}
+		%>
+	</ul>
 </body>
 </html>

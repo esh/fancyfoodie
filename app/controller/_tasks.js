@@ -5,7 +5,6 @@
 	var ds = DatastoreServiceFactory.getDatastoreService()
 	var queue = QueueFactory.getQueue("tasks")
 	var links = require("model/links.js")()
-	var comments = require("model/comments.js")()
 	var picks = require("model/picks.js")()
 
 	return {
@@ -29,15 +28,6 @@
 
 		},
 		addComment: function() {
-			if(request.params.comment != null) {
-				log.info("adding comment: " + request.params.comment)
-				var comment = JSON.parse(request.params.comment)
-				comments.persist(comment.pick, comment.uid, comment.author, comment.comment)	
-			}
-
-			return ["ok", "ok"]
-		},
-		addComment2: function() {
 			if(request.params.comment != null) {
 				log.info("adding comment: " + request.params.comment)
 				var comment = JSON.parse(request.params.comment)
