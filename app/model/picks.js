@@ -83,7 +83,7 @@
 			var transaction = ds.beginTransaction()
 			try {
 				log.info("removing - key: " + key)
-				ds["delete"](KeyFactory.createKey("picks", key))
+				ds["delete"](KeyFactory.createKey("picks", parseInt(key)))
 				transaction.commit()
 			} catch(e) {
 				log.severe(e)

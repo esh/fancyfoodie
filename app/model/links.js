@@ -59,7 +59,7 @@
 			try {
 				log.info("removing - key:" + key + " pick_key: " + pick_key)
 				var entity = ds.get(KeyFactory.createKey("links", parseInt(key)))
-				entity.setProperty("data", new Text(JSON.stringify(JSON.parse(entity.getProperty("data")).filter(function(e) {
+				entity.setProperty("data", new Text(JSON.stringify(JSON.parse(entity.getProperty("data").getValue()).filter(function(e) {
 					return e != pick_key
 				}))))
 					
