@@ -54,7 +54,7 @@
 		<% if(session["uid"] == params["pick"].referer_uid) { echo("$(\"#admin\").show()") } %>
 
 		$("#remove").click(function() {
-			$.post("/pick/remove/" + pick.id.key,
+			$.post("/pick/remove2/" + pick.key,
 				function() {
 					window.location = "/"	
 				})					

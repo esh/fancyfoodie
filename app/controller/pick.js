@@ -52,7 +52,7 @@
 	
 			if(p.comment != null && p.comment != "") {
 				var comment = {
-					pick: pick.key,
+					key: pick.key,
 					uid: uid,	
 					author: referer,
 					comment: p.comment
