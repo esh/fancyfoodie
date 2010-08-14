@@ -47,7 +47,7 @@
 				lng: p.lng,
 				referer_uid: uid,
 				referer_name: referer })
-		
+	
 			queue.add(TaskOptions.Builder.url("/_tasks/addLink").param("link", JSON.stringify({ uid: uid, pick: pick.key })))
 	
 			if(p.comment != null && p.comment != "") {

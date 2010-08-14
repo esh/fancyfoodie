@@ -13,7 +13,7 @@
 			if(request.params.link != null) {
 				log.info("adding link: " + request.params.link)
 				var link = JSON.parse(request.params.link)
-				links.add(link.pick, link.uid)
+				links.add(link.uid, link.pick)
 			}
 
 			return ["ok", "ok"]
@@ -22,7 +22,7 @@
 			if(request.params.link != null) {
 				log.info("removing link: " + request.params.link)
 				var link = JSON.parse(request.params.link)
-				links.remove(link.pick, link.uid)
+				links.remove(link.uid, link.pick)
 			}
 
 			return ["ok", "ok"]
@@ -42,7 +42,7 @@
 				log.info("adding comment: " + request.params.comment)
 				var comment = JSON.parse(request.params.comment)
 				picks.addComment(
-					comment.key, {
+					comment.pick, {
 						comment: comment.comment,
 						author: comment.author,
 						uid: comment.uid,
