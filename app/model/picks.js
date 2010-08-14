@@ -35,7 +35,7 @@
 			try {
 				log.info("saving - key:" + key + " comment: " + comment.toSource())
 				var entity = ds.get(KeyFactory.createKey("picks", parseInt(key)))
-				entity.setProperty("comments", new Text(JSON.stringify(JSON.parse(entity.getProperty("comments")).push(comment))))
+				entity.setProperty("comments", new Text(JSON.stringify(JSON.parse(entity.getProperty("comments").getValue()).push(comment))))
 
 				ds.put(entity)
 				transaction.commit()
