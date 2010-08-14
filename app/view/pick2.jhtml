@@ -63,7 +63,7 @@
 		$("#add").click(function() {
 			$.ajax({
 				type: "POST",
-				url: "/comments/post/" + pick.key,
+				url: "/comments/post2/" + pick.key,
 				contentType: "application/json",
 				dataType: 'json',
 				data: JSON.stringify($("#comment").val()),
