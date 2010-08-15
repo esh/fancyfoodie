@@ -43,6 +43,18 @@
 			queue.add(TaskOptions.Builder.url("/_tasks/removeLink").param("link", JSON.stringify({ uid: fb.getUID(), pick: key })))
 
 			return ["ok", "ok"]
+		},
+		recommend: function(key) {
+			var fb = require("model/facebook.js")()
+			queue.add(TaskOptions.Builder.url("/_tasks/addLink").param("link", JSON.stringify({ uid: fb.getUID(), pick: key })))
+
+			return ["ok", "ok"]
+		}
+		unrecommend: function(key) {
+			var fb = require("model/facebook.js")()
+			queue.add(TaskOptions.Builder.url("/_tasks/removeLink").param("link", JSON.stringify({ uid: fb.getUID(), pick: key })))
+
+			return ["ok", "ok"]
 		}
 	}
 })

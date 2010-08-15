@@ -9,7 +9,7 @@
 
 	return {
 		addLink: function() {
-			if(request.params.link != null) {
+			if(request.params.link != null && picks.get(request.params.link)) {
 				log.info("adding link: " + request.params.link)
 				var link = JSON.parse(request.params.link)
 				links.add(link.uid, link.pick)
@@ -18,7 +18,7 @@
 			return ["ok", "ok"]
 		},
 		removeLink: function() {
-			if(request.params.link != null) {
+			if(request.params.link != null && picks.get(request.params.link)) {
 				log.info("removing link: " + request.params.link)
 				var link = JSON.parse(request.params.link)
 				links.remove(link.uid, link.pick)
