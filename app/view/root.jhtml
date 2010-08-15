@@ -161,6 +161,19 @@
 		$("#addButton").click(function() {
 			state.handle("ADD")
 		})
+		$("#addHere").click(function() {
+			$("#create_form").dialog("close")
+			state.handle("ADD_HERE")
+		})
+		$("#mapIt").click(function() {
+			$("#create_form").dialog('close')
+			state.handle("ADD_MAP")
+		})
+		$("#cancel").click(function() {
+			$("#create_form").dialog('close')
+			// TODO: goto prev state
+			fsm.trans('list')
+		})
 
 		state = new FSM({
 			start: function(fsm, event) {
@@ -245,24 +258,6 @@
 			},
 			new_pick: {
 				onenter: function(fsm, event) {
-					var buttons = {
-						"Map it": function() {
-							$(this).dialog('close')
-							fsm.trans('pick_marker')
-						},
-						Cancel: function() {
-							$(this).dialog('close')
-							// TODO: goto prev state
-							fsm.trans('list')
-						}
-					}
-					if(geolocation) {
-						buttons["Add Here"] = function() {
-							$(this).dialog('close')
-							fsm.trans('add_marker', { latLng: new google.maps.LatLng(position.coords.latitude,position.coords.longitude) })
-						}
-					}
-
 					$("#create_form").dialog({
 						autoOpen: true,
 						height: 340,
@@ -273,10 +268,27 @@
 							$(".ui-dialog-titlebar-close").hide()
 							$("#name").val("")
 							$("#comment").val("")
-						},
-						buttons: buttons
+
+							$("#addHere").attr("disabled", "disabled")
+							$("#mapIt").attr("disabled", "disabled")
+
+							if(!geolocation) {
+								$("addHere").hide()
+							}
+
+							$("#name").keypress(function() {
+								$("#addHere").attr("disabled", "")
+								$("#mapIt").attr("disabled", "")
+							})
+						}
 					})
 				},
+				ADD_HERE: function(fsm, event) {
+					fsm.trans('add_marker', { latLng: new google.maps.LatLng(position.coords.latitude,position.coords.longitude) })
+				},
+				ADD_MAP: function(fsm, event) {
+					fsm.trans('pick_marker')
+				}
 			},
 			pick_marker: {
 				onenter: function(fsm, event) {
@@ -371,7 +383,12 @@
 			</p>
 			<p>
 				<label for="comment">Add a comment</label>
-				<input type="textarea" name="comment" id="comment" style="height: 90px; width: 250px"/>
+				<textarea name="comment" id="comment" style="height: 90px; width: 250px"></textarea>
+			</p>
+			<p>
+				<input type="button" id="addHere" value="Add Here"/>
+				<input type="button" id="mapIt" value="Map It"/>
+				<input type="button" id="cancel" value="Cancel"/>
 			</p>
 		</form>
 	</div>
