@@ -8,8 +8,17 @@
 	var picks = require("model/picks.js")()
 
 	return {
+		removePick: function() {
+			if(request.params.remove != null) {
+				log.info("removing pick: " + request.params.remove)
+				var remove = JSON.parse(request.params.remove)
+				picks.remove(remove.pick)
+			}
+
+			return ["ok", "ok"]
+		},
 		addLink: function() {
-			if(request.params.link != null && picks.get(request.params.link)) {
+			if(request.params.link != null) {
 				log.info("adding link: " + request.params.link)
 				var link = JSON.parse(request.params.link)
 				links.add(link.uid, link.pick)
@@ -18,7 +27,7 @@
 			return ["ok", "ok"]
 		},
 		removeLink: function() {
-			if(request.params.link != null && picks.get(request.params.link)) {
+			if(request.params.link != null) {
 				log.info("removing link: " + request.params.link)
 				var link = JSON.parse(request.params.link)
 				links.remove(link.uid, link.pick)

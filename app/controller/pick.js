@@ -4,7 +4,8 @@
 
 	var queue = QueueFactory.getQueue("tasks")
 	var picks = require("model/picks.js")()
-	
+	var links = require("model/links.js")()
+
 	return {
 		show: function(key) {
 			return ["ok", render("view/pick.jhtml", { pick: picks.get(key) })]
@@ -39,8 +40,10 @@
 		},
 		remove: function(key) {
 			var fb = require("model/facebook.js")()
+
+			links.remove(fb.getUID(), key)
+			queue.add(TaskOptions.Builder.url("/_tasks/removePick").param("remove", JSON.stringify({ uid: fb.getUID(), pick: key })))
 			picks.remove(key)
-			queue.add(TaskOptions.Builder.url("/_tasks/removeLink").param("link", JSON.stringify({ uid: fb.getUID(), pick: key })))
 
 			return ["ok", "ok"]
 		},
@@ -49,7 +52,7 @@
 			queue.add(TaskOptions.Builder.url("/_tasks/addLink").param("link", JSON.stringify({ uid: fb.getUID(), pick: key })))
 
 			return ["ok", "ok"]
-		}
+		},
 		unrecommend: function(key) {
 			var fb = require("model/facebook.js")()
 			queue.add(TaskOptions.Builder.url("/_tasks/removeLink").param("link", JSON.stringify({ uid: fb.getUID(), pick: key })))
