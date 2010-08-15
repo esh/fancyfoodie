@@ -312,7 +312,7 @@
 
 					$.ajax({
 						type: "POST",
-						url: "/pick/post2",
+						url: "/pick/post",
 						contentType: "application/json",
 						dataType: 'json',
 						data: JSON.stringify({
