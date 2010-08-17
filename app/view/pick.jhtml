@@ -58,7 +58,7 @@
 		if(self_uid == pick.referer_uid) {
 			$("#remove").click(function() {
 				if(confirm("remove " + pick.name + "?")) {
-					$.post("/pick/remove/" + pick.key,
+					$.post("/pick/remove/<%= params["key"] %>",
 						function() {
 							window.location = "/"	
 						})
@@ -139,7 +139,7 @@
 
 	<ul id="comments">
 		<%
-			var comments = params["data"].comments
+			var comments = params["comments"]
 			for(var i = 0 ; i < comments.length ; i++) {
 				echo("<li>")
 				echo(comments[i].comment + " - " + comments[i].author + ", " + comments[i].timestamp)

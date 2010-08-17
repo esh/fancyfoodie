@@ -30,7 +30,7 @@
 			links.add(link.uid, link.pick)
 
 			var pick = picks.get(link.pick)
-			pick.referees.push(link.uid)
+			pick.referees.push(parseInt(link.uid))
 			picks.persist(pick)
 
 			return ["ok", "ok"]

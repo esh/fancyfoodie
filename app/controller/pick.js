@@ -8,7 +8,8 @@
 
 	return {
 		show: function(key) {
-			return ["ok", render("view/pick.jhtml", { data: picks.get(key).data })]
+			var pick = picks.get(key)
+			return ["ok", render("view/pick.jhtml", { key: key, data: pick.data, comments: pick.comments })]
 		},
 		post: function() {
 			var fb = require("model/facebook.js")()
@@ -16,12 +17,13 @@
 
 			var uid = fb.getUID()
 			var referer = fb.getName(uid)
-			var pick = picks.persist({
-				name: p.name, 
-				lat: p.lat,
-				lng: p.lng,
-				referer_uid: uid,
-				referer_name: referer })
+			var pick = picks.persist({ 
+				data: {
+					name: p.name, 
+					lat: p.lat,
+					lng: p.lng,
+					referer_uid: uid,
+					referer_name: referer }})
 	
 			queue.add(TaskOptions.Builder.url("/_tasks/addLink").param("link", JSON.stringify({ uid: uid, pick: pick.key })))
 	

@@ -54,7 +54,7 @@
 		persist: function(pick) {
 			var transaction = ds.beginTransaction()
 			try {
-				log.info("saving - key:" + key + " pick: " + pick.toSource())
+				log.info("saving: " + pick.toSource())
 				var entity
 				if(pick.key) {
 					entity = ds.get(KeyFactory.createKey("picks", parseInt(pick.key)))
