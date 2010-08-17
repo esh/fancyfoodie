@@ -195,14 +195,11 @@
 					if(geolocation) {
 						geolocation.getCurrentPosition(
 							initPosition,
-							function() {
-								alert("something went wrong")
-							},
+							function() {},
 							{ maximumAge: 0 })
 						geolocation.watchPosition(
 							updatePosition,
-							function() {
-							})
+							function() {})
 					} else {
 						initPosition({
 							coords: {

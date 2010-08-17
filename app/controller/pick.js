@@ -8,7 +8,7 @@
 
 	return {
 		show: function(key) {
-			return ["ok", render("view/pick.jhtml", { pick: picks.get(key) })]
+			return ["ok", render("view/pick.jhtml", { data: picks.get(key).data })]
 		},
 		post: function() {
 			var fb = require("model/facebook.js")()
@@ -16,8 +16,7 @@
 
 			var uid = fb.getUID()
 			var referer = fb.getName(uid)
-			var pick = picks.persist(
-				null, {
+			var pick = picks.persist({
 				name: p.name, 
 				lat: p.lat,
 				lng: p.lng,
@@ -41,9 +40,9 @@
 		remove: function(key) {
 			var fb = require("model/facebook.js")()
 
-			links.remove(fb.getUID(), key)
-			queue.add(TaskOptions.Builder.url("/_tasks/removePick").param("remove", JSON.stringify({ uid: fb.getUID(), pick: key })))
-			picks.remove(key)
+			var uid = fb.getUID()
+			links.remove(uid, key)
+			queue.add(TaskOptions.Builder.url("/_tasks/remove").param("remove", JSON.stringify({ uid: uid, pick: key })))
 
 			return ["ok", "ok"]
 		},

@@ -7,8 +7,10 @@
 		get: function(key) {
 			var e = ds.get(KeyFactory.createKey("picks", parseInt(key)))
 			if(e) {
-				var pick = JSON.parse(e.getProperty("data").getValue())
+				var pick = new Object()
 				pick.key = e.getKey().getId()
+				pick.data = JSON.parse(e.getProperty("data").getValue())
+				pick.referees = JSON.parse(e.getProperty("referees").getValue())
 				pick.comments = JSON.parse(e.getProperty("comments").getValue())
 				return pick
 			} else {
@@ -49,28 +51,35 @@
 				throw e
 			}
 		},
-		persist: function(key, data) {
+		persist: function(pick) {
 			var transaction = ds.beginTransaction()
 			try {
-				log.info("saving - key:" + key + " data: " + data.toSource())
+				log.info("saving - key:" + key + " pick: " + pick.toSource())
 				var entity
-				try {
-					entity = ds.get(KeyFactory.createKey("picks", parseInt(key)))
-					log.info("existing key: " + key)
-				} catch(e) {
+				if(pick.key) {
+					entity = ds.get(KeyFactory.createKey("picks", parseInt(pick.key)))
+					log.info("existing key: " + pick.key)
+				} else {
 					entity = new Entity("picks")
 					log.info("new key")
 				}
 								
-				entity.setProperty("data", new Text(JSON.stringify(data)))
-				if(!entity.hasProperty("comments")) {
-					entity.setProperty("comments", new Text("[]"))
+				entity.setProperty("data", new Text(JSON.stringify(pick.data)))
+			
+				if(!pick.comments) {
+					pick.comments = []
 				}
+				entity.setProperty("comments", new Text(JSON.stringify(pick.comments)))
 
-				data.key = ds.put(entity).getId()
+				if(!pick.referees) {
+					pick.referees = []
+				}
+				entity.setProperty("referees", new Text(JSON.stringify(pick.referees)))	
+
+				pick.key = ds.put(entity).getId()
 				transaction.commit()
 			
-				return data
+				return pick 
 			} catch(e) {
 				log.severe(e)
 				log.severe("rolling back")

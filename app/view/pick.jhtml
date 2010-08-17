@@ -30,7 +30,7 @@
 		}
 	})()
 
-	var pick = <%= params["pick"].toSource() %>
+	var pick = <%= params["data"].toSource() %>
 	var self_uid = <%= session["uid"] %>
 	var map
 	var user
@@ -121,8 +121,8 @@
 		<input type="button" value="Map" onclick="window.location='/#map'"/>
 		<input type="button" id="remove" value="Remove"/>
 	</div>
-	<h1><%= params["pick"].name %></h1>
-	<p>by <%= params["pick"].referer_name %></p>
+	<h1><%= params["data"].name %></h1>
+	<p>by <%= params["data"].referer_name %></p>
 
 	<div id="map"></div>
 
@@ -139,7 +139,7 @@
 
 	<ul id="comments">
 		<%
-			var comments = params["pick"].comments
+			var comments = params["data"].comments
 			for(var i = 0 ; i < comments.length ; i++) {
 				echo("<li>")
 				echo(comments[i].comment + " - " + comments[i].author + ", " + comments[i].timestamp)
