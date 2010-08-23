@@ -16,23 +16,42 @@
 		top: 0px;
 		height: 30px;
 		font-size: 25px;
-		padding-bottom: 2px;
 	}
 	#content {
 		position: absolute;
 		top: 30px; 
 		width: 100%;
 	}
-	#list {
-		width: 100%;
-	}
+        #list {
+                margin: 0;
+                padding: 0;
+                width: 100%;
+        }
+        li {
+                margin: 0;
+                padding: 0;
+                display: block;
+                list-style-type: none;
+                border-top: 1px solid black;
+        }
+        li h1 {
+                margin: 0;
+                padding: 5px 5px 5px 5px;
+                font-size: 16px;
+                font-weight: normal;
+        }
+        li h2 {
+                margin: 0;
+                padding: 5px 5px 5px 5px;
+                font-size: 10px;
+                font-weight: normal;
+        }
 	#add_pick {
 		text-align: center;
 	}
 	#nav, #content, #listButton, #list, #map, #helperText, #create_form, #add_pick {
 		display: none;
 	}
-
 </style>
 <link type="text/css" rel="stylesheet" href="public/css/ui-lightness/jquery-ui-1.8.2.custom.css" media="all"/>
 <title>Fancy Foodie</title>
@@ -40,7 +59,6 @@
 <script type="text/javascript" src="http://code.google.com/apis/gears/gears_init.js"></script>
 <script type="text/javascript" src="/public/js/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="/public/js/jquery-ui-1.8.2.custom.min.js"></script> 
-<script type="text/javascript" src="/public/js/jquery.tablesorter.min.js"></script> 
 <script type="text/javascript" src="/public/js/json2.js"></script>   
 <script type="text/javascript" src="/public/js/fsm.js"></script>   
 <script type="text/javascript">
@@ -117,19 +135,20 @@
 
 		} else {
 			for(var i = 0 ; i < picks.length ; i++) {
-				picks[i].dist = "unknown" 
+				picks[i].dist = 0 
 			}
 		}
 
+		picks.sort(function(a, b) {
+			return a.dist - b.dist
+		})
+
 		var contents = new Array()
 		for(var i = 0 ; i < picks.length ; i++) {
-			contents.push("<tr><td>" + picks[i].dist + "</td><td><a href=\"/" + picks[i].key + "\">" + picks[i].name + "</a></td><td>" + picks[i].referer_name + "</td></tr>")
+			contents.push("<li onclick='window.location=\"/" + picks[i].key + "\"'><h1>" + picks[i].name + "</h1><h2>" + (picks[i].dist > 1 ? picks[i].dist + " km" : parseInt(picks[i].dist * 100) + " m") + " - by " + picks[i].referer_name + "</h2></li>")
 		}
-		$("#list tbody").html(contents.join(""))
 
-		$("#list").trigger("update")
-		$("#list").trigger("sorton", [[[0, 0]]])
-
+		$("#list").html(contents.join(""))
 	}
 
 	function updatePosition(p) {
@@ -151,7 +170,6 @@
 
 	$(document).ready(function () {
 		$("#map").height($(window).height() - 30)
-		$("#list").tablesorter()
 		$("#listButton").click(function() {
 			state.handle("LIST")		
 		})
@@ -196,10 +214,11 @@
 						geolocation.getCurrentPosition(
 							initPosition,
 							function() {},
-							{ maximumAge: 0 })
+							{ maximumAge: 0, enableHighAccuracy: true })
 						geolocation.watchPosition(
 							updatePosition,
-							function() {})
+							function() {},
+							{ maximumAge: 0, enableHighAccuracy: true })
 					} else {
 						initPosition({
 							coords: {
@@ -281,7 +300,14 @@
 					})
 				},
 				ADD_HERE: function(fsm, event) {
-					fsm.trans('add_marker', { latLng: new google.maps.LatLng(position.coords.latitude,position.coords.longitude) })
+					geolocation.getCurrentPosition(
+							function(position) {
+								fsm.trans('add_marker', { latLng: new google.maps.LatLng(position.coords.latitude,position.coords.longitude) })
+							},
+							function() {
+								alert("gps error, please try again")
+							},
+							{ maximumAge: 0, enableHighAccuracy: true })
 				},
 				ADD_MAP: function(fsm, event) {
 					fsm.trans('pick_marker')
@@ -357,19 +383,11 @@
 		<input type="button" id="addButton" value="Add Pick"/>
 		<input type="button" id="listButton" value="Listing"/>
 		<input type="button" id="mapButton" value="Map"/>
-		<span id="helperText">Double click on Map to add Pick</span> 
+		<p id="helperText">Double click on Map to add Pick</p> 
 	</div>
 	<div id="content">
-		<table id="list">
-			<thead>
-				<tr>
-					<th>km away</th>
-					<th>name</th>
-					<th>referer</th>
-				</tr>
-			</thead>
-			<tbody/>
-		</table>
+		<ul id="list">
+		</ul>
 		<div id="map" style="width:100%;height:100%"></div>
 	</div>
 	<div id="create_form" title="Add a pick">

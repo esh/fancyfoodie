@@ -9,7 +9,7 @@
 	return {
 		show: function(key) {
 			var pick = picks.get(key)
-			return ["ok", render("view/pick.jhtml", { key: key, data: pick.data, comments: pick.comments })]
+			return ["ok", render("view/pick.jhtml", { key: key, data: pick.data, comments: pick.comments, referees: pick.referees })]
 		},
 		post: function() {
 			var fb = require("model/facebook.js")()
@@ -51,12 +51,6 @@
 		recommend: function(key) {
 			var fb = require("model/facebook.js")()
 			queue.add(TaskOptions.Builder.url("/_tasks/addLink").param("link", JSON.stringify({ uid: fb.getUID(), pick: key })))
-
-			return ["ok", "ok"]
-		},
-		unrecommend: function(key) {
-			var fb = require("model/facebook.js")()
-			queue.add(TaskOptions.Builder.url("/_tasks/removeLink").param("link", JSON.stringify({ uid: fb.getUID(), pick: key })))
 
 			return ["ok", "ok"]
 		}

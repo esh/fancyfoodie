@@ -12,7 +12,7 @@
 		margin: 0px;
 		padding: 0px
 	}
-	#remove {
+	#remove, #recommend {
 		display: none;
 	}
 </style>
@@ -31,6 +31,7 @@
 	})()
 
 	var pick = <%= params["data"].toSource() %>
+	var referees = <%= params["referees"].toSource() %>
 	var self_uid = <%= session["uid"] %>
 	var map
 	var user
@@ -55,17 +56,42 @@
 	}
 
 	$(document).ready(function () {
-		if(self_uid == pick.referer_uid) {
+		if($.inArray(self_uid, referees) > -1) {
 			$("#remove").click(function() {
-				if(confirm("remove " + pick.name + "?")) {
-					$.post("/pick/remove/<%= params["key"] %>",
+				if(pick.referer_uid == self_uid) {
+					if(confirm("remove " + pick.name + "?")) {
+						$("#remove").attr("disabled", "disabled")
+						$.post("/pick/remove/<%= params["key"] %>",
+							function() {
+								window.location = "/"	
+							})
+					}
+				} else {
+					$("#remove").attr("disabled", "disabled")
+					$.post("/pick/remove/<%= params["key"] %>", 
 						function() {
-							window.location = "/"	
+							$("#recommend").show()
+							$("#remove").attr("disabled", "")
+							$("#remove").hide()
 						})
-				}					
+				}
 			})
 
+			$("#recommend").hide()
 			$("#remove").show()
+		} else if($.inArray(self_uid, referees) == -1 && self_uid != pick.referer_uid) {
+			$("#recommend").click(function() {
+				$("#recommend").attr("disabled", "disabled")
+				$.post("/pick/recommend/<%= params["key"] %>",
+					function() {
+						$("#recommend").attr("disabled", "")
+						$("#recommend").hide()
+						$("#remove").show()
+					})
+			})
+
+			$("#recommend").show()
+			$("#remove").hide()
 		}
 
 		$("#add").click(function() {
@@ -119,7 +145,8 @@
 	<div id="nav">
 		<input type="button" value="Listing" onclick="window.location='/'"/>
 		<input type="button" value="Map" onclick="window.location='/#map'"/>
-		<input type="button" id="remove" value="Remove"/>
+		<input type="button" id="recommend" value="Recommend"/>
+		<input type="button" id="remove" value="Remove Recommendation"/>
 	</div>
 	<h1><%= params["data"].name %></h1>
 	<p>by <%= params["data"].referer_name %></p>
