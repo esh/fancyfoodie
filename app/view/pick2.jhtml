@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Fancy Foodie</title>
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
+<style type="text/css">
+	#nav {
+		height: 30px;
+		padding-bottom: 2px;
+	}
+	body { 
+		margin: 0px;
+		padding: 0px
+	}
+	#remove, #recommend, #edit, #save, #cancel, #name_edit {
+		display: none;
+	}
+	#comments {
+                margin: 10px 0px 0px 0px;
+	}
+	#comments, ul {
+		width: 100%;
+		margin: 0;
+                padding: 0;
+	}
+	h1 {
+                margin: 0;
+                padding: 5px 5px 0px 5px;
+                font-size: 20px;
+                font-weight: bold;
+	}
+	#name_edit {
+                margin: 0;
+                padding: 5px 5px 0px 5px;
+		width: 300px;
+		height: 24px;
+                font-size: 20px;
+                font-weight: bold;
+	}
+        h2 {
+                margin: 0;
+                padding: 3px 5px 5px 5px;
+                font-size: 10px;
+                font-weight: normal;
+        }
+        li {
+		width: 100%;
+                margin: 0;
+                padding: 0;
+                display: block;
+                list-style-type: none;
+        }
+        li h1 {
+                margin: 0;
+                padding: 5px 5px 0px 5px;
+                font-size: 16px;
+                font-weight: normal;
+        }
+        li h2 {
+                margin: 0;
+                padding: 3px 5px 5px 5px;
+                font-size: 10px;
+                font-weight: normal;
+        }
+
+</style>
+<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
+<script type="text/javascript" src="http://code.google.com/apis/gears/gears_init.js"></script>
+<script type="text/javascript" src="/public/js/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="/public/js/fsm.js"></script>   
+<script type="text/javascript">
+	var geolocation = (function() {
+		if(navigator.geolocation) {
+			return navigator.geolocation
+		} else if ((window.google || window.google.gears) && google.gears) {
+			return google.gears.factory.create('beta.geolocation')
+		} else {
+			return null
+		}
+	})()
+
+	var pick = <%= params["data"].toSource() %>
+	var referees = <%= params["referees"].toSource() %>
+	var self_uid = <%= session["uid"] %>
+	var map
+	var user
+
+	function updatePosition(position) {
+		if(user) {
+			user.setMap(null)
+		}
+
+		user = new google.maps.Marker({
+			position: new google.maps.LatLng(position.coords.latitude,position.coords.longitude), 
+			map: map,
+			icon: "/public/img/user.gif",
+			title:"Me!"
+		})
+
+		map.fitBounds(new google.maps.LatLngBounds(
+			new google.maps.LatLng(Math.max(position.coords.latitude, pick.lat),
+					       Math.min(position.coords.longitude, pick.lng)),
+			new google.maps.LatLng(Math.min(position.coords.latitude, pick.lat),
+					       Math.max(position.coords.longitude, pick.lng))))
+	}
+
+	$(document).ready(function () {
+		var width = Math.min(960, $(window).width())
+		$("#map_canvas").width(width)
+		$("#map_canvas").height(3 * width / 4)
+
+		map = new google.maps.Map(document.getElementById("map_canvas"), {
+			zoom: 17,
+			mapTypeControl: false,
+			disableDoubleClickZoom: true,
+			mapTypeId: google.maps.MapTypeId.ROADMAP
+		})
+
+		var marker = new google.maps.Marker({
+			position: new google.maps.LatLng(pick.lat, pick.lng), 
+			map: map,
+			title: pick.name + " by " + pick.referer_name
+		})
+
+		if(geolocation) {
+			geolocation.getCurrentPosition(
+				updatePosition,
+				function() {
+					map.setCenter(new google.maps.LatLng(pick.lat, pick.lng))
+				},
+				{ maximumAge: 0 })
+
+			geolocation.watchPosition(updatePosition, function() {})
+		} else {
+			map.setCenter(new google.maps.LatLng(pick.lat, pick.lng))
+		}
+
+		state = new FSM({
+			start: function(fsm, event) {
+				fsm.trans("show")
+			},
+			show: {
+				onenter: function(fsm, event) {
+					$("#name_show").val(pick.name)
+					$("#list").show()
+					$("#map").show()
+					$("#comments").show()
+					$("#name_show").show()
+
+					if($.inArray(self_uid, referees) > -1) {
+						$("#remove").click(function() {
+							if(pick.referer_uid == self_uid) {
+								if(confirm("remove " + pick.name + "?")) {
+									$("#remove").attr("disabled", "disabled")
+									$.post("/pick/remove/<%= params["key"] %>",
+										function() {
+											window.location = "/"	
+										})
+								}
+							} else {
+								$("#remove").attr("disabled", "disabled")
+								$.post("/pick/remove/<%= params["key"] %>", 
+									function() {
+										$("#recommend").show()
+										$("#remove").attr("disabled", "")
+										$("#remove").hide()
+									})
+							}
+						})
+
+						$("#recommend").hide()
+						$("#remove").show()
+					} else if($.inArray(self_uid, referees) == -1 && self_uid != pick.referer_uid) {
+						$("#recommend").click(function() {
+							$("#recommend").attr("disabled", "disabled")
+							$.post("/pick/recommend/<%= params["key"] %>",
+								function() {
+									$("#recommend").attr("disabled", "")
+									$("#recommend").hide()
+									$("#remove").show()
+								})
+						})
+
+						$("#recommend").show()
+						$("#remove").hide()
+					}
+
+					if(self_uid == pick.referer_uid) {
+						$("#edit").show()
+					}
+				},
+				onexit: function(fsm, event) {
+					$("#list").hide()
+					$("#map").hide()
+					$("#recommend").hide()
+					$("#remove").hide()
+					$("#comments").hide()
+					$("#name_show").hide()
+				},
+				EDIT: function(fsm, event) {
+					fsm.trans("edit")	
+				}
+			},
+			edit: {
+				onenter: function(fsm, event) {
+					$("#edit").hide()
+					$("#save").show()
+					$("#cancel").show()
+					$("#name_edit").val(pick.name)
+					$("#name_edit").show()
+				},
+				onexit: function(fsm, event) {
+					$("#edit").show()
+					$("#save").hide()
+					$("#cancel").hide()
+					$("#name_edit").hide()
+				},
+				SHOW: function(fsm, event) {
+					fsm.trans("show")
+				}
+			}
+		})
+
+		$("#edit").click(function() {
+			state.handle("EDIT")
+		})
+
+		$("#save").click(function() {
+			$.ajax({
+				type: "POST",
+				url: "/pick/post",
+				contentType: "application/json",
+				dataType: 'json',
+				data: JSON.stringify(pick),
+				success: function(p) {
+					pick = p
+					state.handle("SHOW")
+				},
+				error: function(req, errorText, errorThrown) {
+					alert("something blew up")
+				}
+			})
+		})
+
+		$("#cancel").click(function() {
+			state.handle("SHOW")
+		})
+
+		$("#add").click(function() {
+			$.ajax({
+				type: "POST",
+				url: "/comments/post/" + pick.key,
+				contentType: "application/json",
+				dataType: 'json',
+				data: JSON.stringify($("#comment").val()),
+				success: function(msg) {
+					$("#comments ul").append("<li>" + msg.comment + " - " + msg.author + ",  Just now</li>")
+				}
+			})
+			$("#comment textarea").val("")
+		})
+
+		state.start('startup')
+	})
+</script>
+</head>
+<body>
+	<div id="nav">
+		<input type="button" id="list" value="Listing" onclick="window.location='/'"/>
+		<input type="button" id="map" value="Map" onclick="window.location='/#map'"/>
+		<input type="button" id="edit" value="Edit"/>
+		<input type="button" id="recommend" value="Recommend"/>
+		<input type="button" id="remove" value="Un-Recommend"/>
+		<input type="button" id="save" value="Save"/>
+		<input type="button" id="cancel" value="Cancel"/>
+	</div>
+
+	<h1 id="name_show"><%= params["data"].name %></h1>
+	<input id="name_edit" type="text"/>
+	<h2>by <%= params["data"].referer_name %></h2>
+
+	<br/><br/>
+	<div id="comments">
+		<ul>
+			<%
+			var comments = params["comments"]
+			for(var i = 0 ; i < comments.length ; i++) {
+				echo("<li>")
+				echo("<h1>" + comments[i].comment + "</h1><h2>" + comments[i].author + ", " + comments[i].timestamp + "</h2>")
+				echo("</li>")
+			}
+			%>
+		</ul>
+		<br/>
+		<textarea style="height: 50px; width: 300px"></textarea>
+		<br/>
+		<input type="button" id="add" value="Comment"/>
+	</div>
+
+	<br/><br/>
+	<div id="map_canvas"></div>
+</body>
+</html>
