@@ -15,6 +15,32 @@
 	#remove, #recommend {
 		display: none;
 	}
+	#comments {
+		width: 100%;
+                margin: 0;
+                padding: 0;
+	}
+        li {
+		width: 100%;
+                margin: 0;
+                padding: 0;
+                display: block;
+                list-style-type: none;
+                border-top: 1px solid black;
+        }
+        li h1 {
+                margin: 0;
+                padding: 5px 5px 5px 5px;
+                font-size: 16px;
+                font-weight: normal;
+        }
+        li h2 {
+                margin: 0;
+                padding: 5px 5px 5px 5px;
+                font-size: 10px;
+                font-weight: normal;
+        }
+
 </style>
 <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
 <script type="text/javascript" src="http://code.google.com/apis/gears/gears_init.js"></script>
@@ -146,33 +172,26 @@
 		<input type="button" value="Listing" onclick="window.location='/'"/>
 		<input type="button" value="Map" onclick="window.location='/#map'"/>
 		<input type="button" id="recommend" value="Recommend"/>
-		<input type="button" id="remove" value="Remove Recommendation"/>
+		<input type="button" id="remove" value="Un-Recommend"/>
 	</div>
 	<h1><%= params["data"].name %></h1>
 	<p>by <%= params["data"].referer_name %></p>
 
-	<div id="map"></div>
-
-	<h2>comments</h2>
-
-	<form>
-		<p>
-			<textarea id="comment" style="height: 90px; width: 300px"></textarea>
-		</p>
-		<p>
-			<input type="button" id="add" value="Comment"/>
-		</p>
-	</form>
-
+	<textarea id="comment" style="height: 50px; width: 300px"></textarea>
+	<br/>
+	<input type="button" id="add" value="Comment"/>
+	<br/>
 	<ul id="comments">
 		<%
 			var comments = params["comments"]
 			for(var i = 0 ; i < comments.length ; i++) {
 				echo("<li>")
-				echo(comments[i].comment + " - " + comments[i].author + ", " + comments[i].timestamp)
+				echo("<h1>" + comments[i].comment + "</h1><h2>" + comments[i].author + ", " + comments[i].timestamp + "</h2>")
 				echo("</li>")
 			}
 		%>
 	</ul>
+	<br/>	
+	<div id="map"></div>
 </body>
 </html>

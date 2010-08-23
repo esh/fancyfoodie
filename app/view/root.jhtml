@@ -22,12 +22,13 @@
 		top: 30px; 
 		width: 100%;
 	}
-        #list {
+	#list {
+		width: 100%;
                 margin: 0;
                 padding: 0;
-                width: 100%;
-        }
+	}
         li {
+		width: 100%;
                 margin: 0;
                 padding: 0;
                 display: block;
@@ -37,8 +38,8 @@
         li h1 {
                 margin: 0;
                 padding: 5px 5px 5px 5px;
-                font-size: 16px;
-                font-weight: normal;
+                font-size: 20px;
+                font-weight: bold;
         }
         li h2 {
                 margin: 0;
