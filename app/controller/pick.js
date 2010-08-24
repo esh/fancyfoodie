@@ -8,12 +8,7 @@
 
 	return {
 		show: function(key) {
-			var pick = picks.get(key)
-			return ["ok", render("view/pick.jhtml", { key: key, data: pick.data, comments: pick.comments, referees: pick.referees })]
-		},
-		test: function(key) {
-			var pick = picks.get(key)
-			return ["ok", render("view/pick2.jhtml", { key: key, data: pick.data, comments: pick.comments, referees: pick.referees })]
+			return ["ok", render("view/pick.jhtml", { pick: picks.get(key) })]
 		},
 		post: function() {
 			var fb = require("model/facebook.js")()
@@ -43,14 +38,14 @@
 
 			return ["ok", JSON.stringify(pick), "application/json"]
 		},
-		edit: function(key) {
+		edit: function() {
 			var fb = require("model/facebook.js")()
 
 			var p = JSON.parse(request.content)
-			var pick = picks.get(key)
+			var pick = picks.get(p.key)
 			if(pick.data.referer_uid == fb.getUID()) {
 				picks.persist({
-					key: key,
+					key: p.key,
 					data: p.data,
 					comments: pick.comments,
 					referees: pick.referees

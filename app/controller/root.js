@@ -25,12 +25,16 @@
 				})
 	
 				session["access_token"] = auth["access_token"]
-				response.addCookie(new Cookie("access_token", auth["access_token"]))
+				var cookie = new Cookie("access_token", auth["access_token"])
+				cookie.setMaxAge(60*60*24*365)
+				response.addCookie(cookie)
 				log.info("got access token: " + auth["access_token"])
 
 				var uid = eval("(" + hget("https://graph.facebook.com/me?access_token=" + auth["access_token"]) + ")").id
 				session["uid"] = uid
-				response.addCookie(new Cookie("uid", uid))
+				cookie = new Cookie("uid", uid)
+				cookie.setMaxAge(60*60*24*365)
+				response.addCookie(cookie)
 				log.info("got uid: " + uid)
     			}
 

@@ -191,7 +191,7 @@
 		$("#cancel").click(function() {
 			$("#create_form").dialog('close')
 			// TODO: goto prev state
-			fsm.trans('list')
+			state.handle("LIST")
 		})
 
 		state = new FSM({
@@ -312,6 +312,9 @@
 				},
 				ADD_MAP: function(fsm, event) {
 					fsm.trans('pick_marker')
+				},
+				LIST: function(fsm, event) {
+					fsm.trans('list', event)
 				}
 			},
 			pick_marker: {
