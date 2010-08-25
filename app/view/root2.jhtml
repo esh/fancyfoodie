@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<style type="text/css">
+	html {
+		height: 100% 
+	}
+	body { 
+		height: 100%;
+		margin: 0px;
+		padding: 0px
+	}
+	#nav {
+		position: fixed;
+		top: 0px;
+		width: 100%;
+		height: 40px;
+		font-size: 25px;
+		background-color: white;
+	}
+	#map {
+		position: fixed;
+		top: 40px;
+		margin: 0;
+		padding: 0;
+	}
+	#list {
+		width: 100%;
+		margin: 40px 0px 0px 0px; 
+                padding: 0;
+	}
+        li {
+		width: 100%;
+                margin: 0;
+                padding: 0;
+                display: block;
+                list-style-type: none;
+                border-top: 1px solid black;
+        }
+        li h1 {
+                margin: 0;
+                padding: 5px 5px 5px 5px;
+                font-size: 20px;
+                font-weight: bold;
+        }
+        li h2 {
+                margin: 0;
+                padding: 5px 5px 5px 5px;
+                font-size: 10px;
+                font-weight: normal;
+        }
+	#add_pick {
+		text-align: center;
+	}
+	#nav, #listButton, #list, #map, #helperText, #create_form, #add_pick {
+		display: none;
+	}
+</style>
+<link type="text/css" rel="stylesheet" href="public/css/ui-lightness/jquery-ui-1.8.2.custom.css" media="all"/>
+<title>Fancy Foodie</title>
+<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
+<script type="text/javascript" src="http://code.google.com/apis/gears/gears_init.js"></script>
+<script type="text/javascript" src="/public/js/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="/public/js/jquery-ui-1.8.2.custom.min.js"></script> 
+<script type="text/javascript" src="/public/js/json2.js"></script>   
+<script type="text/javascript" src="/public/js/fsm.js"></script>   
+<script type="text/javascript">
+	var geolocation = (function() {
+		if(navigator.geolocation) {
+			return navigator.geolocation
+		} else if ((window.google || window.google.gears) && google.gears) {
+			return google.gears.factory.create('beta.geolocation')
+		} else {
+			return null
+		}
+	})()
+
+	var map
+	var position
+	var user
+	var picks = <%= params["picks"].toSource() %> 
+
+	function addMarker(pick) {
+		var marker = new google.maps.Marker({
+			position: new google.maps.LatLng(pick.lat, pick.lng), 
+			map: map,
+			title: pick.name + " by " + pick.referer_name
+		})
+
+		google.maps.event.addListener(marker, 'click', function(event) {
+			window.location = "/" + pick.key
+		})
+	}
+
+	function loadMap() {
+		if(!map) {	
+			map = new google.maps.Map(document.getElementById("map"), {
+				zoom: 17,
+				mapTypeControl: false,
+				disableDoubleClickZoom: true,
+				mapTypeId: google.maps.MapTypeId.ROADMAP
+			})
+
+			user = new google.maps.Marker({
+				position: new google.maps.LatLng(position.coords.latitude,position.coords.longitude), 
+				map: map,
+				icon: "/public/img/user.gif",
+				title:"Me!"
+			})
+			map.setCenter(new google.maps.LatLng(position.coords.latitude,position.coords.longitude))
+
+			for(var i = 0 ; i < picks.length ; i++) {
+				addMarker(picks[i])
+			}
+		}
+	}
+
+
+	function calcDist(lat1, lon1, lat2, lon2) {
+		lat1 = lat1 * Math.PI / 180
+		lat2 = lat2 * Math.PI / 180
+		lon1 = lon1 * Math.PI / 180
+		lon2 = lon2 * Math.PI / 180
+
+		var R = 6371 // km
+		var dLat = lat2-lat1
+		var dLon = lon2-lon1 
+		var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon/2) * Math.sin(dLon/2) 
+		var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+		return parseInt(R * c * 100) / 100
+	}
+
+	function refreshList() {
+		if(geolocation && position) {
+			for(var i = 0 ; i < picks.length ; i++) {
+				picks[i].dist = calcDist(position.coords.latitude, position.coords.longitude, picks[i].lat, picks[i].lng)
+			}
+
+		} else {
+			for(var i = 0 ; i < picks.length ; i++) {
+				picks[i].dist = 0 
+			}
+		}
+
+		picks.sort(function(a, b) {
+			return a.dist - b.dist
+		})
+
+		var contents = new Array()
+		for(var i = 0 ; i < picks.length ; i++) {
+			contents.push("<li onclick='window.location=\"/" + picks[i].key + "\"'><h1>" + picks[i].name + "</h1><h2>" + (picks[i].dist > 1 ? picks[i].dist + " km" : parseInt(picks[i].dist * 100) + " m") + " - by " + picks[i].referer_name + "</h2></li>")
+		}
+
+		$("#list").html(contents.join(""))
+	}
+
+	function updatePosition(p) {
+		position = p
+	
+		if(user) {
+			user.setMap(null)
+			user = new google.maps.Marker({
+				position: new google.maps.LatLng(position.coords.latitude,position.coords.longitude), 
+				map: map,
+				icon: "/public/img/user.gif",
+				title:"Me!"
+			})
+		}
+
+
+		refreshList()
+	}
+
+	$(document).ready(function () {
+		$("#map").height($(window).height() - 40)
+		$("#listButton").click(function() {
+			state.handle("LIST")		
+		})
+		$("#mapButton").click(function() {
+			state.handle("MAP")		
+		})
+		$("#addButton").click(function() {
+			state.handle("ADD")
+		})
+		$("#addHere").click(function() {
+			$("#create_form").dialog("close")
+			state.handle("ADD_HERE")
+		})
+		$("#mapIt").click(function() {
+			$("#create_form").dialog('close')
+			state.handle("ADD_MAP")
+		})
+		$("#cancel").click(function() {
+			$("#create_form").dialog('close')
+			// TODO: goto prev state
+			state.handle("LIST")
+		})
+
+		state = new FSM({
+			start: function(fsm, event) {
+				fsm.trans('init')
+			},
+			init: {
+				onenter: function(fsm, event) {
+					function initPosition(p) {
+						position = p
+
+						var tokens = window.location.href.split("#")
+						if(tokens.length > 1) {
+							fsm.trans(tokens[1])
+						} else {
+							fsm.trans("list")
+						}	
+					}
+
+					if(geolocation) {
+						geolocation.getCurrentPosition(
+							initPosition,
+							function() {},
+							{ maximumAge: 0, enableHighAccuracy: true })
+						geolocation.watchPosition(
+							updatePosition,
+							function() {},
+							{ maximumAge: 0, enableHighAccuracy: true })
+					} else {
+						initPosition({
+							coords: {
+								latitude: 35.65857,
+								longitude: 139.74542
+							}
+						})
+					}
+				},
+				onexit: function(fsm, event) {
+					$("#loading").hide()
+					$("#nav").show()
+				}
+			},
+			list: {
+				onenter: function(fsm, event) {
+					refreshList()
+
+					$("#map").hide()
+					$("#listButton").hide()
+					$("#list").show()
+					$("#addButton").show()
+					$("#mapButton").show()
+				},
+				onexit: function(fsm, event) {
+				},
+				MAP: function(fsm, event) {
+					fsm.trans('map', event)
+				},
+				ADD: function(fsm, event) {
+					fsm.trans('new_pick', event)
+				}
+			},
+			map: {
+				onenter: function(fsm, event) {	
+					$("#list").hide()
+					$("#mapButton").hide()
+					$("#map").show()
+					$("#addButton").show()
+					$("#listButton").show()
+					
+					loadMap()
+				},
+				onexit: function(fsm, event) {
+				},
+				LIST: function(fsm, event) {
+					fsm.trans('list', event)
+				},
+				ADD: function(fsm, event) {
+					fsm.trans('new_pick', event)
+				}
+			},
+			new_pick: {
+				onenter: function(fsm, event) {
+					$("#create_form").dialog({
+						autoOpen: true,
+						height: 340,
+						width: 300,
+						modal: true,
+						closeOnEscape: false,
+   						open: function(event, ui) { 
+							$(".ui-dialog-titlebar-close").hide()
+							$("#name").val("")
+							$("#comment").val("")
+
+							$("#addHere").attr("disabled", "disabled")
+							$("#mapIt").attr("disabled", "disabled")
+
+							if(!geolocation) {
+								$("addHere").hide()
+							}
+
+							$("#name").keypress(function() {
+								$("#addHere").attr("disabled", "")
+								$("#mapIt").attr("disabled", "")
+							})
+						}
+					})
+				},
+				ADD_HERE: function(fsm, event) {
+					geolocation.getCurrentPosition(
+							function(position) {
+								fsm.trans('add_marker', { latLng: new google.maps.LatLng(position.coords.latitude,position.coords.longitude) })
+							},
+							function() {
+								alert("gps error, please try again")
+							},
+							{ maximumAge: 0, enableHighAccuracy: true })
+				},
+				ADD_MAP: function(fsm, event) {
+					fsm.trans('pick_marker')
+				},
+				LIST: function(fsm, event) {
+					fsm.trans('list', event)
+				}
+			},
+			pick_marker: {
+				onenter: function(fsm, event) {
+					$("#list").hide()
+					$("#map").show()
+					$("#mapButton").hide()
+					$("#listButton").hide()
+					$("#addButton").hide()
+					$("#helperText").show()
+					
+					loadMap()
+				
+					google.maps.event.addListener(map, 'dblclick', function(event) {
+						fsm.trans('add_marker', event)
+					})
+
+				},
+				onexit: function(fsm, event) {
+					$("#helperText").hide()
+					google.maps.event.clearListeners(map, 'dblclick')
+				},
+			},
+			add_marker: {
+				onenter: function(fsm, event) {
+					$("#add_pick").dialog({
+						autoOpen: true,
+						modal: true,
+						closeOnEscape: false,
+   						open: function(event, ui) { 
+							$(".ui-dialog-titlebar-close").hide()
+						}
+					})
+
+					$.ajax({
+						type: "POST",
+						url: "/pick/post",
+						contentType: "application/json",
+						dataType: 'json',
+						data: JSON.stringify({
+							name: $("#name").val(),
+							lat: event.latLng.lat(),
+							lng: event.latLng.lng(),
+							comment: $("#comment").val()
+						}),
+						success: function(pick) {
+							window.location = "/" + pick.key
+						},
+						error: function(req, errorText, errorThrown) {
+							$("#add_pick").dialog("close")
+							alert("something blew up")
+							fsm.trans('list')
+						}
+					})
+				}
+			}
+		})
+		
+		state.start('startup')
+	})
+</script>
+</head>
+<body>
+	<div id="loading">
+		<p>Locating current position...</p>
+		<img src="/public/img/spinner.gif"/>	
+	</div>
+
+	<div id="nav">
+		<input type="button" id="addButton" value="Add Pick"/>
+		<input type="button" id="listButton" value="Listing"/>
+		<input type="button" id="mapButton" value="Map"/>
+		<p id="helperText">Double click on Map to add Pick</p> 
+	</div>
+	<ul id="list">
+	</ul>
+	<div id="map"</div>
+	<div id="create_form" title="Add a pick">
+		<p>
+			<label for="name">Name</label>
+			<input type="text" name="name" id="name"/>
+		</p>
+		<p>
+			<label for="comment">Add a comment</label>
+			<textarea name="comment" id="comment" style="height: 90px; width: 250px"></textarea>
+		</p>
+		<p>
+			<input type="button" id="addHere" value="Add Here"/>
+			<input type="button" id="mapIt" value="Map It"/>
+			<input type="button" id="cancel" value="Cancel"/>
+		</p>
+	</div>
+	<div id="add_pick">
+		<p>Adding Pick...</p>
+		<img src="/public/img/spinner.gif"/>	
+	</div>
+</body>
+</html>
