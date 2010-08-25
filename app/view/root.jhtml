@@ -2,6 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
 <style type="text/css">
 	html {
 		height: 100% 
@@ -12,19 +13,26 @@
 		padding: 0px
 	}
 	#nav {
-		position: absolute;
+		position: fixed;
 		top: 0px;
-		height: 30px;
-		font-size: 25px;
-	}
-	#content {
-		position: absolute;
-		top: 30px; 
 		width: 100%;
+		height: 40px;
+		font-size: 16px;
+		background-color: white;
 	}
-	#list {
+	#map {
+		position: fixed;
+		top: 40px;
+		margin: 0;
+		padding: 0;
+	}
+	#loading {
 		width: 100%;
-                margin: 0;
+		height: 100%;
+	}
+	#list, #create_form, #add_pick {
+		width: 100%;
+		margin: 40px 0px 0px 0px; 
                 padding: 0;
 	}
         li {
@@ -50,16 +58,14 @@
 	#add_pick {
 		text-align: center;
 	}
-	#nav, #content, #listButton, #list, #map, #helperText, #create_form, #add_pick {
+	#nav, #listButton, #list, #map, #helperText, #create_form, #add_pick {
 		display: none;
 	}
 </style>
-<link type="text/css" rel="stylesheet" href="public/css/ui-lightness/jquery-ui-1.8.2.custom.css" media="all"/>
 <title>Fancy Foodie</title>
 <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
 <script type="text/javascript" src="http://code.google.com/apis/gears/gears_init.js"></script>
 <script type="text/javascript" src="/public/js/jquery-1.4.2.min.js"></script>
-<script type="text/javascript" src="/public/js/jquery-ui-1.8.2.custom.min.js"></script> 
 <script type="text/javascript" src="/public/js/json2.js"></script>   
 <script type="text/javascript" src="/public/js/fsm.js"></script>   
 <script type="text/javascript">
@@ -170,7 +176,7 @@
 	}
 
 	$(document).ready(function () {
-		$("#map").height($(window).height() - 30)
+		$("#map").height($(window).height() - 40)
 		$("#listButton").click(function() {
 			state.handle("LIST")		
 		})
@@ -181,17 +187,17 @@
 			state.handle("ADD")
 		})
 		$("#addHere").click(function() {
-			$("#create_form").dialog("close")
 			state.handle("ADD_HERE")
 		})
 		$("#mapIt").click(function() {
-			$("#create_form").dialog('close')
 			state.handle("ADD_MAP")
 		})
 		$("#cancel").click(function() {
-			$("#create_form").dialog('close')
-			// TODO: goto prev state
 			state.handle("LIST")
+		})
+		$("#name").keypress(function() {
+			$("#addHere").attr("disabled", "")
+			$("#mapIt").attr("disabled", "")
 		})
 
 		state = new FSM({
@@ -232,20 +238,18 @@
 				onexit: function(fsm, event) {
 					$("#loading").hide()
 					$("#nav").show()
-					$("#content").show()
 				}
 			},
 			list: {
 				onenter: function(fsm, event) {
 					refreshList()
-
-					$("#map").hide()
 					$("#listButton").hide()
 					$("#list").show()
 					$("#addButton").show()
 					$("#mapButton").show()
 				},
 				onexit: function(fsm, event) {
+					$("#list").hide()
 				},
 				MAP: function(fsm, event) {
 					fsm.trans('map', event)
@@ -256,7 +260,6 @@
 			},
 			map: {
 				onenter: function(fsm, event) {	
-					$("#list").hide()
 					$("#mapButton").hide()
 					$("#map").show()
 					$("#addButton").show()
@@ -265,6 +268,7 @@
 					loadMap()
 				},
 				onexit: function(fsm, event) {
+					$("#map").hide()
 				},
 				LIST: function(fsm, event) {
 					fsm.trans('list', event)
@@ -275,30 +279,23 @@
 			},
 			new_pick: {
 				onenter: function(fsm, event) {
-					$("#create_form").dialog({
-						autoOpen: true,
-						height: 340,
-						width: 300,
-						modal: true,
-						closeOnEscape: false,
-   						open: function(event, ui) { 
-							$(".ui-dialog-titlebar-close").hide()
-							$("#name").val("")
-							$("#comment").val("")
+					$("#create_form").show()
+					$("#listButton").hide()
+					$("#mapButton").hide()
+					$("#addButton").hide()
 
-							$("#addHere").attr("disabled", "disabled")
-							$("#mapIt").attr("disabled", "disabled")
+					$("#name").val("")
+					$("#comment").val("")
 
-							if(!geolocation) {
-								$("addHere").hide()
-							}
+					$("#addHere").attr("disabled", "disabled")
+					$("#mapIt").attr("disabled", "disabled")
 
-							$("#name").keypress(function() {
-								$("#addHere").attr("disabled", "")
-								$("#mapIt").attr("disabled", "")
-							})
-						}
-					})
+					if(!geolocation) {
+						$("addHere").hide()
+					}
+				},
+				onexit: function(fsm, event) {
+					$("#create_form").hide()
 				},
 				ADD_HERE: function(fsm, event) {
 					geolocation.getCurrentPosition(
@@ -335,19 +332,13 @@
 				},
 				onexit: function(fsm, event) {
 					$("#helperText").hide()
+					$("#map").hide()
 					google.maps.event.clearListeners(map, 'dblclick')
 				},
 			},
 			add_marker: {
 				onenter: function(fsm, event) {
-					$("#add_pick").dialog({
-						autoOpen: true,
-						modal: true,
-						closeOnEscape: false,
-   						open: function(event, ui) { 
-							$(".ui-dialog-titlebar-close").hide()
-						}
-					})
+					$("#add_pick").show()
 
 					$.ajax({
 						type: "POST",
@@ -364,11 +355,13 @@
 							window.location = "/" + pick.key
 						},
 						error: function(req, errorText, errorThrown) {
-							$("#add_pick").dialog("close")
 							alert("something blew up")
 							fsm.trans('list')
 						}
 					})
+				},
+				onexit: function(fsm, event) {
+					$("#add_pick").hide()
 				}
 			}
 		})
@@ -387,29 +380,25 @@
 		<input type="button" id="addButton" value="Add Pick"/>
 		<input type="button" id="listButton" value="Listing"/>
 		<input type="button" id="mapButton" value="Map"/>
-		<p id="helperText">Double click on Map to add Pick</p> 
+		<span id="helperText">Double click on Map to add Pick</span> 
 	</div>
-	<div id="content">
-		<ul id="list">
-		</ul>
-		<div id="map" style="width:100%;height:100%"></div>
-	</div>
-	<div id="create_form" title="Add a pick">
-		<form>
-			<p>
-				<label for="name">Name</label>
-				<input type="text" name="name" id="name"/>
-			</p>
-			<p>
-				<label for="comment">Add a comment</label>
-				<textarea name="comment" id="comment" style="height: 90px; width: 250px"></textarea>
-			</p>
-			<p>
-				<input type="button" id="addHere" value="Add Here"/>
-				<input type="button" id="mapIt" value="Map It"/>
-				<input type="button" id="cancel" value="Cancel"/>
-			</p>
-		</form>
+	<ul id="list">
+	</ul>
+	<div id="map"</div>
+	<div id="create_form">
+		<p>
+			<label for="name">Name</label>
+			<input type="text" name="name" id="name"/>
+		</p>
+		<p>
+			<label for="comment">Add a comment</label>
+			<textarea name="comment" id="comment" style="height: 90px; width: 250px"></textarea>
+		</p>
+		<p>
+			<input type="button" id="addHere" value="Add Here"/>
+			<input type="button" id="mapIt" value="Map It"/>
+			<input type="button" id="cancel" value="Cancel"/>
+		</p>
 	</div>
 	<div id="add_pick">
 		<p>Adding Pick...</p>
