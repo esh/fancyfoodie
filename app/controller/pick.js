@@ -16,11 +16,13 @@
 
 			var uid = fb.getUID()
 			var referer = fb.getName(uid)
+			var tags = p.replace(/[^\w]/,",").split(",").map(function(s) { return s.replace(/^\s*/, "").replace(/\s*$/, "") }).filter(function(e) { return e != "" })
 			var pick = picks.persist({ 
 				data: {
 					name: p.name, 
 					lat: p.lat,
 					lng: p.lng,
+					tags: tags,
 					referer_uid: uid,
 					referer_name: referer }})
 	

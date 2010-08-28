@@ -11,7 +11,7 @@
 		margin: 0px;
 		padding: 0px
 	}
-	#remove, #recommend, #edit, #save, #cancel, #name_edit {
+	#remove, #recommend, #edit, #save, #cancel, #name_edit, #tags_edit {
 		display: none;
 	}
 	#comments {
@@ -22,17 +22,17 @@
 		margin: 0;
                 padding: 0;
 	}
-	h1 {
-                margin: 0;
-                padding: 5px 5px 0px 5px;
-                font-size: 20px;
-                font-weight: bold;
-	}
 	#name_edit {
                 margin: 0;
                 padding: 5px 5px 0px 5px;
 		width: 300px;
 		height: 24px;
+                font-size: 20px;
+                font-weight: bold;
+	}
+	h1 {
+                margin: 0;
+                padding: 5px 5px 0px 5px;
                 font-size: 20px;
                 font-weight: bold;
 	}
@@ -206,12 +206,15 @@
 					$("#cancel").show()
 					$("#name_edit").val(pick.data.name)
 					$("#name_edit").show()
+					$("#tags_edit").val(pick.data.tags ? pick.data.tags.join(" ") : "")
+					$("#tags_edit").show()
 				},
 				onexit: function(fsm, event) {
 					$("#edit").show()
 					$("#save").hide()
 					$("#cancel").hide()
 					$("#name_edit").hide()
+					$("#tags_edit").hide()
 				},
 				SHOW: function(fsm, event) {
 					fsm.trans("show")
@@ -225,6 +228,7 @@
 
 		$("#save").click(function() {
 			pick.data.name = $("#name_edit").val()
+			pick.data.tags = $("#tags_edit").val()	
 
 			$.ajax({
 				type: "POST",
@@ -233,6 +237,7 @@
 				data: JSON.stringify(pick),
 				success: function() {
 					$("#name_show").val(pick.data.name)
+					$("#tags_show").val(pick.data.tags ? pick.data.tags.join(" ") : "")
 
 					state.handle("SHOW")
 				},
@@ -277,7 +282,10 @@
 
 	<h1 id="name_show"><%= params["pick"].data.name %></h1>
 	<input id="name_edit" type="text"/>
-	<h2>by <%= params["pick"].data.referer_name %></h2>
+	<input id="name_edit" type="text"/>
+	<span id="tags_show"><%= params["pick"].data.tags ? params["pick"].data.tags.join(" ") : "" %></span>
+	<input id="tags_edit" type="text"/>
+	&nbsp;by <%= params["pick"].data.referer_name %>
 
 	<div id="comments">
 		<ul>
