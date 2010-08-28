@@ -4,36 +4,43 @@
 <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <style type="text/css">
-	html {
-		height: 100% 
-	}
-	body { 
+	html, body {
 		height: 100%;
 		margin: 0px;
 		padding: 0px
 	}
 	#nav {
-		position: fixed;
-		top: 0px;
+		position: fixed; top: 0px;
 		width: 100%;
-		height: 40px;
+		height: 30px;
+		padding: 2px 0px 2px 0px;
 		font-size: 16px;
 		background-color: white;
 	}
+	span {
+		margin: 0px;
+		padding: 0px;
+	}
+	button {
+		font: bold 25px;
+		background-color: white;
+		border: 1px solid black;
+	}
 	#map {
 		position: fixed;
-		top: 40px;
+		top: 30px;
 		margin: 0;
 		padding: 0;
 	}
 	#loading {
 		width: 100%;
 		height: 100%;
+		text-align: center;
 	}
 	#list, #create_form, #add_pick {
 		width: 100%;
-		margin: 40px 0px 0px 0px; 
-                padding: 0;
+		margin: 30px 0px 0px 0px; 
+                padding: 5px 0px 0px 0px;
 	}
         li {
 		width: 100%;
@@ -58,7 +65,7 @@
 	#add_pick {
 		text-align: center;
 	}
-	#nav, #listButton, #list, #map, #helperText, #create_form, #add_pick {
+	#nav, #listButton, #cancelMapItButton, #list, #map, #mapItText, #createFormText, #create_form, #add_pick {
 		display: none;
 	}
 </style>
@@ -152,7 +159,7 @@
 
 		var contents = new Array()
 		for(var i = 0 ; i < picks.length ; i++) {
-			contents.push("<li onclick='window.location=\"/" + picks[i].key + "\"'><h1>" + picks[i].name + "</h1><h2>" + (picks[i].dist > 1 ? picks[i].dist + " km" : parseInt(picks[i].dist * 100) + " m") + " - by " + picks[i].referer_name + "</h2></li>")
+			contents.push("<li onclick='window.location=\"/" + picks[i].key + "\"'><h1>" + picks[i].name + "</h1><h2>" + (picks[i].dist > 1 ? picks[i].dist + " km away" : parseInt(picks[i].dist * 100) + " m") + " - posted by " + picks[i].referer_name + "</h2></li>")
 		}
 
 		$("#list").html(contents.join(""))
@@ -176,7 +183,7 @@
 	}
 
 	$(document).ready(function () {
-		$("#map").height($(window).height() - 40)
+		$("#map").height($(window).height() - 30)
 		$("#listButton").click(function() {
 			state.handle("LIST")		
 		})
@@ -195,6 +202,10 @@
 		$("#cancel").click(function() {
 			state.handle("LIST")
 		})
+		$("#cancelMapItButton").click(function() {
+			state.handle("LIST")
+		})
+
 		$("#name").keypress(function() {
 			$("#addHere").attr("disabled", "")
 			$("#mapIt").attr("disabled", "")
@@ -280,6 +291,7 @@
 			new_pick: {
 				onenter: function(fsm, event) {
 					$("#create_form").show()
+					$("#createFormText").show()
 					$("#listButton").hide()
 					$("#mapButton").hide()
 					$("#addButton").hide()
@@ -296,6 +308,7 @@
 				},
 				onexit: function(fsm, event) {
 					$("#create_form").hide()
+					$("#createFormText").hide()
 				},
 				ADD_HERE: function(fsm, event) {
 					geolocation.getCurrentPosition(
@@ -317,11 +330,12 @@
 			pick_marker: {
 				onenter: function(fsm, event) {
 					$("#list").hide()
-					$("#map").show()
 					$("#mapButton").hide()
 					$("#listButton").hide()
 					$("#addButton").hide()
-					$("#helperText").show()
+					$("#map").show()
+					$("#cancelMapItButton").show()
+					$("#mapItText").show()
 					
 					loadMap()
 				
@@ -331,7 +345,8 @@
 
 				},
 				onexit: function(fsm, event) {
-					$("#helperText").hide()
+					$("#mapItText").hide()
+					$("#cancelMapItButton").hide()
 					$("#map").hide()
 					google.maps.event.clearListeners(map, 'dblclick')
 				},
@@ -377,10 +392,12 @@
 	</div>
 
 	<div id="nav">
-		<input type="button" id="addButton" value="Add Pick"/>
-		<input type="button" id="listButton" value="Listing"/>
+		<input type="button" id="addButton" value="+ Pick"/>
+		<input type="button" id="listButton" value="List"/>
 		<input type="button" id="mapButton" value="Map"/>
-		<span id="helperText">Double click on Map to add Pick</span> 
+		<input type="button" id="cancelMapItButton" value="Cancel"/>
+		<span id="mapItText">Double click on Map to add Pick</span> 
+		<span id="createFormText">Add a Pick</span> 
 	</div>
 	<ul id="list">
 	</ul>

@@ -5,8 +5,7 @@
 <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
 <style type="text/css">
 	#nav {
-		height: 30px;
-		padding-bottom: 2px;
+		height: 40px;
 	}
 	body { 
 		margin: 0px;
@@ -280,7 +279,6 @@
 	<input id="name_edit" type="text"/>
 	<h2>by <%= params["pick"].data.referer_name %></h2>
 
-	<br/><br/>
 	<div id="comments">
 		<ul>
 			<%
@@ -292,13 +290,10 @@
 			}
 			%>
 		</ul>
-		<br/>
 		<textarea style="height: 50px; width: 300px"></textarea>
-		<br/>
 		<input type="button" id="add" value="Comment"/>
 	</div>
 
-	<br/><br/>
 	<div id="map_canvas"></div>
 </body>
 </html>
