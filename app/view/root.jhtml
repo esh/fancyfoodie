@@ -26,6 +26,17 @@
 		background-color: white;
 		border: 1px solid black;
 	}
+	label {
+		float: left;
+		display: block;
+	}
+	.input {
+		width: 50%;
+	}
+	textarea {
+		width: 50%;
+		height: 50px;
+	}
 	#map {
 		position: fixed;
 		top: 30px;
@@ -67,6 +78,12 @@
 	}
 	#nav, #listButton, #cancelMapItButton, #list, #map, #mapItText, #createFormText, #create_form, #add_pick {
 		display: none;
+	}
+	.left {
+		float: left;
+	}
+	.right {
+		float: right;
 	}
 </style>
 <title>Fancy Foodie</title>
@@ -405,11 +422,11 @@
 	<div id="create_form">
 		<p>
 			<label for="name">Name</label>
-			<input type="text" name="name" id="name"/>
+			<input class="input" type="text" name="name" id="name"/>
 		</p>
 		<p>
 			<label for="comment">Add a comment</label>
-			<textarea name="comment" id="comment" style="height: 90px; width: 250px"></textarea>
+			<textarea name="comment" id="comment"></textarea>
 		</p>
 		<p>
 			<input type="button" id="addHere" value="Add Here"/>
