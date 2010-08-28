@@ -53,21 +53,13 @@
 		margin: 30px 0px 0px 0px; 
                 padding: 5px 0px 0px 0px;
 	}
-        li {
-		width: 100%;
-                margin: 0;
-                padding: 0;
-                display: block;
-                list-style-type: none;
-                border-top: 1px solid black;
-        }
-        li h1 {
+        h1 {
                 margin: 0;
                 padding: 5px 5px 5px 5px;
                 font-size: 20px;
                 font-weight: bold;
         }
-        li h2 {
+        h2 {
                 margin: 0;
                 padding: 5px 5px 5px 5px;
                 font-size: 10px;
@@ -80,10 +72,24 @@
 		display: none;
 	}
 	.left {
-		float: left;
+		display: table-cell;
+		width: 50%;
+		margin:0px;
+		padding:0px;
 	}
 	.right {
-		float: right;
+		display: table-cell;
+		width: 50%;
+		margin:0px;
+		padding:0px;
+		text-align: right;	
+	}
+	.item {
+		display: table;
+		width: 100%;
+		margin: 0px;
+		padding: 0px;
+		border-top: 1px solid black;	
 	}
 </style>
 <title>Fancy Foodie</title>
@@ -176,7 +182,7 @@
 
 		var contents = new Array()
 		for(var i = 0 ; i < picks.length ; i++) {
-			contents.push("<li onclick='window.location=\"/" + picks[i].key + "\"'><h1>" + picks[i].name + "</h1><h2>" + (picks[i].dist > 1 ? picks[i].dist + " km away" : parseInt(picks[i].dist * 100) + " m") + " - posted by " + picks[i].referer_name + "</h2></li>")
+			contents.push("<div class=\"item\" onclick='window.location=\"/" + picks[i].key + "\"'><div class=\"left\"><h1>" + picks[i].name + "</h1><h2>" + (picks[i].dist > 1 ? picks[i].dist + " km" : parseInt(picks[i].dist * 100) + " m") + " away</h2></div><div class=\"right\"><h2>posted by " + picks[i].referer_name + "</h2></div></div>")
 		}
 
 		$("#list").html(contents.join(""))
@@ -416,8 +422,7 @@
 		<span id="mapItText">Double click on Map to add Pick</span> 
 		<span id="createFormText">Add a Pick</span> 
 	</div>
-	<ul id="list">
-	</ul>
+	<div id="list"></div>
 	<div id="map"</div>
 	<div id="create_form">
 		<p>
