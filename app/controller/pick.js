@@ -44,6 +44,7 @@
 			var fb = require("model/facebook.js")()
 
 			var p = JSON.parse(request.content)
+			p.data.tags = p.data.tags.replace(/[^\w]/,",").split(",").map(function(s) { return s.replace(/^\s*/, "").replace(/\s*$/, "") }).filter(function(e) { return e != "" })
 			var pick = picks.get(p.key)
 			if(pick.data.referer_uid == fb.getUID()) {
 				picks.persist({

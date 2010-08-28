@@ -15,9 +15,7 @@
 		display: none;
 	}
 	#comments {
-                margin: 10px 0px 0px 0px;
-	}
-	#comments, ul {
+                margin: 8px 0px 0px;
 		width: 100%;
 		margin: 0;
                 padding: 0;
@@ -29,6 +27,11 @@
 		height: 24px;
                 font-size: 20px;
                 font-weight: bold;
+	}
+	ul {
+		width: 100%;
+		margin: 0;
+                padding: 0;
 	}
 	h1 {
                 margin: 0;
@@ -206,8 +209,8 @@
 					$("#cancel").show()
 					$("#name_edit").val(pick.data.name)
 					$("#name_edit").show()
-					$("#tags_edit").val(pick.data.tags ? pick.data.tags.join(" ") : "")
-					$("#tags_edit").show()
+					$("#tags_edit").val(pick.data.tags ? pick.data.tags.join(" ") : "<add tags>")
+					$("#tags_edit").css("display","block")
 				},
 				onexit: function(fsm, event) {
 					$("#edit").show()
@@ -228,7 +231,8 @@
 
 		$("#save").click(function() {
 			pick.data.name = $("#name_edit").val()
-			pick.data.tags = $("#tags_edit").val()	
+			pick.data.tags = $("#tags_edit").val()
+			pick.data.tags = pick.data.tags == "<add tags>" ? "" : pick.data.tags
 
 			$.ajax({
 				type: "POST",
@@ -237,7 +241,7 @@
 				data: JSON.stringify(pick),
 				success: function() {
 					$("#name_show").val(pick.data.name)
-					$("#tags_show").val(pick.data.tags ? pick.data.tags.join(" ") : "")
+					$("#tags_show").val(pick.data.tags)
 
 					state.handle("SHOW")
 				},
@@ -285,7 +289,7 @@
 	<input id="name_edit" type="text"/>
 	<span id="tags_show"><%= params["pick"].data.tags ? params["pick"].data.tags.join(" ") : "" %></span>
 	<input id="tags_edit" type="text"/>
-	&nbsp;by <%= params["pick"].data.referer_name %>
+	<span style="display: inline">&nbsp;by <%= params["pick"].data.referer_name %></span>
 
 	<div id="comments">
 		<ul>
