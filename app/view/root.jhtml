@@ -28,14 +28,22 @@
 	}
 	label {
 		float: left;
+		width: 50%;
+		margin: 0px;
+		padding: 0px;
 		display: block;
 	}
 	.input {
+		margin: 0px;
+		padding: 0px;
 		width: 50%;
 	}
 	textarea {
 		width: 50%;
 		height: 50px;
+		margin: 0px;
+		padding: 0px;
+
 	}
 	#map {
 		position: fixed;
@@ -122,7 +130,9 @@
 		})
 
 		google.maps.event.addListener(marker, 'click', function(event) {
-			window.location = "/" + pick.key
+			(new google.maps.InfoWindow({
+        			content: "<h1>" + pick.name + " by " + pick.referer_name + "</h1>"
+    			})).open(map, marker)
 		})
 	}
 
@@ -400,6 +410,9 @@
 				},
 				onexit: function(fsm, event) {
 					$("#add_pick").hide()
+				},
+				LIST: function(fsm, event) {
+					fsm.trans('list')
 				}
 			}
 		})
@@ -444,4 +457,16 @@
 		<img src="/public/img/spinner.gif"/>	
 	</div>
 </body>
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-18229677-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
 </html>
