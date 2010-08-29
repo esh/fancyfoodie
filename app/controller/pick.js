@@ -50,15 +50,14 @@
 			p.data.tags = processTags(p.data.tags)
 			var pick = picks.get(p.key)
 			if(pick.data.referer_uid == fb.getUID()) {
-				picks.persist({
+				pick = picks.persist({
 					key: p.key,
 					data: p.data,
 					comments: pick.comments,
 					referees: pick.referees
 				})
 
-
-				return ["ok", "ok"]
+				return ["ok", JSON.stringify(pick), "application/json"]
 			} else {
 				return ["error", "error"]
 			}

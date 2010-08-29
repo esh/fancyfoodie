@@ -24,7 +24,7 @@
 		display: none;
                 margin: 0;
                 padding: 5px 5px 0px 5px;
-		width: 200px;
+		width: 190px;
 		height: 24px;
                 font-size: 20px;
                 font-weight: bold;
@@ -32,7 +32,7 @@
 	#tags_edit {
 		display: none;
                 margin: 0;
-		width: 70px;
+		width: 80px;
 	}
 
 	ul {
@@ -149,8 +149,8 @@
 			},
 			show: {
 				onenter: function(fsm, event) {
-					$("#name_show").val(pick.data.name)
-					$("#tags_show").val(pick.data.tags)
+					$("#name_show").html(pick.data.name)
+					$("#tags_show").html(pick.data.tags && pick.data.tags.length > 0 ? pick.data.tags.join(" ") : "&lt;untagged&gt;")
 					$("#list").show()
 					$("#map").show()
 					$("#comments").show()
@@ -248,8 +248,10 @@
 				type: "POST",
 				url: "/pick/edit",
 				contentType: "application/json",
+				dataType: 'json',
 				data: JSON.stringify(pick),
-				success: function() {
+				success: function(p) {
+					pick = p
 					state.handle("SHOW")
 				},
 				error: function() {
@@ -291,8 +293,8 @@
 		<input type="button" id="cancel" value="Cancel"/>
 	</div>
 
-	<span id="name_show"><%= params["pick"].data.name %></span><input id="name_edit" type="text"/>
-	(<span id="tags_show"><%= params["pick"].data.tags ? params["pick"].data.tags.join(" ") : "<untagged>" %></span><input id="tags_edit" type="text"/>)
+	<span id="name_show"></span><input id="name_edit" type="text"/>
+	(<span id="tags_show"></span><input id="tags_edit" type="text"/>)
 	
 	<p>by <%= params["pick"].data.referer_name %></p>
 
