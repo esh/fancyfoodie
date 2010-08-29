@@ -272,7 +272,8 @@
 				dataType: 'json',
 				data: JSON.stringify($("#comment").val()),
 				success: function(msg) {
-					$("#comments ul").append("<li>" + msg.comment + " - " + msg.author + ",  Just now</li>")
+					$("#comment").val("")
+					$("#comments ul").append("<li><h1>" + msg.comment + "</h1><h2>" + msg.author + ",  Just now</h2></li>")
 				}
 			})
 			$("#comment textarea").val("")
@@ -309,7 +310,7 @@
 			}
 			%>
 		</ul>
-		<textarea style="height: 50px; width: 300px"></textarea>
+		<textarea id="comment" style="height: 50px; width: 300px"></textarea>
 		<input type="button" id="add" value="Comment"/>
 	</div>
 
