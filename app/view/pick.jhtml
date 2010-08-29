@@ -11,7 +11,7 @@
 		margin: 0px;
 		padding: 0px
 	}
-	#remove, #recommend, #edit, #save, #cancel, #name_edit, #tags_edit {
+	#remove, #recommend, #edit, #save, #cancel {
 		display: none;
 	}
 	#comments {
@@ -21,13 +21,20 @@
                 padding: 0;
 	}
 	#name_edit {
+		display: none;
                 margin: 0;
                 padding: 5px 5px 0px 5px;
-		width: 300px;
+		width: 200px;
 		height: 24px;
                 font-size: 20px;
                 font-weight: bold;
 	}
+	#tags_edit {
+		display: none;
+                margin: 0;
+		width: 70px;
+	}
+
 	ul {
 		width: 100%;
 		margin: 0;
@@ -143,10 +150,12 @@
 			show: {
 				onenter: function(fsm, event) {
 					$("#name_show").val(pick.data.name)
+					$("#tags_show").val(pick.data.tags)
 					$("#list").show()
 					$("#map").show()
 					$("#comments").show()
 					$("#name_show").show()
+					$("#tags_show").show()
 
 					if($.inArray(self_uid, pick.referees) > -1) {
 						$("#remove").click(function() {
@@ -197,6 +206,7 @@
 					$("#remove").hide()
 					$("#comments").hide()
 					$("#name_show").hide()
+					$("#tags_show").hide()
 				},
 				EDIT: function(fsm, event) {
 					fsm.trans("edit")	
@@ -210,7 +220,7 @@
 					$("#name_edit").val(pick.data.name)
 					$("#name_edit").show()
 					$("#tags_edit").val(pick.data.tags ? pick.data.tags.join(" ") : "<add tags>")
-					$("#tags_edit").css("display","block")
+					$("#tags_edit").show()
 				},
 				onexit: function(fsm, event) {
 					$("#edit").show()
@@ -240,9 +250,6 @@
 				contentType: "application/json",
 				data: JSON.stringify(pick),
 				success: function() {
-					$("#name_show").val(pick.data.name)
-					$("#tags_show").val(pick.data.tags)
-
 					state.handle("SHOW")
 				},
 				error: function() {
@@ -284,12 +291,10 @@
 		<input type="button" id="cancel" value="Cancel"/>
 	</div>
 
-	<h1 id="name_show"><%= params["pick"].data.name %></h1>
-	<input id="name_edit" type="text"/>
-	<input id="name_edit" type="text"/>
-	<span id="tags_show"><%= params["pick"].data.tags ? params["pick"].data.tags.join(" ") : "" %></span>
-	<input id="tags_edit" type="text"/>
-	<span style="display: inline">&nbsp;by <%= params["pick"].data.referer_name %></span>
+	<span id="name_show"><%= params["pick"].data.name %></span><input id="name_edit" type="text"/>
+	(<span id="tags_show"><%= params["pick"].data.tags ? params["pick"].data.tags.join(" ") : "<untagged>" %></span><input id="tags_edit" type="text"/>)
+	
+	<p>by <%= params["pick"].data.referer_name %></p>
 
 	<div id="comments">
 		<ul>
