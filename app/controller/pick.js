@@ -6,6 +6,10 @@
 	var picks = require("model/picks.js")()
 	var links = require("model/links.js")()
 
+	function processTags(tags) {
+		return tags ? tags.toLowerCase().replace(/[^\w]/,",").split(",").map(function(s) { return s.replace(/^\s*/, "").replace(/\s*$/, "") }).filter(function(e) { return e != "" }) : []
+	}
+
 	return {
 		show: function(key) {
 			return ["ok", render("view/pick.jhtml", { pick: picks.get(key) })]
@@ -16,13 +20,12 @@
 
 			var uid = fb.getUID()
 			var referer = fb.getName(uid)
-			var tags = p.replace(/[^\w]/,",").split(",").map(function(s) { return s.replace(/^\s*/, "").replace(/\s*$/, "") }).filter(function(e) { return e != "" })
 			var pick = picks.persist({ 
 				data: {
 					name: p.name, 
 					lat: p.lat,
 					lng: p.lng,
-					tags: tags,
+					tags: processTags(p.tags),
 					referer_uid: uid,
 					referer_name: referer }})
 	
@@ -44,7 +47,7 @@
 			var fb = require("model/facebook.js")()
 
 			var p = JSON.parse(request.content)
-			p.data.tags = p.data.tags.replace(/[^\w]/,",").split(",").map(function(s) { return s.replace(/^\s*/, "").replace(/\s*$/, "") }).filter(function(e) { return e != "" })
+			p.data.tags = processTags(p.data.tags)
 			var pick = picks.get(p.key)
 			if(pick.data.referer_uid == fb.getUID()) {
 				picks.persist({

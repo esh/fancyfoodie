@@ -410,7 +410,7 @@
 							name: $("#name").val(),
 							lat: event.latLng.lat(),
 							lng: event.latLng.lng(),
-							tag: $("#tags").val(),
+							tags: $("#tags").val(),
 							comment: $("#comment").val()
 						}),
 						success: function(pick) {
@@ -458,7 +458,7 @@
 		</p>
 		<p>
 			<label for="tags">Tag</label>
-			<input class="input" type="text" name="tags" id="name"/>
+			<input class="input" type="text" name="tags" id="tags"/>
 		</p>
 
 		<p>
