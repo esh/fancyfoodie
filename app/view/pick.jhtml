@@ -20,6 +20,14 @@
 		margin: 0;
                 padding: 0;
 	}
+	#name_show {
+		font-size: 20px;
+		font-weight: bold;
+	}
+	#tags_show, #referer {
+		font-size: 10px;
+		font-weight: normal;
+	}
 	#name_edit {
 		display: none;
                 margin: 0;
@@ -150,7 +158,7 @@
 			show: {
 				onenter: function(fsm, event) {
 					$("#name_show").html(pick.data.name)
-					$("#tags_show").html(pick.data.tags && pick.data.tags.length > 0 ? pick.data.tags.join(" ") : "&lt;untagged&gt;")
+					$("#tags_show").html("(" + (pick.data.tags && pick.data.tags.length > 0 ? pick.data.tags.join(" ") : "&lt;untagged&gt;") + ")")
 					$("#list").show()
 					$("#map").show()
 					$("#comments").show()
@@ -295,9 +303,9 @@
 	</div>
 
 	<span id="name_show"></span><input id="name_edit" type="text"/>
-	(<span id="tags_show"></span><input id="tags_edit" type="text"/>)
-	
-	<p>by <%= params["pick"].data.referer_name %></p>
+	<span id="tags_show"></span><input id="tags_edit" type="text"/>
+	<br/>	
+	<span id="referer">by <%= params["pick"].data.referer_name %></span>
 
 	<div id="comments">
 		<ul>
