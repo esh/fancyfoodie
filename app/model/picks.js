@@ -25,8 +25,11 @@
 			}
 			var res = []
 			for(var e in Iterator(ds.get(t).values().iterator())) {
-				var pick = JSON.parse(e.getProperty("data").getValue())
+				var pick = new Object()
 				pick.key = e.getKey().getId()
+				pick.data = JSON.parse(e.getProperty("data").getValue())
+				pick.referees = JSON.parse(e.getProperty("referees").getValue())
+				pick.comments = JSON.parse(e.getProperty("comments").getValue())
 				res.push(pick)
 			}
 

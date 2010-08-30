@@ -59,6 +59,9 @@
 		font-size: 10px;
 		font-weight: normal;
 	}
+	.map_comments {
+		margin-top: 8px;
+	}
 
 	#loading {
 		width: 100%;
@@ -133,23 +136,31 @@
 
 	function addMarker(pick) {
 		var marker = new google.maps.Marker({
-			position: new google.maps.LatLng(pick.lat, pick.lng), 
+			position: new google.maps.LatLng(pick.data.lat, pick.data.lng), 
 			map: map,
-			title: pick.name + " by " + pick.referer_name
+			title: pick.data.name + " by " + pick.data.referer_name
 		})
 
 		var contents = new Array()
 		contents.push("<span id=\"map_name\">")
-		contents.push(pick.name)
+		contents.push(pick.data.name)
 		contents.push("</span><span id=\"map_tags\">")
-		contents.push("(" + (pick.tags && pick.tags.length > 0 ? pick.tags.join(" ") : "&lt;untagged&gt;") + ")")
+		contents.push("(" + (pick.data.tags && pick.data.tags.length > 0 ? pick.data.tags.join(" ") : "&lt;untagged&gt;") + ")")
 		contents.push("</span><br/>")
 		contents.push("<span id=\"map_referer\">by ")
-		contents.push(pick.referer_name)
+		contents.push(pick.data.referer_name)
 		contents.push("</span>")
+		contents.push("<div class=\"map_comments\">")
+		for(var i = 0 ; i < pick.comments.length ; i++) {
+			contents.push(pick.comments[i].comment)
+			contents.push(" -")
+			contents.push(pick.comments[i].author)
+			contents.push("<br/>")
+		}
+		contents.push("</div>")
 
 		google.maps.event.addListener(marker, 'click', function(event) {
-			(new google.maps.InfoWindow({
+			var info = (new google.maps.InfoWindow({
         			content: contents.join("")
     			})).open(map, marker)
 		})
@@ -195,7 +206,7 @@
 
 		if(geolocation && position) {
 			for(var i = 0 ; i < picks.length ; i++) {
-				picks[i].dist = calcDist(position.coords.latitude, position.coords.longitude, picks[i].lat, picks[i].lng)
+				picks[i].dist = calcDist(position.coords.latitude, position.coords.longitude, picks[i].data.lat, picks[i].data.lng)
 			}
 
 		} else {
@@ -213,17 +224,17 @@
 			contents.push("<div class=\"item\" onclick='window.location=\"/")
 			contents.push(picks[i].key)
 			contents.push("\"'><div class=\"left\"><h1>")
-			contents.push(picks[i].name)
+			contents.push(picks[i].data.name)
 			contents.push("</h1><h2>")
 			contents.push(picks[i].dist > 1 ? picks[i].dist + " km" : parseInt(picks[i].dist * 100) + " m")
 			contents.push(" away")
 			contents.push("</h2></div><div class=\"right\"><h2>")
 			if(picks[i].tags) {
-				contents.push(picks[i].tags.join(" "))
+				contents.push(picks[i].data.tags.join(" "))
 			}
 			contents.push("</h2>")
 			contents.push("<h2>posted by ")
-			contents.push(picks[i].referer_name + "</h2></div></div>")
+			contents.push(picks[i].data.referer_name + "</h2></div></div>")
 		}
 
 		$("#list").html(contents.join(""))

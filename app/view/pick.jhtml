@@ -15,7 +15,7 @@
 		display: none;
 	}
 	#comments {
-                margin: 8px 0px 0px;
+                margin: 15px 0px 0px;
 		width: 100%;
 		margin: 0;
                 padding: 0;
@@ -54,12 +54,6 @@
                 font-size: 20px;
                 font-weight: bold;
 	}
-        h2 {
-                margin: 0;
-                padding: 3px 5px 5px 5px;
-                font-size: 10px;
-                font-weight: normal;
-        }
         li {
 		width: 100%;
                 margin: 0;
@@ -306,7 +300,7 @@
 	<span id="tags_show"></span><input id="tags_edit" type="text"/>
 	<br/>	
 	<span id="referer">by <%= params["pick"].data.referer_name %></span>
-
+	<h1>Comments</h1>
 	<div id="comments">
 		<ul>
 			<%
