@@ -229,7 +229,7 @@
 			contents.push(picks[i].dist > 1 ? picks[i].dist + " km" : parseInt(picks[i].dist * 100) + " m")
 			contents.push(" away")
 			contents.push("</h2></div><div class=\"right\"><h2>")
-			if(picks[i].tags) {
+			if(picks[i].data.tags) {
 				contents.push(picks[i].data.tags.join(" "))
 			}
 			contents.push("</h2>")
