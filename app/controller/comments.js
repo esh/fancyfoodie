@@ -4,7 +4,8 @@
 
 	var fb = require("model/facebook.js")()
 	var queue = QueueFactory.getQueue("tasks")
-	
+	var picks = require("model/picks.js")()
+
 	return {
 		post: function(key) {
 			var comment = JSON.parse(request.content)
@@ -20,6 +21,9 @@
 			queue.add(TaskOptions.Builder.url("/_tasks/addComment").param("comment", JSON.stringify(comment)))
 
 			return ["ok", JSON.stringify(comment), "application/json"]
+		},
+		get: function(key) {
+			return ["ok", JSON.stringify(picks.get(key).comments)]
 		}
 	}
 })
