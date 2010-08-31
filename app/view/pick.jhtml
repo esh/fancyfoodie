@@ -132,11 +132,6 @@
 			mapTypeId: google.maps.MapTypeId.ROADMAP
 		})
 
-		marker = new google.maps.Marker({
-			position: new google.maps.LatLng(pick.data.lat, pick.data.lng), 
-			map: map,
-			title: pick.data.name + " by " + pick.data.referer_name
-		})
 
 		if(geolocation) {
 			geolocation.getCurrentPosition(
@@ -164,6 +159,16 @@
 					$("#comments").show()
 					$("#name_show").show()
 					$("#tags_show").show()
+
+					if(marker) {
+						marker.setMap(null)
+					}
+
+					marker = new google.maps.Marker({
+						position: new google.maps.LatLng(pick.data.lat, pick.data.lng), 
+						map: map,
+						title: pick.data.name + " by " + pick.data.referer_name
+					})
 
 					if($.inArray(self_uid, pick.referees) > -1) {
 						$("#remove").click(function() {
