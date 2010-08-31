@@ -11,10 +11,11 @@
 		margin: 0px;
 		padding: 0px
 	}
-	#remove, #recommend, #edit, #save, #cancel {
+	#remove, #recommend, #edit, #save, #cancel, #draggable {
 		display: none;
 	}
 	#comments {
+		margin-top: 18px;
 		width: 100%;
 		margin: 0;
                 padding: 0;
@@ -54,7 +55,6 @@
                 padding: 0;
 	}
 	h1 {
-                margin-top: 15px;
                 padding: 5px 5px 0px 5px;
                 font-size: 16px;
                 font-weight: bold;
@@ -99,6 +99,7 @@
 	var self_uid = <%= session["uid"] %>
 	var map
 	var user
+	var marker
 
 	function updatePosition(position) {
 		if(user) {
@@ -131,7 +132,7 @@
 			mapTypeId: google.maps.MapTypeId.ROADMAP
 		})
 
-		var marker = new google.maps.Marker({
+		marker = new google.maps.Marker({
 			position: new google.maps.LatLng(pick.data.lat, pick.data.lng), 
 			map: map,
 			title: pick.data.name + " by " + pick.data.referer_name
@@ -228,6 +229,9 @@
 					$("#name_edit").show()
 					$("#tags_edit").val(pick.data.tags ? pick.data.tags.join(" ") : "<add tags>")
 					$("#tags_edit").show()
+					$("#draggable").show()
+
+					marker.setDraggable(true)
 				},
 				onexit: function(fsm, event) {
 					$("#edit").show()
@@ -235,6 +239,9 @@
 					$("#cancel").hide()
 					$("#name_edit").hide()
 					$("#tags_edit").hide()
+					$("#draggable").hide()
+
+					marker.setDraggable(false)
 				},
 				SHOW: function(fsm, event) {
 					fsm.trans("show")
@@ -250,6 +257,8 @@
 			pick.data.name = $("#name_edit").val()
 			pick.data.tags = $("#tags_edit").val()
 			pick.data.tags = pick.data.tags == "<add tags>" ? "" : pick.data.tags
+			pick.data.lat = marker.getPosition().lat()
+			pick.data.lng = marker.getPosition().lng()
 
 			$.ajax({
 				type: "POST",
@@ -305,8 +314,8 @@
 	<span id="tags_show"></span><input id="tags_edit" type="text"/>
 	<br/>	
 	<span id="referer">by <%= params["pick"].data.referer_name %></span>
-	<h1>Comments</h1>
 	<div id="comments">
+		<h1>Comments</h1>
 		<ul>
 			<%
 			var comments = params["pick"].comments
@@ -320,7 +329,7 @@
 		<textarea id="comment" style="height: 50px; width: 300px"></textarea>
 		<input type="button" id="add" value="Comment"/>
 	</div>
-
+	<h1 id="draggable">tip: marker is now draggable</h1>
 	<div id="map_canvas"></div>
 </body>
 
