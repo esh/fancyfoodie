@@ -12,7 +12,18 @@
 
 	return {
 		show: function(key) {
-			return ["ok", render("view/pick.jhtml", { pick: picks.get(key) })]
+			var pick = picks.get(key)
+
+			var editable = false	
+			if(session["uid"]) {
+				var fb = require("model/facebook.js")()
+				var ids = fb.getFriends().map(function(e) { return e.id })
+				ids.push(fb.getUID())
+
+				editable = ids.some(function(e) { return pick.data.referer_uid == e })
+			}
+
+			return ["ok", render("view/pick.jhtml", { pick: pick, editable: editable })]
 		},
 		post: function() {
 			var fb = require("model/facebook.js")()
@@ -53,7 +64,6 @@
 			var ids = fb.getFriends().map(function(e) { return e.id })
 			ids.push(fb.getUID())
 			// only friends can edit
-			
 
 			if(ids.some(function(e) { return pick.data.referer_uid == e })) {
 				pick = picks.persist({

@@ -96,7 +96,8 @@
 	})()
 
 	var pick = <%= params["pick"].toSource() %>
-	var self_uid = <%= session["uid"] %>
+	var editable = <%= params["editable"] %>
+	var self_uid = <%= session["uid"] ? session["uid"] : "null" %>
 	var map
 	var user
 	var marker
@@ -172,7 +173,10 @@
 						title: pick.data.name + " by " + pick.data.referer_name
 					})
 
-					if($.inArray(self_uid, pick.referees) > -1) {
+					if(!self_uid) {
+						$("#recommend").hide()
+						$("#remove").hide()
+					} else if($.inArray(self_uid, pick.referees) > -1) {
 						$("#remove").click(function() {
 							if(pick.data.referer_uid == self_uid) {
 								if(confirm("remove " + pick.data.name + "?")) {
@@ -210,7 +214,7 @@
 						$("#remove").hide()
 					}
 
-					if(self_uid == pick.data.referer_uid) {
+					if(editable) {
 						$("#edit").show()
 					}
 				},
