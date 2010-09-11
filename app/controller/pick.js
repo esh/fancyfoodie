@@ -49,7 +49,13 @@
 			var p = JSON.parse(request.content)
 			p.data.tags = processTags(p.data.tags)
 			var pick = picks.get(p.key)
-			if(pick.data.referer_uid == fb.getUID()) {
+
+			var ids = fb.getFriends().map(function(e) { return e.id })
+			ids.push(fb.getUID())
+			// only friends can edit
+			
+
+			if(ids.some(function(e) { return pick.data.referer_uid == e })) {
 				pick = picks.persist({
 					key: p.key,
 					data: p.data,
