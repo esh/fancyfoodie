@@ -315,8 +315,8 @@
 		<input type="button" id="list" value="Listing" onclick="window.location='/'"/>
 		<input type="button" id="map" value="Map" onclick="window.location='/#map'"/>
 		<input type="button" id="edit" value="Edit"/>
-		<input type="button" id="recommend" value="Recommend"/>
-		<input type="button" id="remove" value="Un-Recommend"/>
+		<input type="button" id="recommend" value="+ to picks"/>
+		<input type="button" id="remove" value="- to picks"/>
 		<input type="button" id="save" value="Save"/>
 		<input type="button" id="cancel" value="Cancel"/>
 	</div>

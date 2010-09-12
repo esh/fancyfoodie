@@ -44,10 +44,10 @@
 			var ids = fb.getFriends().map(function(e) { return e.id })
 			ids.push(fb.getUID())
 						
-			return ["ok", render("view/root.jhtml", { picks: picks.find(links.find(ids))})]
+			return ["ok", render("view/main.jhtml", { picks: picks.find(links.find(ids))})]
 		},
 		yours: function(id) {
-			return ["ok", render("view/root.jhtml", { picks: picks.find(links.find([id]))})]
+			return ["ok", render("view/yours.jhtml", { picks: picks.find(links.find([id]))})]
 		}
 	}
 })

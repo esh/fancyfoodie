@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<style type="text/css">
+	html, body {
+		height: 100%;
+		margin: 0px;
+		padding: 0px
+	}
+	#nav {
+		position: fixed; top: 0px;
+		width: 100%;
+		height: 30px;
+		padding: 2px 0px 2px 0px;
+		font-size: 16px;
+		background-color: white;
+	}
+	span {
+		margin: 0px;
+		padding: 0px;
+	}
+	button {
+		font: bold 25px;
+		background-color: white;
+		border: 1px solid black;
+	}
+	#map {
+		position: fixed;
+		top: 30px;
+		margin: 0;
+		padding: 0;
+	}
+	#map_name {
+		font-size: 20px;
+		font-weight: bold;
+	}
+	#map_tags, #map_referer {
+		font-size: 10px;
+		font-weight: normal;
+	}
+	.map_comments {
+		margin-top: 8px;
+	}
+
+	#loading {
+		width: 100%;
+		height: 100%;
+		text-align: center;
+	}
+	#list {
+		width: 100%;
+		margin: 30px 0px 0px 0px; 
+                padding: 5px 0px 0px 0px;
+	}
+        h1 {
+                margin: 0;
+                padding: 5px 5px 5px 5px;
+                font-size: 20px;
+                font-weight: bold;
+        }
+        h2 {
+                margin: 0;
+                padding: 5px 5px 5px 5px;
+                font-size: 10px;
+                font-weight: normal;
+        }
+	#nav, #listButton, #list, #map {
+		display: none;
+	}
+	.left {
+		display: table-cell;
+		width: 50%;
+		margin:0px;
+		padding:0px;
+	}
+	.right {
+		display: table-cell;
+		width: 50%;
+		margin:0px;
+		padding:0px;
+		text-align: right;	
+	}
+	.item {
+		display: table;
+		width: 100%;
+		margin: 0px;
+		padding: 0px;
+		border-top: 1px solid black;	
+	}
+</style>
+<title>Fancy Foodie</title>
+<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
+<script type="text/javascript" src="http://code.google.com/apis/gears/gears_init.js"></script>
+<script type="text/javascript" src="/public/js/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="/public/js/json2.js"></script>   
+<script type="text/javascript" src="/public/js/fsm.js"></script>   
+<script type="text/javascript">
+	var geolocation = (function() {
+		if(navigator.geolocation) {
+			return navigator.geolocation
+		} else if ((window.google || window.google.gears) && google.gears) {
+			return google.gears.factory.create('beta.geolocation')
+		} else {
+			return null
+		}
+	})()
+
+	var map
+	var position
+	var user
+	var picks = <%= params["picks"].toSource() %> 
+
+	function addMarker(pick) {
+		var marker = new google.maps.Marker({
+			position: new google.maps.LatLng(pick.data.lat, pick.data.lng), 
+			map: map,
+			title: pick.data.name + " by " + pick.data.referer_name
+		})
+
+		var contents = new Array()
+		contents.push("<span id=\"map_name\">")
+		contents.push(pick.data.name)
+		contents.push("</span><span id=\"map_tags\">")
+		contents.push("(" + (pick.data.tags && pick.data.tags.length > 0 ? pick.data.tags.join(" ") : "&lt;untagged&gt;") + ")")
+		contents.push("</span><br/>")
+		contents.push("<span id=\"map_referer\">by ")
+		contents.push(pick.data.referer_name)
+		contents.push("</span>")
+		contents.push("<div class=\"map_comments\">")
+		for(var i = 0 ; i < pick.comments.length ; i++) {
+			contents.push(pick.comments[i].comment)
+			contents.push(" -")
+			contents.push(pick.comments[i].author)
+			contents.push("<br/>")
+		}
+		contents.push("</div>")
+
+		google.maps.event.addListener(marker, 'click', function(event) {
+			var info = (new google.maps.InfoWindow({
+        			content: contents.join("")
+    			})).open(map, marker)
+		})
+	}
+
+	function loadMap() {
+		if(!map) {	
+			map = new google.maps.Map(document.getElementById("map"), {
+				zoom: 17,
+				mapTypeControl: false,
+				disableDoubleClickZoom: true,
+				mapTypeId: google.maps.MapTypeId.ROADMAP
+			})
+
+			user = new google.maps.Marker({
+				position: new google.maps.LatLng(position.coords.latitude,position.coords.longitude), 
+				map: map,
+				icon: "/public/img/user.gif",
+				title:"Me!"
+			})
+			map.setCenter(new google.maps.LatLng(position.coords.latitude,position.coords.longitude))
+
+			for(var i = 0 ; i < picks.length ; i++) {
+				addMarker(picks[i])
+			}
+		}
+	}
+
+	function refreshList() {
+		function calcDist(lat1, lon1, lat2, lon2) {
+			lat1 = lat1 * Math.PI / 180
+			lat2 = lat2 * Math.PI / 180
+			lon1 = lon1 * Math.PI / 180
+			lon2 = lon2 * Math.PI / 180
+
+			var R = 6371 // km
+			var dLat = lat2-lat1
+			var dLon = lon2-lon1 
+			var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon/2) * Math.sin(dLon/2) 
+			var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+			return parseInt(R * c * 100) / 100
+		}
+
+		if(geolocation && position) {
+			for(var i = 0 ; i < picks.length ; i++) {
+				picks[i].dist = calcDist(position.coords.latitude, position.coords.longitude, picks[i].data.lat, picks[i].data.lng)
+			}
+
+		} else {
+			for(var i = 0 ; i < picks.length ; i++) {
+				picks[i].dist = 0 
+			}
+		}
+
+		picks.sort(function(a, b) {
+			return a.dist - b.dist
+		})
+
+		var contents = new Array()
+		for(var i = 0 ; i < picks.length ; i++) {
+			contents.push("<div class=\"item\" onclick='window.location=\"/p/")
+			contents.push(picks[i].key)
+			contents.push("\"'><div class=\"left\"><h1>")
+			contents.push(picks[i].data.name)
+			contents.push("</h1><h2>")
+			contents.push(picks[i].dist > 1 ? picks[i].dist + " km" : parseInt(picks[i].dist * 100) + " m")
+			contents.push(" away")
+			contents.push("</h2></div><div class=\"right\"><h2>")
+			if(picks[i].data.tags) {
+				contents.push(picks[i].data.tags.join(" "))
+			}
+			contents.push("</h2>")
+			contents.push("<h2>posted by ")
+			contents.push(picks[i].data.referer_name + "</h2></div></div>")
+		}
+
+		$("#list").html(contents.join(""))
+	}
+
+	function updatePosition(p) {
+		position = p
+	
+		if(user) {
+			user.setMap(null)
+			user = new google.maps.Marker({
+				position: new google.maps.LatLng(position.coords.latitude,position.coords.longitude), 
+				map: map,
+				icon: "/public/img/user.gif",
+				title:"Me!"
+			})
+		}
+
+
+		refreshList()
+	}
+
+	$(document).ready(function () {
+		$("#map").height($(window).height() - 30)
+		$("#listButton").click(function() {
+			state.handle("LIST")		
+		})
+		$("#mapButton").click(function() {
+			state.handle("MAP")		
+		})
+
+		state = new FSM({
+			start: function(fsm, event) {
+				fsm.trans('init')
+			},
+			init: {
+				onenter: function(fsm, event) {
+					function initPosition(p) {
+						position = p
+
+						var tokens = window.location.href.split("#")
+						if(tokens.length > 1) {
+							fsm.trans(tokens[1])
+						} else {
+							fsm.trans("list")
+						}	
+					}
+
+					if(geolocation) {
+						geolocation.getCurrentPosition(
+							initPosition,
+							function() {},
+							{ maximumAge: 0, enableHighAccuracy: true })
+						geolocation.watchPosition(
+							updatePosition,
+							function() {},
+							{ maximumAge: 0, enableHighAccuracy: true })
+					} else {
+						initPosition({
+							coords: {
+								latitude: 35.65857,
+								longitude: 139.74542
+							}
+						})
+					}
+				},
+				onexit: function(fsm, event) {
+					$("#loading").hide()
+					$("#nav").show()
+				}
+			},
+			list: {
+				onenter: function(fsm, event) {
+					refreshList()
+					$("#listButton").hide()
+					$("#list").show()
+				},
+				onexit: function(fsm, event) {
+					$("#list").hide()
+				},
+				MAP: function(fsm, event) {
+					fsm.trans('map', event)
+				},
+				ADD: function(fsm, event) {
+					fsm.trans('new_pick', event)
+				}
+			},
+			map: {
+				onenter: function(fsm, event) {	
+					$("#mapButton").hide()
+					$("#map").show()
+					
+					loadMap()
+				},
+				onexit: function(fsm, event) {
+					$("#map").hide()
+				},
+				LIST: function(fsm, event) {
+					fsm.trans('list', event)
+				},
+				ADD: function(fsm, event) {
+					fsm.trans('new_pick', event)
+				}
+			}
+		})
+		
+		state.start('startup')
+	})
+</script>
+</head>
+<body>
+	<div id="loading">
+		<p>Locating current position...</p>
+		<img src="/public/img/spinner.gif"/>	
+	</div>
+
+	<div id="nav">
+		<input type="button" id="listButton" value="List"/>
+		<input type="button" id="mapButton" value="Map"/>
+	</div>
+	<div id="list"></div>
+	<div id="map"</div>
+</body>
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-18229677-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+</html>
