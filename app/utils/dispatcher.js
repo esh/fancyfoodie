@@ -9,7 +9,7 @@
 						args.push(match[j])
 					}
 
-					var result = routes[i].call(this, args)
+					var result = routes[i].apply(new Object(), args)
 					switch(result[0]) {
 					case "ok":
 						var contentType = result.length >= 3 ? result[2] : "text/html; charset=UTF-8"
