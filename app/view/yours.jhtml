@@ -243,6 +243,9 @@
 		$("#mapButton").click(function() {
 			state.handle("MAP")		
 		})
+		$("#allButton").click(function() {
+			window.location = "/"
+		})
 
 		state = new FSM({
 			start: function(fsm, event) {
@@ -330,6 +333,7 @@
 	</div>
 
 	<div id="nav">
+		<input type="button" id="allButton" value="See All"/>
 		<input type="button" id="listButton" value="List"/>
 		<input type="button" id="mapButton" value="Map"/>
 	</div>

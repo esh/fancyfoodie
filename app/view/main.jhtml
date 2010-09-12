@@ -137,6 +137,7 @@
 	var map
 	var position
 	var user
+	var self_uid = <%= session["uid"] %>
 	var picks = <%= params["picks"].toSource() %> 
 
 	function addMarker(pick) {
@@ -285,6 +286,9 @@
 		$("#cancelMapItButton").click(function() {
 			state.handle("LIST")
 		})
+		$("#yoursButton").click(function() {
+			window.location = "/r/" + self_uid 
+		})
 
 		$("#name").keypress(function() {
 			$("#addHere").attr("disabled", "")
@@ -338,6 +342,7 @@
 					$("#list").show()
 					$("#addButton").show()
 					$("#mapButton").show()
+					$("#yoursButton").show()
 				},
 				onexit: function(fsm, event) {
 					$("#list").hide()
@@ -355,6 +360,7 @@
 					$("#map").show()
 					$("#addButton").show()
 					$("#listButton").show()
+					$("#yoursButton").show()
 					
 					loadMap()
 				},
@@ -375,6 +381,7 @@
 					$("#listButton").hide()
 					$("#mapButton").hide()
 					$("#addButton").hide()
+					$("#yoursButton").hide()
 
 					$("#name").val("")
 					$("#tags").val("")
@@ -414,6 +421,7 @@
 					$("#mapButton").hide()
 					$("#listButton").hide()
 					$("#addButton").hide()
+					$("#yoursButton").hide()
 					$("#map").show()
 					$("#cancelMapItButton").show()
 					$("#mapItText").show()
@@ -431,6 +439,10 @@
 					$("#map").hide()
 					google.maps.event.clearListeners(map, 'dblclick')
 				},
+				LIST: function(fsm, event) {
+					fsm.trans('list', event)
+				}
+
 			},
 			add_marker: {
 				onenter: function(fsm, event) {
@@ -480,6 +492,7 @@
 		<input type="button" id="addButton" value="+ Pick"/>
 		<input type="button" id="listButton" value="List"/>
 		<input type="button" id="mapButton" value="Map"/>
+		<input type="button" id="yoursButton" value="Your Picks"/>
 		<input type="button" id="cancelMapItButton" value="Cancel"/>
 		<span id="mapItText">Double click on Map to add Pick</span> 
 		<span id="createFormText">Add a Pick</span> 
