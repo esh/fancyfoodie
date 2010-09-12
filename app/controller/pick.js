@@ -91,6 +91,9 @@
 			queue.add(TaskOptions.Builder.url("/_tasks/addLink").param("link", JSON.stringify({ uid: fb.getUID(), pick: key })))
 
 			return ["ok", "ok"]
+		},
+		yours: function(key) {
+			return ["ok", JSON.stringify(picks.find(links.find([key]))), "application/json"]
 		}
 	}
 })

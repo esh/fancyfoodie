@@ -226,7 +226,7 @@
 
 		var contents = new Array()
 		for(var i = 0 ; i < picks.length ; i++) {
-			contents.push("<div class=\"item\" onclick='window.location=\"/")
+			contents.push("<div class=\"item\" onclick='window.location=\"/p/")
 			contents.push(picks[i].key)
 			contents.push("\"'><div class=\"left\"><h1>")
 			contents.push(picks[i].data.name)
@@ -449,7 +449,7 @@
 							comment: $("#comment").val()
 						}),
 						success: function(pick) {
-							window.location = "/" + pick.key
+							window.location = "/p/" + pick.key
 						},
 						error: function(req, errorText, errorThrown) {
 							alert("something blew up")
