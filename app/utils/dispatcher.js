@@ -9,7 +9,7 @@
 						request.args.push(match[j])
 					}
 
-					var result = routes[i]({ request: request, response: response, session: session })
+					var result = routes[i].handler({ request: request, response: response, session: session })
 					switch(result[0]) {
 					case "ok":
 						var contentType = result.length >= 3 ? result[2] : "text/html; charset=UTF-8"
@@ -44,4 +44,4 @@
 			log.warning(e)
 		}
 	}
-})()
+})
