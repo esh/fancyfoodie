@@ -16,5 +16,5 @@ httpserver(config, require("utils/dispatcher.js")([
 	{ route: /^\/comments\/get\/([0-9]+)$/, handler: comments.get },
 	{ route: /^\/_tasks\/remove$/, handler: tasks.remove },
 	{ route: /^\/_tasks\/addLink$/, handler: tasks.addLink },
-	{ route: /^\/_tasks\/addComment$/, handler: tasks.addComments },	
+	{ route: /^\/_tasks\/addComment$/, handler: tasks.addComment },	
 	{ route: /./, handler: main.show }]))
