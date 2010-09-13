@@ -7,13 +7,13 @@
 	var picks = require("model/picks.js")()
 
 	return {
-		post: function(key) {
+		post: function(request, response, session) {
 			var comment = JSON.parse(request.content)
 			var uid = fb.getUID()
 			var author = fb.getName(uid)
-			log.info("adding comment - uid: " + uid + " key: " + key + " author:" + author + " text:" + comment)			
+			log.info("adding comment - uid: " + uid + " key: " + request.args[0] + " author:" + author + " text:" + comment)			
 			var comment = {
-				key: key,
+				key: request.args[0],
 				uid: uid,	
 				author: author,
 				comment: comment
@@ -22,8 +22,8 @@
 
 			return ["ok", JSON.stringify(comment), "application/json"]
 		},
-		get: function(key) {
-			return ["ok", JSON.stringify(picks.get(key).comments)]
+		get: function(request, response, session) {
+			return ["ok", JSON.stringify(picks.get(request.args[0]).comments)]
 		}
 	}
 })

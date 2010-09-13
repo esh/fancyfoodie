@@ -4,12 +4,12 @@
 			for(var i = 0 ; i < routes.length ; i++) {
 				var match = request.url.match(routes[i].route)
 				if(match) {
-					var args = []
+					request.args = []
 					for(var j = 1 ; j < match.length ; i++) {
-						args.push(match[j])
+						request.args.push(match[j])
 					}
 
-					var result = routes[i].apply(new Object(), args)
+					var result = routes[i]({ request: request, response: response, session: session })
 					switch(result[0]) {
 					case "ok":
 						var contentType = result.length >= 3 ? result[2] : "text/html; charset=UTF-8"

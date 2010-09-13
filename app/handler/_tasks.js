@@ -8,7 +8,7 @@
 	var picks = require("model/picks.js")()
 
 	return {
-		remove: function() {
+		remove: function(request, response, session) {
 			log.info("removing: " + request.params.remove)
 			var remove = JSON.parse(request.params.remove)
 			var pick = picks.get(remove.pick)
@@ -24,7 +24,7 @@
 
 			return ["ok", "ok"]
 		},
-		addLink: function() {
+		addLink: function(request, response, session) {
 			log.info("adding link: " + request.params.link)
 			var link = JSON.parse(request.params.link)
 			links.add(link.uid, link.pick)
@@ -35,7 +35,7 @@
 
 			return ["ok", "ok"]
 		},
-		addComment: function() {
+		addComment: function(request, response, session) {
 			log.info("adding comment: " + request.params.comment)
 			var comment = JSON.parse(request.params.comment)
 			picks.addComment(

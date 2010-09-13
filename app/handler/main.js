@@ -4,7 +4,7 @@
 	var picks = require("model/picks.js")()
 
 	return {
-		show: function() {
+		show: function(request, response, session) {
 			if(request.params["access_token"] && request.params["uid"]) {
 				// logged in previously
 				log.info("access token in cookie: " + request.params["uid"])
@@ -46,8 +46,8 @@
 						
 			return ["ok", render("view/main.jhtml", { picks: picks.find(links.find(ids))})]
 		},
-		yours: function(id) {
-			return ["ok", render("view/yours.jhtml", { picks: picks.find(links.find([id]))})]
+		yours: function(request, response, session) {
+			return ["ok", render("view/yours.jhtml", { picks: picks.find(links.find([request.args[0]]))})]
 		}
 	}
 })
