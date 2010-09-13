@@ -122,18 +122,9 @@
 <script type="text/javascript" src="http://code.google.com/apis/gears/gears_init.js"></script>
 <script type="text/javascript" src="/public/js/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="/public/js/json2.js"></script>   
+<script type="text/javascript" src="/public/js/geo.js"></script>   
 <script type="text/javascript" src="/public/js/fsm.js"></script>   
 <script type="text/javascript">
-	var geolocation = (function() {
-		if(navigator.geolocation) {
-			return navigator.geolocation
-		} else if ((window.google || window.google.gears) && google.gears) {
-			return google.gears.factory.create('beta.geolocation')
-		} else {
-			return null
-		}
-	})()
-
 	var map
 	var position
 	var user
@@ -315,19 +306,14 @@
 					if(geolocation) {
 						geolocation.getCurrentPosition(
 							initPosition,
-							function() {},
+							function() { initPosition({ coords: { latitude: 35.65857, longitude: 139.74542 }})},
 							{ maximumAge: 0, enableHighAccuracy: true })
 						geolocation.watchPosition(
 							updatePosition,
 							function() {},
 							{ maximumAge: 0, enableHighAccuracy: true })
 					} else {
-						initPosition({
-							coords: {
-								latitude: 35.65857,
-								longitude: 139.74542
-							}
-						})
+						initPosition({ coords: { latitude: 35.65857, longitude: 139.74542 }})
 					}
 				},
 				onexit: function(fsm, event) {

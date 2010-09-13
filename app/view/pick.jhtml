@@ -83,18 +83,9 @@
 <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
 <script type="text/javascript" src="http://code.google.com/apis/gears/gears_init.js"></script>
 <script type="text/javascript" src="/public/js/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="/public/js/geo.js"></script>   
 <script type="text/javascript" src="/public/js/fsm.js"></script>   
 <script type="text/javascript">
-	var geolocation = (function() {
-		if(navigator.geolocation) {
-			return navigator.geolocation
-		} else if ((window.google || window.google.gears) && google.gears) {
-			return google.gears.factory.create('beta.geolocation')
-		} else {
-			return null
-		}
-	})()
-
 	var pick = <%= params["pick"].toSource() %>
 	var editable = <%= params["editable"] %>
 	var self_uid = <%= session["uid"] ? session["uid"] : "null" %>
