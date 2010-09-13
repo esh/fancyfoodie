@@ -1,5 +1,5 @@
 (function(routes) {
-	return function(request, response, session) {
+	return (function(request, response, session) {
 		try {
 			for(var i = 0 ; i < routes.length ; i++) {
 				var match = request.url.match(routes[i].route)
@@ -9,7 +9,7 @@
 						request.args.push(match[j])
 					}
 
-					var result = routes[i].handler({ request: request, response: response, session: session })
+					var result = routes[i].handler(request, response, session })
 					switch(result[0]) {
 					case "ok":
 						var contentType = result.length >= 3 ? result[2] : "text/html; charset=UTF-8"
@@ -39,9 +39,9 @@
 
 			throw "no matching routes"
 		} catch(e) {
-			log.error(e)
+			log.severe(e)
 			response.sendError(500)
 			throw e
 		}
-	}
+	})
 })
