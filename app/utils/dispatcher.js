@@ -5,11 +5,11 @@
 				var match = request.url.match(routes[i].route)
 				if(match) {
 					request.args = []
-					for(var j = 1 ; j < match.length ; i++) {
+					for(var j = 1 ; j < match.length ; j++) {
 						request.args.push(match[j])
 					}
 
-					var result = routes[i].handler(request, response, session })
+					var result = routes[i].handler(request, response, session)
 					switch(result[0]) {
 					case "ok":
 						var contentType = result.length >= 3 ? result[2] : "text/html; charset=UTF-8"
