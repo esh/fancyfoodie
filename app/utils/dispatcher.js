@@ -39,9 +39,9 @@
 
 			throw "no matching routes"
 		} catch(e) {
+			log.error(e)
 			response.sendError(500)
-			log.warning(request.address + " caused:")
-			log.warning(e)
+			throw e
 		}
 	}
 })
