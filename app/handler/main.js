@@ -40,7 +40,7 @@
 				log.info("got uid: " + uid)
     			}
 
-			var fb = require("model/facebook.js")()
+			var fb = require("utils/facebook.js")(session)
 			var ids = fb.getFriends().map(function(e) { return e.id })
 			ids.push(fb.getUID())
 						

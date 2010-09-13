@@ -2,12 +2,12 @@
 	importPackage(com.google.appengine.api.labs.taskqueue)
 	require("utils/json2.js")
 
-	var fb = require("model/facebook.js")()
 	var queue = QueueFactory.getQueue("tasks")
 	var picks = require("model/picks.js")()
 
 	return {
 		post: function(request, response, session) {
+			var fb = require("utils/facebook.js")(session)
 			var comment = JSON.parse(request.content)
 			var uid = fb.getUID()
 			var author = fb.getName(uid)

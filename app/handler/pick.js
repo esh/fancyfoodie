@@ -16,7 +16,7 @@
 
 			var editable = false	
 			if(session["uid"]) {
-				var fb = require("model/facebook.js")()
+				var fb = require("utils/facebook.js")(session)
 				var ids = fb.getFriends().map(function(e) { return e.id })
 				ids.push(fb.getUID())
 
@@ -26,7 +26,7 @@
 			return ["ok", render("view/pick.jhtml", { pick: pick, editable: editable })]
 		},
 		post: function(request, response, session) {
-			var fb = require("model/facebook.js")()
+			var fb = require("utils/facebook.js")(session)
 			var p = JSON.parse(request.content)
 
 			var uid = fb.getUID()
@@ -55,7 +55,7 @@
 			return ["ok", JSON.stringify(pick), "application/json"]
 		},
 		edit: function(request, response, session) {
-			var fb = require("model/facebook.js")()
+			var fb = require("utils/facebook.js")(session)
 
 			var p = JSON.parse(request.content)
 			p.data.tags = processTags(p.data.tags)
@@ -79,7 +79,7 @@
 			}
 		},
 		remove: function(request, response, session) {
-			var fb = require("model/facebook.js")()
+			var fb = require("utils/facebook.js")(session)
 			var uid = fb.getUID()
 			links.remove(uid, request.args[0])
 			queue.add(TaskOptions.Builder.url("/_tasks/remove").param("remove", JSON.stringify({ uid: uid, pick: request.args[0]})))
@@ -87,7 +87,7 @@
 			return ["ok", "ok"]
 		},
 		recommend: function(request, response, session) {
-			var fb = require("model/facebook.js")()
+			var fb = require("utils/facebook.js")(session)
 			queue.add(TaskOptions.Builder.url("/_tasks/addLink").param("link", JSON.stringify({ uid: fb.getUID(), pick: request.args[0]})))
 
 			return ["ok", "ok"]

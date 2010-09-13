@@ -1,4 +1,5 @@
 var config = require("config.js")
+var main = require("handler/main.js")()
 var pick = require("handler/pick.js")()
 var comments = require("handler/comments.js")()
 var tasks = require("handler/tasks.js")()

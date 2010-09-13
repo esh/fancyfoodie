@@ -1,4 +1,4 @@
-(function() {
+(function(session) {
 	importPackage(com.google.appengine.api.memcache)
 	var cache = MemcacheServiceFactory.getMemcacheService()
 	
