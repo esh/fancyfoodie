@@ -62,12 +62,6 @@
 	.map_comments {
 		margin-top: 8px;
 	}
-
-	#loading {
-		width: 100%;
-		height: 100%;
-		text-align: center;
-	}
 	#list, #add_pick {
 		width: 100%;
 		margin: 30px 0px 0px 0px; 
@@ -93,7 +87,7 @@
 	#add_pick {
 		text-align: center;
 	}
-	#nav, #listButton, #cancelMapItButton, #list, #map, #mapItText, #createFormText, #create_form, #add_pick {
+	#listButton, #cancelMapItButton, #list, #map, #mapItText, #createFormText, #create_form, #add_pick {
 		display: none;
 	}
 	.left {
@@ -294,13 +288,6 @@
 				onenter: function(fsm, event) {
 					function initPosition(p) {
 						position = p
-
-						var tokens = window.location.href.split("#")
-						if(tokens.length > 1) {
-							fsm.trans(tokens[1])
-						} else {
-							fsm.trans("list")
-						}	
 					}
 
 					if(geolocation) {
@@ -315,10 +302,13 @@
 					} else {
 						initPosition({ coords: { latitude: 35.65857, longitude: 139.74542 }})
 					}
-				},
-				onexit: function(fsm, event) {
-					$("#loading").hide()
-					$("#nav").show()
+
+					var tokens = window.location.href.split("#")
+					if(tokens.length > 1) {
+						fsm.trans(tokens[1])
+					} else {
+						fsm.trans("list")
+					}	
 				}
 			},
 			list: {
@@ -469,11 +459,6 @@
 </script>
 </head>
 <body>
-	<div id="loading">
-		<p>Locating current position...</p>
-		<img src="/public/img/spinner.gif"/>	
-	</div>
-
 	<div id="nav">
 		<input type="button" id="addButton" value="+ Pick"/>
 		<input type="button" id="listButton" value="List"/>
