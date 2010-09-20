@@ -17,4 +17,5 @@ httpserver(config, require("utils/dispatcher.js")([
 	{ route: /^\/_tasks\/remove$/, handler: tasks.remove },
 	{ route: /^\/_tasks\/addLink$/, handler: tasks.addLink },
 	{ route: /^\/_tasks\/addComment$/, handler: tasks.addComment },	
-	{ route: /./, handler: main.show }]))
+	{ route: /^\/_auth.*$/, handler: main.auth },
+	{ route: /.*/, handler: main.show }]))
