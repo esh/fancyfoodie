@@ -1,6 +1,7 @@
 (function(routes) {
 	return (function(request, response, session) {
 		try {
+			log.info("request: " + request.url)
 			for(var i = 0 ; i < routes.length ; i++) {
 				var match = request.url.match(routes[i].route)
 				if(match) {
