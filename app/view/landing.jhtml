@@ -14,15 +14,29 @@
 		padding: 0px;
 		margin: auto;
 	}
+
+	p {
+		padding: 2px 2px 2px 2px;
+	}
+
+	div {
+		margin-top: 10px;
+		padding-right: 2px;
+		text-align: right;
+	}
+	
+	img {
+		border: 0px;
+	}
 </style>
 <title>Fancy Foodie</title>
 </head>
 <body>
 	<img src="/public/img/logo.gif"/>
-	<p>Fancy foodie helps you find places your friends love!</p>
-	<p>Check out <a href="/r/122607547">Ed's picks</a></p>
-	<br/>
-	<a href="/_auth">log in with facebook</a>
+	<p>Fancy foodie helps you find places your friends love! Check out <a href="/r/122607547">Ed's picks</a>
+	<div>
+		<a href="/_auth"><img src="/public/img/login.png"/></a>
+	</div>
 </body>
 
 <script type="text/javascript">
