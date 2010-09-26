@@ -10,7 +10,8 @@
 		padding: 0px
 	}
 	#nav {
-		position: fixed; top: 0px;
+		position: fixed;
+		top: 0px;
 		width: 100%;
 		height: 30px;
 		padding: 2px 0px 2px 0px;
@@ -25,25 +26,6 @@
 		font: bold 25px;
 		background-color: white;
 		border: 1px solid black;
-	}
-	label {
-		display: block;
-		width: 100%;
-		margin: 0;
-		padding: 0;
-	}
-	.input {
-		font-size: 16px;
-		height: 20px;
-		width: 100%;
-	}
-	textarea {
-		width: 100%;
-		height: 50px;
-		margin-bottom: 20px;
-		padding: 0px;
-		font-size: 16px;
-
 	}
 	#map {
 		position: fixed;
@@ -62,32 +44,51 @@
 	.map_comments {
 		margin-top: 8px;
 	}
-	#list, #add_pick {
+	#add_pick {
+		text-align: center;
+	}
+	#create_form {
+		width: 100%;
+		margin: 0; 
+		padding: 5px 5px 5px 5px;
+	}
+	label {
+		display: block;
+		width: 100%;
+		margin: 0;
+		padding: 0;
+	}
+	.input {
+		font-size: 16px;
+		height: 20px;
+		width: 100%;
+		padding: 0;
+		margin: 0;
+	}
+	textarea {
+		font-size: 16px;
+		width: 100%;
+		height: 45px;
+		padding: 0px;
+	}
+	#list {
 		width: 100%;
 		margin: 30px 0px 0px 0px; 
                 padding: 5px 0px 0px 0px;
 	}
-	#create_form {
-		width: 100%;
-		margin: 30px 0px 0px 0px; 
-		padding: 0px 5px 0px 5px;
-	}
-        h1 {
+        #list h1 {
                 margin: 0;
                 padding: 5px 5px 5px 5px;
                 font-size: 20px;
                 font-weight: bold;
         }
-        h2 {
+        #list h2 {
                 margin: 0;
                 padding: 5px 5px 5px 5px;
                 font-size: 10px;
                 font-weight: normal;
         }
-	#add_pick {
-		text-align: center;
-	}
-	#listButton, #cancelMapItButton, #list, #map, #mapItText, #createFormText, #create_form, #add_pick {
+	#listButton, #cancelMapItButton, #list, #map, #create_form, #add_pick {
 		display: none;
 	}
 	.left {
@@ -121,6 +122,7 @@
 <script type="text/javascript">
 	var map
 	var position
+	var addPosition
 	var user
 	var self_uid = <%= session["uid"] %>
 	var picks = <%= params["picks"].toSource() %> 
@@ -158,7 +160,6 @@
 		})
 	}
 
-
 	function refreshMap() {
 		if(!map) {	
 			map = new google.maps.Map(document.getElementById("map"), {
@@ -169,17 +170,78 @@
 			})
 
 			user = new google.maps.Marker({
-				position: new google.maps.LatLng(position.coords.latitude,position.coords.longitude), 
+				position: new google.maps.LatLng(position.coords.latitude, position.coords.longitude), 
 				map: map,
 				icon: "/public/img/user.gif",
 				title:"Me!"
 			})
+
 			map.setCenter(new google.maps.LatLng(position.coords.latitude,position.coords.longitude))
 
 			for(var i = 0 ; i < picks.length ; i++) {
-				addMarker(picks[i])
+				var marker = new google.maps.Marker({
+					position: new google.maps.LatLng(picks[i].data.lat, picks[i].data.lng), 
+					map: map,
+					title: picks[i].data.name + " by " + picks[i].data.referer_name
+				})
+
+				var contents = new Array()
+				contents.push("<span id=\"map_name\">")
+				contents.push(picks[i].data.name)
+				contents.push("</span><span id=\"map_tags\">")
+				contents.push("(" + (picks[i].data.tags && picks[i].data.tags.length > 0 ? picks[i].data.tags.join(" ") : "&lt;untagged&gt;") + ")")
+				contents.push("</span><br/>")
+				contents.push("<span id=\"map_referer\">by ")
+				contents.push(picks[i].data.referer_name)
+				contents.push("</span>")
+				contents.push("<div class=\"map_comments\">")
+				for(var j = 0 ; j < picks[i].comments.length ; j++) {
+					contents.push(picks[i].comments[j].comment)
+					contents.push(" -")
+					contents.push(picks[i].comments[j].author)
+					contents.push("<br/>")
+				}
+				contents.push("</div>")
+
+				google.maps.event.addListener(marker, 'click', function(event) {
+					var info = (new google.maps.InfoWindow({
+						content: contents.join("")
+					})).open(map, marker)
+				})
 			}
 		}
+	}
+
+	function loadAddMap() {
+		var width = Math.min(960, $(window).width() - 10)
+		$("#addMap").width(width)
+		$("#addMap").height(3 * width / 4)
+
+		addMap = new google.maps.Map(document.getElementById("addMap"), {
+			zoom: 17,
+			mapTypeControl: false,
+			disableDoubleClickZoom: true,
+			mapTypeId: google.maps.MapTypeId.ROADMAP
+		})
+
+		addMap.setCenter(new google.maps.LatLng(position.coords.latitude,position.coords.longitude))
+			map.setCenter(new google.maps.LatLng(position.coords.latitude,position.coords.longitude))
+
+		addPosition = new google.maps.Marker({
+					position: new google.maps.LatLng(position.coords.latitude, position.coords.longitude), 
+					map: addMap,
+					draggable: true,
+					title: "New pick" 
+				})
+	}
+
+	function refreshList() {
+		function calcDist(lat1, lon1, lat2, lon2) {
+			lat1 = lat1 * Math.PI / 180
+			lat2 = lat2 * Math.PI / 180
+			lon1 = lon1 * Math.PI / 180
+			lon2 = lon2 * Math.PI / 180
+>>>>>>> first cut:app/view/main.jhtml
 
 		if(user) {
 			user.setMap(null)
@@ -254,25 +316,17 @@
 		$("#addButton").click(function() {
 			state.handle("ADD")
 		})
-		$("#addHere").click(function() {
-			state.handle("ADD_HERE")
+		$("#createAdd").click(function() {
+			state.handle("ADD")
 		})
-		$("#mapIt").click(function() {
-			state.handle("ADD_MAP")
-		})
-		$("#cancel").click(function() {
-			state.handle("LIST")
-		})
-		$("#cancelMapItButton").click(function() {
-			state.handle("LIST")
+		$("#createCancel").click(function() {
+			state.handle("CANCEL")
 		})
 		$("#yoursButton").click(function() {
 			window.location = "/r/" + self_uid 
 		})
-
 		$("#name").keypress(function() {
-			$("#addHere").attr("disabled", "")
-			$("#mapIt").attr("disabled", "")
+			$("#createAdd").attr("disabled", "")
 		})
 
 		state = new FSM({
@@ -348,76 +402,28 @@
 			},
 			new_pick: {
 				onenter: function(fsm, event) {
+					$("#nav").hide()
 					$("#create_form").show()
-					$("#createFormText").show()
-					$("#listButton").hide()
-					$("#mapButton").hide()
-					$("#addButton").hide()
-					$("#yoursButton").hide()
-
 					$("#name").val("")
 					$("#tags").val("")
 					$("#comment").val("")
 
-					$("#addHere").attr("disabled", "disabled")
-					$("#mapIt").attr("disabled", "disabled")
-
-					if(!geolocation) {
-						$("addHere").hide()
-					}
+					$("#createAdd").attr("disabled", "disabled")
+					loadAddMap()
 				},
 				onexit: function(fsm, event) {
 					$("#create_form").hide()
-					$("#createFormText").hide()
 				},
-				ADD_HERE: function(fsm, event) {
-					geolocation.getCurrentPosition(
-							function(position) {
-								fsm.trans('add_marker', { latLng: new google.maps.LatLng(position.coords.latitude,position.coords.longitude) })
-							},
-							function() {
-								alert("gps error, please try again")
-							},
-							{ maximumAge: 0, enableHighAccuracy: true })
+				ADD: function(fsm, event) {
+					fsm.trans('add_marker', { latLng: addPosition.getPosition() })
 				},
-				ADD_MAP: function(fsm, event) {
-					fsm.trans('pick_marker')
-				},
-				LIST: function(fsm, event) {
+				CANCEL: function(fsm, event) {
 					fsm.trans('list', event)
 				}
-			},
-			pick_marker: {
-				onenter: function(fsm, event) {
-					$("#list").hide()
-					$("#mapButton").hide()
-					$("#listButton").hide()
-					$("#addButton").hide()
-					$("#yoursButton").hide()
-					$("#map").show()
-					$("#cancelMapItButton").show()
-					$("#mapItText").show()
-					
-					refreshMap()
-				
-					google.maps.event.addListener(map, 'dblclick', function(event) {
-						fsm.trans('add_marker', event)
-					})
-
-				},
-				onexit: function(fsm, event) {
-					$("#mapItText").hide()
-					$("#cancelMapItButton").hide()
-					$("#map").hide()
-					google.maps.event.clearListeners(map, 'dblclick')
-				},
-				LIST: function(fsm, event) {
-					fsm.trans('list', event)
-				}
-
 			},
 			add_marker: {
 				onenter: function(fsm, event) {
+					$("#nav").hide()
 					$("#add_pick").show()
 
 					$.ajax({
@@ -433,7 +439,8 @@
 							comment: $("#comment").val()
 						}),
 						success: function(pick) {
-							window.location = "/p/" + pick.key
+							picks.push(pick)
+							fsm.trans('list')
 						},
 						error: function(req, errorText, errorThrown) {
 							alert("something blew up")
@@ -443,9 +450,6 @@
 				},
 				onexit: function(fsm, event) {
 					$("#add_pick").hide()
-				},
-				LIST: function(fsm, event) {
-					fsm.trans('list')
 				}
 			}
 		})
@@ -461,22 +465,22 @@
 		<input type="button" id="mapButton" value="Map"/>
 		<input type="button" id="yoursButton" value="Your Picks"/>
 		<input type="button" id="cancelMapItButton" value="Cancel"/>
-		<span id="mapItText">Double click on Map to add Pick</span> 
-		<span id="createFormText">Add a Pick</span> 
 	</div>
 	<div id="list"></div>
 	<div id="map"</div>
 	<div id="create_form">
+		<h1>Add Pick</h1>
 		<label for="name">Name</label>
 		<input class="input" type="text" name="name" id="name"/>
 		<label for="tags">Tag</label>
 		<input class="input" type="text" name="tags" id="tags"/>
 		<label for="comment">Add a comment</label>
 		<textarea name="comment" id="comment"></textarea>
+		<h2>tip: you can drag the marker around</h2>
+		<div id="addMap"></div>	
 
-		<input type="button" id="addHere" value="Add Here"/>
-		<input type="button" id="mapIt" value="Map It"/>
-		<input type="button" id="cancel" value="Cancel"/>
+		<input type="button" id="createAdd" value="OK"/>
+		<input type="button" id="createCancel" value="Cancel"/>
 	</div>
 	<div id="add_pick">
 		<p>Adding Pick...</p>
