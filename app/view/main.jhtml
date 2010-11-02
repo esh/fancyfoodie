@@ -124,6 +124,7 @@
 	var user
 	var self_uid = <%= session["uid"] %>
 	var picks = <%= params["picks"].toSource() %> 
+	var edit = <%= params["edit"] %>
 
 	function addMarker(pick) {
 		var marker = new google.maps.Marker({
@@ -157,7 +158,8 @@
 		})
 	}
 
-	function loadMap() {
+
+	function refreshMap() {
 		if(!map) {	
 			map = new google.maps.Map(document.getElementById("map"), {
 				zoom: 17,
@@ -178,23 +180,19 @@
 				addMarker(picks[i])
 			}
 		}
+
+		if(user) {
+			user.setMap(null)
+			user = new google.maps.Marker({
+				position: new google.maps.LatLng(position.coords.latitude,position.coords.longitude), 
+				map: map,
+				icon: "/public/img/user.gif",
+				title:"Me!"
+			})
+		}
 	}
 
 	function refreshList() {
-		function calcDist(lat1, lon1, lat2, lon2) {
-			lat1 = lat1 * Math.PI / 180
-			lat2 = lat2 * Math.PI / 180
-			lon1 = lon1 * Math.PI / 180
-			lon2 = lon2 * Math.PI / 180
-
-			var R = 6371 // km
-			var dLat = lat2-lat1
-			var dLon = lon2-lon1 
-			var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon/2) * Math.sin(dLon/2) 
-			var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
-			return parseInt(R * c * 100) / 100
-		}
-
 		if(geolocation && position) {
 			for(var i = 0 ; i < picks.length ; i++) {
 				picks[i].dist = calcDist(position.coords.latitude, position.coords.longitude, picks[i].data.lat, picks[i].data.lng)
@@ -232,20 +230,17 @@
 	}
 
 	function updatePosition(p) {
-		position = p
-	
-		if(user) {
-			user.setMap(null)
-			user = new google.maps.Marker({
-				position: new google.maps.LatLng(position.coords.latitude,position.coords.longitude), 
-				map: map,
-				icon: "/public/img/user.gif",
-				title:"Me!"
-			})
+		if(position && calcDist(position.coords.latitude, position.coords.longitude, p.coords.latitude ,p.coords.longitude) <= 2) {
+			return
 		}
 
-
-		refreshList()
+		position = p
+	
+		if(state.state_name == "list") {
+			refreshList()
+		} else if(state.state_name == "map") {
+			refreshMap()
+		}
 	}
 
 	$(document).ready(function () {
@@ -286,21 +281,15 @@
 			},
 			init: {
 				onenter: function(fsm, event) {
-					function initPosition(p) {
-						position = p
-					}
-
 					if(geolocation) {
 						geolocation.getCurrentPosition(
-							initPosition,
-							function() { initPosition({ coords: { latitude: 35.65857, longitude: 139.74542 }})},
+							updatePosition,
+							function() { updatePosition({ coords: { latitude: 35.65857, longitude: 139.74542 }})},
 							{ maximumAge: 0, enableHighAccuracy: true })
 						geolocation.watchPosition(
 							updatePosition,
 							function() {},
 							{ maximumAge: 0, enableHighAccuracy: true })
-					} else {
-						initPosition({ coords: { latitude: 35.65857, longitude: 139.74542 }})
 					}
 
 					var tokens = window.location.href.split("#")
@@ -313,12 +302,16 @@
 			},
 			list: {
 				onenter: function(fsm, event) {
-					refreshList()
-					$("#listButton").hide()
 					$("#list").show()
-					$("#addButton").show()
+					$("#listButton").hide()
 					$("#mapButton").show()
-					$("#yoursButton").show()
+				
+					if(edit) {	
+						$("#addButton").show()
+						$("#yoursButton").show()
+					}
+
+					refreshList()
 				},
 				onexit: function(fsm, event) {
 					$("#list").hide()
@@ -332,13 +325,16 @@
 			},
 			map: {
 				onenter: function(fsm, event) {	
-					$("#mapButton").hide()
 					$("#map").show()
-					$("#addButton").show()
+					$("#mapButton").hide()
 					$("#listButton").show()
-					$("#yoursButton").show()
-					
-					loadMap()
+
+					if(edit) {	
+						$("#addButton").show()
+						$("#yoursButton").show()
+					}
+				
+					refreshMap()	
 				},
 				onexit: function(fsm, event) {
 					$("#map").hide()
@@ -402,7 +398,7 @@
 					$("#cancelMapItButton").show()
 					$("#mapItText").show()
 					
-					loadMap()
+					refreshMap()
 				
 					google.maps.event.addListener(map, 'dblclick', function(event) {
 						fsm.trans('add_marker', event)

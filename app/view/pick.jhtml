@@ -93,26 +93,31 @@
 	var map
 	var user
 	var marker
+	var lastPosition
 
 	function updatePosition(position) {
-		if(state.state_name == "show") {
-			if(user) {
-				user.setMap(null)
-			}
-
-			user = new google.maps.Marker({
-				position: new google.maps.LatLng(position.coords.latitude,position.coords.longitude), 
-				map: map,
-				icon: "/public/img/user.gif",
-				title:"Me!"
-			})
-
-			map.fitBounds(new google.maps.LatLngBounds(
-				new google.maps.LatLng(Math.max(position.coords.latitude, pick.data.lat),
-						       Math.min(position.coords.longitude, pick.data.lng)),
-				new google.maps.LatLng(Math.min(position.coords.latitude, pick.data.lat),
-						       Math.max(position.coords.longitude, pick.data.lng))))
+		if(state.state_name != "show" || (lastPosition && calcDist(lastPosition.coords.latitude, lastPosition.coords.longitude, position.coords.latitude, position.coords.longitude) <= 2)) {
+			return
 		}
+
+		lastPosition = position;
+
+		if(user) {
+			user.setMap(null)
+		}
+
+		user = new google.maps.Marker({
+			position: new google.maps.LatLng(position.coords.latitude,position.coords.longitude), 
+			map: map,
+			icon: "/public/img/user.gif",
+			title:"Me!"
+		})
+
+		map.fitBounds(new google.maps.LatLngBounds(
+			new google.maps.LatLng(Math.max(position.coords.latitude, pick.data.lat),
+					       Math.min(position.coords.longitude, pick.data.lng)),
+			new google.maps.LatLng(Math.min(position.coords.latitude, pick.data.lat),
+					       Math.max(position.coords.longitude, pick.data.lng))))
 	}
 
 	$(document).ready(function () {
