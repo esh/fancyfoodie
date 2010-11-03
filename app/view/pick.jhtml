@@ -15,9 +15,15 @@
 		display: none;
 	}
 
+	#container {
+		margin: 0;
+		padding: 0;
+	}
+
 	@media only screen and (max-width: 639px) {
 		#map_canvas {
 			margin: 0px 5px 8px 5px;
+			padding: 0;
 		}
 		#comments {
 			width: 100%;
@@ -30,6 +36,7 @@
 		#map_canvas {
 			float: left;
 			margin: 0px 5px 0px 5px;
+			padding: 0;
 		}
 		#comments {
 			float: left;
@@ -40,6 +47,7 @@
 
 	#comment {
 		margin: 0px 5px 0px 5px;
+		padding: 0;
 	}
 	#name_show {
                 padding-left: 5px;
@@ -149,15 +157,21 @@
 	}
 
 	$(document).ready(function () {
-		var width = Math.min(400, $(window).width() - 10)
-		$("#map_canvas").width(width)
-		$("#map_canvas").height(3 * width / 4)
 		if($(window).width() >= 640) {
-			$("#comment").width(240)
+			var width = Math.min(800, $(window).width())
+			var map_width = parseInt(width * 0.6);
+			var comments_width = width - map_width - 10;
+			map_width -= 10;
+			$("#map_canvas").width(map_width)
+			$("#map_canvas").height(3 * map_width / 4)
+			$("#comments").width(comments_width)
+			$("#comment").width(comments_width - 6)
 		} else {
+			$("#map_canvas").width($(window).width() - 10)
+			$("#map_canvas").height(3 * $(window).width() / 4)
+			$("#comments").width($(window).width() - 10)
 			$("#comment").width($(window).width() - 16)
 		}
-
 
 		map = new google.maps.Map(document.getElementById("map_canvas"), {
 			zoom: 17,
@@ -171,9 +185,7 @@
 				updatePosition,
 				function() {
 					map.setCenter(new google.maps.LatLng(pick.data.lat, pick.data.lng))
-				},
-				{ maximumAge: 0 })
-
+				}, { maximumAge: 0 }) 
 			geolocation.watchPosition(updatePosition, function() {})
 		} else {
 			map.setCenter(new google.maps.LatLng(pick.data.lat, pick.data.lng))
