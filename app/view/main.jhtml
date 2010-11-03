@@ -121,10 +121,10 @@
 <script type="text/javascript" src="/public/js/fsm.js"></script>   
 <script type="text/javascript">
 	var map
+	var add_map
 	var position
-	var addPosition
 	var user
-	var self_uid = <%= session["uid"] %>
+	var add_user
 	var picks = <%= params["picks"].toSource() %> 
 	var edit = <%= params["edit"] %>
 
@@ -179,9 +179,7 @@
                         for(var i = 0 ; i < picks.length ; i++) {
                                 addMarker(picks[i])
                         }
-                }
-
-                if(user) {
+                } else {
                         user.setMap(null)
                         user = new google.maps.Marker({
                                 position: new google.maps.LatLng(position.coords.latitude,position.coords.longitude), 
@@ -189,43 +187,41 @@
                                 icon: "/public/img/user.gif",
                                 title:"Me!"
                         })
-                }
-                
-		map.setCenter(new google.maps.LatLng(position.coords.latitude,position.coords.longitude))
+               	}
+ 
+		map.setCenter(new google.maps.LatLng(position.coords.latitude, position.coords.longitude))
         }
 
 	function refreshAddMap() {
-		if(!addMap) {
+		if(!add_map) {
 			var width = Math.min(960, $(window).width() - 10)
-			$("#addMap").width(width)
-			$("#addMap").height(3 * width / 4)
+			$("#add_map").width(width)
+			$("#add_map").height(3 * width / 4)
 
-			addMap = new google.maps.Map(document.getElementById("addMap"), {
+			add_map = new google.maps.Map(document.getElementById("add_map"), {
 				zoom: 17,
 				mapTypeControl: false,
 				disableDoubleClickZoom: true,
 				mapTypeId: google.maps.MapTypeId.ROADMAP
 			})
 
-			addPosition = new google.maps.Marker({
+			add_user = new google.maps.Marker({
 						position: new google.maps.LatLng(position.coords.latitude, position.coords.longitude), 
-						map: addMap,
+						map: add_map,
+						draggable: true,
+						title: "New pick" 
+					})
+		} else {
+			add_user.setMap(null)
+			add_user = new google.maps.Marker({
+						position: new google.maps.LatLng(position.coords.latitude, position.coords.longitude), 
+						map: add_map,
 						draggable: true,
 						title: "New pick" 
 					})
 		}
 
-		if(addPosition) {
-			addPosition.setMap(null)
-			addPosition = new google.maps.Marker({
-						position: new google.maps.LatLng(position.coords.latitude, position.coords.longitude), 
-						map: addMap,
-						draggable: true,
-						title: "New pick" 
-					})
-		}
-
-		addMap.setCenter(new google.maps.LatLng(position.coords.latitude,position.coords.longitude))
+		add_map.setCenter(new google.maps.LatLng(position.coords.latitude, position.coords.longitude))
 	}
 
 	function refreshList() {
@@ -299,7 +295,7 @@
 			state.handle("CANCEL")
 		})
 		$("#yoursButton").click(function() {
-			window.location = "/r/" + self_uid 
+			window.location = "/r/<%= session["uid"] %>"
 		})
 		$("#name").keypress(function() {
 			$("#createAdd").attr("disabled", "")
@@ -394,7 +390,7 @@
 					$("#create_form").hide()
 				},
 				ADD: function(fsm, event) {
-					fsm.trans('add_marker', { latLng: addPosition.getPosition() })
+					fsm.trans('add_marker', { latLng: add_user.getPosition() })
 				},
 				CANCEL: function(fsm, event) {
 					fsm.trans('list', event)
@@ -455,7 +451,7 @@
 		<label for="comment">Add a comment</label>
 		<textarea name="comment" id="comment"></textarea>
 		<h2>tip: you can drag the marker around</h2>
-		<div id="addMap"></div>	
+		<div id="add_map"></div>	
 
 		<input type="button" id="createAdd" value="OK"/>
 		<input type="button" id="createCancel" value="Cancel"/>
