@@ -80,7 +80,7 @@
 		padding: 0;
 	}
 	#add_map {
-		margin: 0px 5px 0px 5px;
+		margin: 0px 5px 5px 5px;
 	}
 
 	#list {
@@ -213,7 +213,7 @@
 			$("#comment").width($(window).width() - 16)
 
 			add_map = new google.maps.Map(document.getElementById("add_map"), {
-				zoom: 17,
+				zoom: 20,
 				mapTypeControl: false,
 				disableDoubleClickZoom: true,
 				mapTypeId: google.maps.MapTypeId.ROADMAP
@@ -466,7 +466,6 @@
 		<textarea name="comment" id="comment"></textarea>
 		<h2>tip: you can drag the marker around</h2>
 		<div id="add_map"></div>	
-		<br/>
 		<input type="button" id="createAdd" value="OK"/>
 		<input type="button" id="createCancel" value="Cancel"/>
 	</div>
