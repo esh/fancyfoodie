@@ -46,6 +46,8 @@
 	}
 
 	#comment {
+		font-size: 22px;
+		height: 45px;
 		margin: 0px 5px 0px 5px;
 		padding: 0;
 	}

@@ -302,17 +302,17 @@
 		$("#addButton").click(function() {
 			state.handle("ADD")
 		})
-		$("#createAdd").click(function() {
+		$("#create_add").click(function() {
 			state.handle("ADD")
 		})
-		$("#createCancel").click(function() {
+		$("#create_cancel").click(function() {
 			state.handle("CANCEL")
 		})
 		$("#yoursButton").click(function() {
 			window.location = "/r/<%= session["uid"] %>"
 		})
 		$("#name").keypress(function() {
-			$("#createAdd").attr("disabled", "")
+			$("#create_add").attr("disabled", "")
 		})
 
 		state = new FSM({
@@ -396,12 +396,13 @@
 					$("#tags").val("")
 					$("#comment").val("")
 
-					$("#createAdd").attr("disabled", "disabled")
+					$("#create_add").attr("disabled", "disabled")
 
 					refreshAddMap()
 				},
 				onexit: function(fsm, event) {
 					$("#create_form").hide()
+					$("#nav").show()
 				},
 				ADD: function(fsm, event) {
 					fsm.trans('add_marker', { latLng: add_user.getPosition() })
@@ -466,8 +467,8 @@
 		<textarea name="comment" id="comment"></textarea>
 		<h2>tip: you can drag the marker around</h2>
 		<div id="add_map"></div>	
-		<input type="button" id="createAdd" value="OK"/>
-		<input type="button" id="createCancel" value="Cancel"/>
+		<input type="button" id="create_add" value="OK"/>
+		<input type="button" id="create_cancel" value="Cancel"/>
 	</div>
 	<div id="add_pick">
 		<p>Adding Pick...</p>
