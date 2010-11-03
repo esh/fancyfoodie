@@ -14,11 +14,16 @@
 	#remove, #recommend, #edit, #save, #cancel, #draggable {
 		display: none;
 	}
+	#map_canvas {
+		margin: 0px 5px 0px 5px;
+	}
 	#comments {
-		margin-top: 18px;
 		width: 100%;
-		margin: 0;
+		margin: 8px 0px 0px 0px;
                 padding: 0;
+	}
+	#comment {
+		margin: 0px 5px 0px 5px;
 	}
 	#name_show {
                 padding-left: 5px;
@@ -48,16 +53,10 @@
                 margin: 0;
 		width: 80px;
 	}
-
 	ul {
 		width: 100%;
 		margin: 0;
                 padding: 0;
-	}
-	h1 {
-                padding: 5px 5px 0px 5px;
-                font-size: 16px;
-                font-weight: bold;
 	}
         li {
 		width: 100%;
@@ -121,9 +120,10 @@
 	}
 
 	$(document).ready(function () {
-		var width = Math.min(960, $(window).width())
+		var width = Math.min(960, $(window).width() - 10)
 		$("#map_canvas").width(width)
 		$("#map_canvas").height(3 * width / 4)
+		$("#comment").width($(window).width() - 16)
 
 		map = new google.maps.Map(document.getElementById("map_canvas"), {
 			zoom: 17,
@@ -131,7 +131,6 @@
 			disableDoubleClickZoom: true,
 			mapTypeId: google.maps.MapTypeId.ROADMAP
 		})
-
 
 		if(geolocation) {
 			geolocation.getCurrentPosition(
@@ -322,8 +321,9 @@
 	<span id="tags_show"></span><input id="tags_edit" type="text"/>
 	<br/>	
 	<span id="referer">by <%= params["pick"].data.referer_name %></span>
+	<h1 id="draggable">tip: marker is now draggable</h1>
+	<div id="map_canvas"></div>
 	<div id="comments">
-		<h1>Comments</h1>
 		<ul>
 			<%
 			var comments = params["pick"].comments
@@ -334,11 +334,9 @@
 			}
 			%>
 		</ul>
-		<textarea id="comment" style="height: 50px; width: 300px"></textarea>
+		<textarea id="comment"></textarea>
 		<input type="button" id="add" value="Comment"/>
 	</div>
-	<h1 id="draggable">tip: marker is now draggable</h1>
-	<div id="map_canvas"></div>
 </body>
 
 <script type="text/javascript">
