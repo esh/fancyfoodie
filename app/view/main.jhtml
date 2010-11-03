@@ -88,7 +88,7 @@
                 font-size: 10px;
                 font-weight: normal;
         }
-	#listButton, #cancelMapItButton, #list, #map, #create_form, #add_pick {
+	#listButton, #list, #map, #create_form, #add_pick {
 		display: none;
 	}
 	.left {
@@ -160,98 +160,72 @@
 		})
 	}
 
-	function refreshMap() {
-		if(!map) {	
-			map = new google.maps.Map(document.getElementById("map"), {
+        function refreshMap() {
+                if(!map) {      
+                        map = new google.maps.Map(document.getElementById("map"), {
+                                zoom: 17,
+                                mapTypeControl: false,
+                                disableDoubleClickZoom: true,
+                                mapTypeId: google.maps.MapTypeId.ROADMAP
+                        })
+
+                        user = new google.maps.Marker({
+                                position: new google.maps.LatLng(position.coords.latitude,position.coords.longitude), 
+                                map: map,
+                                icon: "/public/img/user.gif",
+                                title:"Me!"
+                        })
+
+                        for(var i = 0 ; i < picks.length ; i++) {
+                                addMarker(picks[i])
+                        }
+                }
+
+                if(user) {
+                        user.setMap(null)
+                        user = new google.maps.Marker({
+                                position: new google.maps.LatLng(position.coords.latitude,position.coords.longitude), 
+                                map: map,
+                                icon: "/public/img/user.gif",
+                                title:"Me!"
+                        })
+                }
+                
+		map.setCenter(new google.maps.LatLng(position.coords.latitude,position.coords.longitude))
+        }
+
+	function refreshAddMap() {
+		if(!addMap) {
+			var width = Math.min(960, $(window).width() - 10)
+			$("#addMap").width(width)
+			$("#addMap").height(3 * width / 4)
+
+			addMap = new google.maps.Map(document.getElementById("addMap"), {
 				zoom: 17,
 				mapTypeControl: false,
 				disableDoubleClickZoom: true,
 				mapTypeId: google.maps.MapTypeId.ROADMAP
 			})
 
-			user = new google.maps.Marker({
-				position: new google.maps.LatLng(position.coords.latitude, position.coords.longitude), 
-				map: map,
-				icon: "/public/img/user.gif",
-				title:"Me!"
-			})
-
-			map.setCenter(new google.maps.LatLng(position.coords.latitude,position.coords.longitude))
-
-			for(var i = 0 ; i < picks.length ; i++) {
-				var marker = new google.maps.Marker({
-					position: new google.maps.LatLng(picks[i].data.lat, picks[i].data.lng), 
-					map: map,
-					title: picks[i].data.name + " by " + picks[i].data.referer_name
-				})
-
-				var contents = new Array()
-				contents.push("<span id=\"map_name\">")
-				contents.push(picks[i].data.name)
-				contents.push("</span><span id=\"map_tags\">")
-				contents.push("(" + (picks[i].data.tags && picks[i].data.tags.length > 0 ? picks[i].data.tags.join(" ") : "&lt;untagged&gt;") + ")")
-				contents.push("</span><br/>")
-				contents.push("<span id=\"map_referer\">by ")
-				contents.push(picks[i].data.referer_name)
-				contents.push("</span>")
-				contents.push("<div class=\"map_comments\">")
-				for(var j = 0 ; j < picks[i].comments.length ; j++) {
-					contents.push(picks[i].comments[j].comment)
-					contents.push(" -")
-					contents.push(picks[i].comments[j].author)
-					contents.push("<br/>")
-				}
-				contents.push("</div>")
-
-				google.maps.event.addListener(marker, 'click', function(event) {
-					var info = (new google.maps.InfoWindow({
-						content: contents.join("")
-					})).open(map, marker)
-				})
-			}
+			addPosition = new google.maps.Marker({
+						position: new google.maps.LatLng(position.coords.latitude, position.coords.longitude), 
+						map: addMap,
+						draggable: true,
+						title: "New pick" 
+					})
 		}
-	}
 
-	function loadAddMap() {
-		var width = Math.min(960, $(window).width() - 10)
-		$("#addMap").width(width)
-		$("#addMap").height(3 * width / 4)
-
-		addMap = new google.maps.Map(document.getElementById("addMap"), {
-			zoom: 17,
-			mapTypeControl: false,
-			disableDoubleClickZoom: true,
-			mapTypeId: google.maps.MapTypeId.ROADMAP
-		})
+		if(addPosition) {
+			addPosition.setMap(null)
+			addPosition = new google.maps.Marker({
+						position: new google.maps.LatLng(position.coords.latitude, position.coords.longitude), 
+						map: addMap,
+						draggable: true,
+						title: "New pick" 
+					})
+		}
 
 		addMap.setCenter(new google.maps.LatLng(position.coords.latitude,position.coords.longitude))
-			map.setCenter(new google.maps.LatLng(position.coords.latitude,position.coords.longitude))
-
-		addPosition = new google.maps.Marker({
-					position: new google.maps.LatLng(position.coords.latitude, position.coords.longitude), 
-					map: addMap,
-					draggable: true,
-					title: "New pick" 
-				})
-	}
-
-	function refreshList() {
-		function calcDist(lat1, lon1, lat2, lon2) {
-			lat1 = lat1 * Math.PI / 180
-			lat2 = lat2 * Math.PI / 180
-			lon1 = lon1 * Math.PI / 180
-			lon2 = lon2 * Math.PI / 180
->>>>>>> first cut:app/view/main.jhtml
-
-		if(user) {
-			user.setMap(null)
-			user = new google.maps.Marker({
-				position: new google.maps.LatLng(position.coords.latitude,position.coords.longitude), 
-				map: map,
-				icon: "/public/img/user.gif",
-				title:"Me!"
-			})
-		}
 	}
 
 	function refreshList() {
@@ -302,6 +276,8 @@
 			refreshList()
 		} else if(state.state_name == "map") {
 			refreshMap()
+		} else if(state.state_name == "new_pick") {
+			refreshAddMap()	
 		}
 	}
 
@@ -344,6 +320,8 @@
 							updatePosition,
 							function() {},
 							{ maximumAge: 0, enableHighAccuracy: true })
+					} else {
+						updatePosition({ coords: { latitude: 35.65857, longitude: 139.74542 }})
 					}
 
 					var tokens = window.location.href.split("#")
@@ -409,7 +387,8 @@
 					$("#comment").val("")
 
 					$("#createAdd").attr("disabled", "disabled")
-					loadAddMap()
+
+					refreshAddMap()
 				},
 				onexit: function(fsm, event) {
 					$("#create_form").hide()
@@ -464,7 +443,6 @@
 		<input type="button" id="listButton" value="List"/>
 		<input type="button" id="mapButton" value="Map"/>
 		<input type="button" id="yoursButton" value="Your Picks"/>
-		<input type="button" id="cancelMapItButton" value="Cancel"/>
 	</div>
 	<div id="list"></div>
 	<div id="map"</div>
