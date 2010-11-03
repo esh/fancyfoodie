@@ -54,34 +54,29 @@
 		padding: 0;
 	}
 	#create_form h1 {
-		width: 300px;
 		margin: 3px 0px 10px 0px;
 		padding: 0;
 	}
 	#create_form h2 {
-		width: 300px;
-		margin: 3px 0px 3px 0px;
+		margin: 5px 0px 5px 0px;
 		font-size: 12px;
 		padding: 0;
 	}
 	label {
 		display: block;
-		width: 300px;
-		margin: 3px 0px 3px 0px;
+		margin: 5px 0px 5px 0px;
 		padding: 0;
 	}
 	.input {
 		font-size: 22px;
 		height: 25px;
-		margin: 3px 0px 3px 0px;
-		width: 95%;
+		margin: 5px 0px 5px 0px;
 		padding: 0;
 	}
 	textarea {
 		font-size: 22px;
-		width: 95%;
 		height: 45px;
-		margin: 0;
+		margin: 5px 0px 5px 0px;
 		padding: 0;
 	}
 
@@ -211,6 +206,8 @@
 			var width = Math.min(960, $(window).width() - 10)
 			$("#add_map").width(width)
 			$("#add_map").height(3 * width / 4)
+			$(".input").width($(window).width() - 10)
+			$("#comment").width($(window).width() - 10)
 
 			add_map = new google.maps.Map(document.getElementById("add_map"), {
 				zoom: 17,
