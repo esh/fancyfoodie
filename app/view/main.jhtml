@@ -262,7 +262,7 @@
 	}
 
 	function updatePosition(p) {
-		if(position && calcDist(position.coords.latitude, position.coords.longitude, p.coords.latitude ,p.coords.longitude) <= 2) {
+		if(position && calcDist(position.coords.latitude, position.coords.longitude, p.coords.latitude ,p.coords.longitude) <= 0.02) {
 			return
 		}
 

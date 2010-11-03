@@ -96,7 +96,7 @@
 	var lastPosition
 
 	function updatePosition(position) {
-		if(state.state_name != "show" || (lastPosition && calcDist(lastPosition.coords.latitude, lastPosition.coords.longitude, position.coords.latitude, position.coords.longitude) <= 2)) {
+		if(state.state_name != "show" || (lastPosition && calcDist(lastPosition.coords.latitude, lastPosition.coords.longitude, position.coords.latitude, position.coords.longitude) <= 0.02)) {
 			return
 		}
 
