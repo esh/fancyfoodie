@@ -54,30 +54,33 @@
 		padding: 0;
 	}
 	#create_form h1 {
-		margin: 3px 0px 10px 0px;
+		margin: 3px 5px 10px 5px;
 		padding: 0;
 	}
 	#create_form h2 {
-		margin: 5px 0px 5px 0px;
+		margin: 5px 5px 5px 5px;
 		font-size: 12px;
 		padding: 0;
 	}
 	label {
 		display: block;
-		margin: 5px 0px 5px 0px;
+		margin: 0px 5px 0px 5px;
 		padding: 0;
 	}
 	.input {
 		font-size: 22px;
 		height: 25px;
-		margin: 5px 0px 5px 0px;
+		margin: 0px 5px 0px 5px;
 		padding: 0;
 	}
 	textarea {
 		font-size: 22px;
 		height: 45px;
-		margin: 5px 0px 5px 0px;
+		margin: 0px 5px 0px 5px;
 		padding: 0;
+	}
+	#add_map {
+		margin: 0px 5px 0px 5px;
 	}
 
 	#list {
@@ -206,8 +209,8 @@
 			var width = Math.min(960, $(window).width() - 10)
 			$("#add_map").width(width)
 			$("#add_map").height(3 * width / 4)
-			$(".input").width($(window).width() - 10)
-			$("#comment").width($(window).width() - 10)
+			$(".input").width($(window).width() - 16)
+			$("#comment").width($(window).width() - 16)
 
 			add_map = new google.maps.Map(document.getElementById("add_map"), {
 				zoom: 17,
@@ -463,7 +466,7 @@
 		<textarea name="comment" id="comment"></textarea>
 		<h2>tip: you can drag the marker around</h2>
 		<div id="add_map"></div>	
-
+		<br/>
 		<input type="button" id="createAdd" value="OK"/>
 		<input type="button" id="createCancel" value="Cancel"/>
 	</div>
