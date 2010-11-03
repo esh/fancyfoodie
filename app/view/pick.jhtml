@@ -14,14 +14,30 @@
 	#remove, #recommend, #edit, #save, #cancel, #draggable {
 		display: none;
 	}
-	#map_canvas {
-		margin: 0px 5px 0px 5px;
+
+	@media only screen and (max-width: 639px) {
+		#map_canvas {
+			margin: 0px 5px 0px 5px;
+		}
+		#comments {
+			width: 100%;
+			margin: 8px 0px 0px 0px;
+			padding: 0;
+		}
 	}
-	#comments {
-		width: 100%;
-		margin: 8px 0px 0px 0px;
-                padding: 0;
+
+	@media only screen and (min-width: 639px) {
+		#map_canvas {
+			float: left;
+			margin: 0px 5px 0px 5px;
+		}
+		#comments {
+			float: left;
+			margin: 0px 5px 0px 5px;
+			padding: 0;
+		}
 	}
+
 	#comment {
 		margin: 0px 5px 0px 5px;
 	}
@@ -53,6 +69,9 @@
                 margin: 0;
 		width: 80px;
 	}
+	#add {
+		display: block;
+	}
 	ul {
 		width: 100%;
 		margin: 0;
@@ -78,6 +97,13 @@
                 font-weight: normal;
         }
 
+	h2 {
+		font-size: 20px;
+	}
+
+	h3 {
+		font-size: 12px;
+	}
 </style>
 <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
 <script type="text/javascript" src="http://code.google.com/apis/gears/gears_init.js"></script>
@@ -120,10 +146,10 @@
 	}
 
 	$(document).ready(function () {
-		var width = Math.min(960, $(window).width() - 10)
+		var width = Math.min(400, $(window).width() - 10)
 		$("#map_canvas").width(width)
 		$("#map_canvas").height(3 * width / 4)
-		$("#comment").width($(window).width() - 16)
+		$("#comment").width(Math.min(240, $(window).width() - 16))
 
 		map = new google.maps.Map(document.getElementById("map_canvas"), {
 			zoom: 17,
@@ -293,8 +319,7 @@
 				url: "/comments/post/" + pick.key,
 				contentType: "application/json",
 				dataType: 'json',
-				data: JSON.stringify($("#comment").val()),
-				success: function(msg) {
+				data: JSON.stringify($("#comment").val()), success: function(msg) {
 					$("#comment").val("")
 					$("#comments ul").append("<li><h1>" + msg.comment + "</h1><h2>" + msg.author + ",  Just now</h2></li>")
 				}
@@ -320,22 +345,25 @@
 	<span id="name_show"></span><input id="name_edit" type="text"/>
 	<span id="tags_show"></span><input id="tags_edit" type="text"/>
 	<br/>	
-	<span id="referer">by <%= params["pick"].data.referer_name %></span>
-	<h1 id="draggable">tip: marker is now draggable</h1>
-	<div id="map_canvas"></div>
-	<div id="comments">
-		<ul>
-			<%
-			var comments = params["pick"].comments
-			for(var i = 0 ; i < comments.length ; i++) {
-				echo("<li>")
-				echo("<h1>" + comments[i].comment + "</h1><h2>" + comments[i].author + ", " + comments[i].timestamp + "</h2>")
-				echo("</li>")
-			}
-			%>
-		</ul>
-		<textarea id="comment"></textarea>
-		<input type="button" id="add" value="Comment"/>
+	<span id="referer">recommended by <%= params["pick"].data.referer_name %></span>
+	<div id="container">
+		<h3 id="draggable">tip: marker is now draggable</h3>
+		<div id="map_canvas"></div>
+		<div id="comments">
+			<h2>Comments</h2>
+			<ul>
+				<%
+				var comments = params["pick"].comments
+				for(var i = 0 ; i < comments.length ; i++) {
+					echo("<li>")
+					echo("<h1>" + comments[i].comment + "</h1><h2>" + comments[i].author + ", " + comments[i].timestamp + "</h2>")
+					echo("</li>")
+				}
+				%>
+			</ul>
+			<textarea id="comment"></textarea>
+			<input type="button" id="add" value="Comment"/>
+		</div>
 	</div>
 </body>
 
