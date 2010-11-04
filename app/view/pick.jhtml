@@ -56,14 +56,17 @@
 		font-size: 20px;
 		font-weight: bold;
 	}
-	#tags_show, #referer {
+	#tags_show {
 		font-size: 10px;
 		font-weight: normal;
 	}
+
 	#referer {
-                padding-left: 5px;
+		margin: 2px 5px 5px 5px;
+		padding: 0;
 		font-size: 10px;
 		font-weight: normal;
+		display: block;
 	}
 	#name_edit {
 		display: none;
@@ -366,7 +369,6 @@
 
 	<span id="name_show"></span><input id="name_edit" type="text"/>
 	<span id="tags_show"></span><input id="tags_edit" type="text"/>
-	<br/>	
 	<span id="referer">recommended by <%= params["pick"].data.referer_name %></span>
 	<div id="container">
 		<h3 id="draggable">tip: marker is now draggable</h3>

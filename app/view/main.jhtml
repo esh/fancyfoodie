@@ -309,7 +309,7 @@
 			state.handle("CANCEL")
 		})
 		$("#yoursButton").click(function() {
-			window.location = "/r/<%= session["uid"] %>"
+			window.location = "/r/<%= params["edit"] ? session["uid"] : "" %>"
 		})
 		$("#name").keypress(function() {
 			$("#create_add").attr("disabled", "")
@@ -455,8 +455,8 @@
 		<input type="button" id="mapButton" value="Map"/>
 		<input type="button" id="yoursButton" value="Your Picks"/>
 	</div>
-	<div id="list"></div>
 	<div id="map"</div>
+	<div id="list"></div>
 	<div id="create_form">
 		<h1>Add Pick</h1>
 		<label for="name">Name</label>
