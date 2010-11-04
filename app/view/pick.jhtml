@@ -4,15 +4,12 @@
 <title>Fancy Foodie</title>
 <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
 <style type="text/css">
-	#nav {
-		height: 40px;
-	}
-	body { 
+	html, body {
 		margin: 0px;
 		padding: 0px
 	}
-	#remove, #recommend, #edit, #save, #cancel, #draggable {
-		display: none;
+	#nav {
+		height: 30px;
 	}
 
 	#container {
@@ -43,6 +40,10 @@
 			margin: 0px 5px 0px 5px;
 			padding: 0;
 		}
+	}
+
+	#remove, #recommend, #edit, #save, #cancel, #draggable {
+		display: none;
 	}
 
 	#comment {

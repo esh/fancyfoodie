@@ -5,19 +5,45 @@
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <style type="text/css">
 	html, body {
-		height: 100%;
 		margin: 0px;
 		padding: 0px
 	}
 	#nav {
-		position: fixed;
-		top: 0px;
-		width: 100%;
 		height: 30px;
-		padding: 2px 0px 2px 0px;
-		font-size: 16px;
-		background-color: white;
 	}
+
+	#container {
+		margin: 0;
+		padding: 0;
+	}
+
+	@media only screen and (max-width: 639px) {
+		#map {
+			position: fixed;
+			top: 30px;
+			margin: 0;
+			padding: 0;
+		}
+		#list {
+			width: 100%;
+			margin: 8px 0px 0px 0px;
+			padding: 0;
+		}
+	}
+
+	@media only screen and (min-width: 639px) {
+		#map {
+			float: left;
+			margin: 0px 5px 0px 5px;
+			padding: 0;
+		}
+		#list {
+			float: left;
+			margin: 0px 5px 0px 5px;
+			padding: 0;
+		}
+	}
+
 	span {
 		margin: 0px;
 		padding: 0px;
@@ -27,12 +53,7 @@
 		background-color: white;
 		border: 1px solid black;
 	}
-	#map {
-		position: fixed;
-		top: 30px;
-		margin: 0;
-		padding: 0;
-	}
+
 	#map_name {
 		font-size: 20px;
 		font-weight: bold;
@@ -292,7 +313,20 @@
 	}
 
 	$(document).ready(function () {
-		$("#map").height($(window).height() - 30)
+		if($(window).width() >= 640) {
+			var width = Math.min(800, $(window).width())
+			var map_width = parseInt(width * 0.6);
+			var list_width = width - map_width - 10;
+			map_width -= 10;
+			$("#map").width(map_width)
+			$("#map").height(3 * map_width / 4)
+			$("#list").width(list_width)
+		} else {
+			$("#map").width($(window).width())
+			$("#map").height($(window).height() - 30)
+			$("#list").width("100%")
+		}
+
 		$("#listButton").click(function() {
 			state.handle("LIST")		
 		})
@@ -334,12 +368,37 @@
 						updatePosition({ coords: { latitude: 35.65857, longitude: 139.74542 }})
 					}
 
-					var tokens = window.location.href.split("#")
-					if(tokens.length > 1) {
-						fsm.trans(tokens[1])
+					if($(window).width() >= 640) {
+						fsm.trans("dual")
 					} else {
-						fsm.trans("list")
+						var tokens = window.location.href.split("#")
+						if(tokens.length > 1) {
+							fsm.trans(tokens[1])
+						} else {
+							fsm.trans("list")
+						}
 					}	
+				}
+			},
+			dual: {
+				onenter: function(fsm, event) {
+					$("#container").show()
+					$("#listButton").hide()
+					$("#mapButton").hide()
+				
+					if(edit) {	
+						$("#addButton").show()
+						$("#yoursButton").show()
+					}
+
+					refreshList()
+					refreshMap()
+				},
+				onexit: function(fsm, event) {
+					$("#container").hide()
+				},
+				ADD: function(fsm, event) {
+					fsm.trans('new_pick', event)
 				}
 			},
 			list: {
@@ -408,7 +467,11 @@
 					fsm.trans('add_marker', { latLng: add_user.getPosition() })
 				},
 				CANCEL: function(fsm, event) {
-					fsm.trans('list', event)
+					if($(window).width() >= 640) {
+						fsm.trans("dual", event)
+					} else { 
+						fsm.trans('list', event)
+					}
 				}
 			},
 			add_marker: {
@@ -430,11 +493,19 @@
 						}),
 						success: function(pick) {
 							picks.push(pick)
-							fsm.trans('list')
+							if($(window).width() >= 640) {
+								fsm.trans("dual", event)
+							} else { 
+								fsm.trans('list', event)
+							}
 						},
 						error: function(req, errorText, errorThrown) {
 							alert("something blew up")
-							fsm.trans('list')
+							if($(window).width() >= 640) {
+								fsm.trans("dual", event)
+							} else { 
+								fsm.trans('list', event)
+							}
 						}
 					})
 				},
@@ -455,8 +526,10 @@
 		<input type="button" id="mapButton" value="Map"/>
 		<input type="button" id="yoursButton" value="Your Picks"/>
 	</div>
-	<div id="map"</div>
-	<div id="list"></div>
+	<div id="container">
+		<div id="map"</div>
+		<div id="list"></div>
+	</div>
 	<div id="create_form">
 		<h1>Add Pick</h1>
 		<label for="name">Name</label>
