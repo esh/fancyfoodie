@@ -383,6 +383,8 @@
 			dual: {
 				onenter: function(fsm, event) {
 					$("#container").show()
+					$("#map").show()
+					$("#list").show()
 					$("#listButton").hide()
 					$("#mapButton").hide()
 				
