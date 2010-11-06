@@ -66,17 +66,40 @@
 		border: 1px solid black;
 	}
 
-	#map_name {
+	#pick_name {
 		font-size: 20px;
 		font-weight: bold;
 	}
-	#map_tags, #map_referer {
+	#pick_tags {
 		font-size: 10px;
 		font-weight: normal;
 	}
-	.map_comments {
-		margin-top: 8px;
+	#pick_referer {
+		margin: 2px 0px 5px 0px;
+		padding: 0;
+		font-size: 10px;
+		font-weight: normal:
+		display: block;
 	}
+	#pick_comments {
+		margin-top: 8px;
+		padding: 0;
+	}
+
+	#pick_comments h1 {
+                margin: 0;
+                padding: 5px 5px 0px 5px;
+                font-size: 16px;
+                font-weight: normal;
+	}
+
+	#pick_comments h2 {
+                margin: 0;
+                padding: 3px 5px 5px 5px;
+                font-size: 10px;
+                font-weight: normal;
+	}
+
 	#add_pick, #loading {
 		text-align: center;
 	}
@@ -166,30 +189,42 @@
 	var user
 	var add_user
 	var picks = <%= params["picks"].toSource() %> 
-	var pick_key_map
 	var edit = <%= params["edit"] %>
 	var onLinkClick
 
 	function genPickHTMLContent(pick) {
 		var contents = new Array()
-		contents.push("<span id=\"map_name\">")
+		contents.push("<span id=\"pick_name\">")
 		contents.push(pick.data.name)
-		contents.push("</span><span id=\"map_tags\">")
+		contents.push("</span><span id=\"pick_tags\">")
 		contents.push("(" + (pick.data.tags && pick.data.tags.length > 0 ? pick.data.tags.join(" ") : "&lt;untagged&gt;") + ")")
 		contents.push("</span><br/>")
-		contents.push("<span id=\"map_referer\">by ")
+		contents.push("<span id=\"pick_referer\">by ")
 		contents.push(pick.data.referer_name)
 		contents.push("</span>")
-		contents.push("<div class=\"map_comments\">")
+		contents.push("<div id=\"pick_comments\">")
+		contents.push("<ul>")
 		for(var i = 0 ; i < pick.comments.length ; i++) {
+			contents.push("<li><h1>")
 			contents.push(pick.comments[i].comment)
-			contents.push(" -")
+			contents.push("</h1><h2>")
 			contents.push(pick.comments[i].author)
-			contents.push("<br/>")
+			contents.push("</h2></li>")
 		}
+		contents.push("</ul>")
 		contents.push("</div>")
 
 		return contents.join("")
+	}
+
+	function getPick(key) {
+		for(var i = 0 ; i < picks.length ; i++) {
+			if(picks[i].key == key) {
+				return picks[i]
+			}
+		}
+
+		return null;
 	}
 
 	function onMobileLinkClick(key) {
@@ -197,7 +232,7 @@
 	}
 
 	function onWebLinkClick(key) {
-		$("#details").html(genPickHTMLContent(picks[pick_key_map[key]]))
+		$("#details").html(genPickHTMLContent(getPick(key)))
 	}
 
 	function addMarker(pick) {
@@ -334,15 +369,6 @@
 		}
 	}
 
-	function genPickKeyMap(picks) {
-		var map = new Object()
-		for(var i = 0 ; i < picks.length ; i++) {
-			map[picks.key] = i
-		}
-
-		return map
-	}
-
 	$(document).ready(function () {
 		if($(window).width() >= 640) {
 			var width = Math.min(800, $(window).width())
@@ -355,7 +381,6 @@
 			$("#list").width(list_width)
 
 			onLinkClick = onWebLinkClick
-			pick_key_map = genPickKeyMap(picks)
 		} else {
 			$("#map").width($(window).width())
 			$("#map").height($(window).height() - 30)
@@ -582,7 +607,7 @@
 		<div id="list"></div>
 		<div id="right_pane">
 			<div id="map"></div>
-			<div id="details">testing</div>
+			<div id="details"></div>
 		</div>
 	</div>
 	<div id="create_form">
