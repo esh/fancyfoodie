@@ -65,7 +65,7 @@
 	.map_comments {
 		margin-top: 8px;
 	}
-	#add_pick {
+	#add_pick, #loading {
 		text-align: center;
 	}
 
@@ -116,7 +116,7 @@
                 font-size: 10px;
                 font-weight: normal;
         }
-	#listButton, #list, #map, #create_form, #add_pick {
+	#list_button, #map_button, #list, #map, #create_form, #add_pick {
 		display: none;
 	}
 	.left {
@@ -322,10 +322,10 @@
 			$("#list").width("100%")
 		}
 
-		$("#listButton").click(function() {
+		$("#list_button").click(function() {
 			state.handle("LIST")		
 		})
-		$("#mapButton").click(function() {
+		$("#map_button").click(function() {
 			state.handle("MAP")		
 		})
 		$("#addButton").click(function() {
@@ -350,10 +350,31 @@
 			},
 			init: {
 				onenter: function(fsm, event) {
+					function next() {
+						$("#loading").hide()
+
+						if($(window).width() >= 640) {
+							fsm.trans("dual")
+						} else {
+							var tokens = window.location.href.split("#")
+							if(tokens.length > 1) {
+								fsm.trans(tokens[1])
+							} else {
+								fsm.trans("list")
+							}
+						}
+					}	
+
 					if(geolocation) {
 						geolocation.getCurrentPosition(
-							updatePosition,
-							function() { updatePosition({ coords: { latitude: 35.65857, longitude: 139.74542 }})},
+							function(p) { 
+								updatePosition(p)
+								next()
+							},
+							function() {
+								updatePosition({ coords: { latitude: 35.65857, longitude: 139.74542 }})
+								next()	
+							},
 							{ maximumAge: 0, enableHighAccuracy: true })
 						geolocation.watchPosition(
 							updatePosition,
@@ -361,18 +382,9 @@
 							{ maximumAge: 0, enableHighAccuracy: true })
 					} else {
 						updatePosition({ coords: { latitude: 35.65857, longitude: 139.74542 }})
-					}
+						next()	
+					} 
 
-					if($(window).width() >= 640) {
-						fsm.trans("dual")
-					} else {
-						var tokens = window.location.href.split("#")
-						if(tokens.length > 1) {
-							fsm.trans(tokens[1])
-						} else {
-							fsm.trans("list")
-						}
-					}	
 				}
 			},
 			dual: {
@@ -380,8 +392,8 @@
 					$("#container").show()
 					$("#map").show()
 					$("#list").show()
-					$("#listButton").hide()
-					$("#mapButton").hide()
+					$("#list_button").hide()
+					$("#map_button").hide()
 				
 					if(edit) {	
 						$("#addButton").show()
@@ -401,8 +413,8 @@
 			list: {
 				onenter: function(fsm, event) {
 					$("#list").show()
-					$("#listButton").hide()
-					$("#mapButton").show()
+					$("#list_button").hide()
+					$("#map_button").show()
 				
 					if(edit) {	
 						$("#addButton").show()
@@ -424,8 +436,8 @@
 			map: {
 				onenter: function(fsm, event) {	
 					$("#map").show()
-					$("#mapButton").hide()
-					$("#listButton").show()
+					$("#map_button").hide()
+					$("#list_button").show()
 
 					if(edit) {	
 						$("#addButton").show()
@@ -519,13 +531,13 @@
 <body>
 	<div id="nav">
 		<input type="button" id="addButton" value="+ Pick"/>
-		<input type="button" id="listButton" value="List"/>
-		<input type="button" id="mapButton" value="Map"/>
+		<input type="button" id="list_button" value="List"/>
+		<input type="button" id="map_button" value="Map"/>
 		<input type="button" id="yoursButton" value="Your Picks"/>
 	</div>
 	<div id="container">
-		<div id="map"</div>
 		<div id="list"></div>
+		<div id="map"</div>
 	</div>
 	<div id="create_form">
 		<h1>Add Pick</h1>
@@ -539,6 +551,10 @@
 		<div id="add_map"></div>	
 		<input type="button" id="create_add" value="OK"/>
 		<input type="button" id="create_cancel" value="Cancel"/>
+	</div>
+	<div id="loading">
+		<p>Locating Position...</p>
+		<img src="/public/img/spinner.gif"/>	
 	</div>
 	<div id="add_pick">
 		<p>Adding Pick...</p>
