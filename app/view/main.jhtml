@@ -52,6 +52,7 @@
 			float: left;
 			margin: 0px 5px 0px 5px;
 			padding: 0;
+			overflow: auto;
 		}
 	}
 
@@ -249,7 +250,16 @@
 	}
 
 	function onWebLinkClick(key) {
-		$("#details").html(genPickHTMLContent(getPick(key)))
+		var pick = getPick(key)
+		$("#details").html(genPickHTMLContent(pick))
+
+		if(map) {
+			map.fitBounds(new google.maps.LatLngBounds(
+				new google.maps.LatLng(Math.max(position.coords.latitude, pick.data.lat),
+						       Math.min(position.coords.longitude, pick.data.lng)),
+				new google.maps.LatLng(Math.min(position.coords.latitude, pick.data.lat),
+						       Math.max(position.coords.longitude, pick.data.lng))))
+		}
 	}
 
 	function addMarker(pick) {
@@ -396,6 +406,7 @@
 			$("#map").width(map_width)
 			$("#map").height(3 * map_width / 4)
 			$("#list").width(list_width)
+			$("#list").height($(window).height() - 30)
 
 			onLinkClick = onWebLinkClick
 		} else {
