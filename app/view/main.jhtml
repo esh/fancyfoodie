@@ -18,6 +18,10 @@
 	}
 
 	@media only screen and (max-width: 639px) {
+		#right_pane {
+			margin: 0;
+			padding: 0;
+		}
 		#map {
 			position: fixed;
 			top: 30px;
@@ -32,9 +36,17 @@
 	}
 
 	@media only screen and (min-width: 639px) {
-		#map {
+		#right_pane {
 			float: left;
 			margin: 0px 5px 0px 5px;
+			padding: 0;
+		}
+		#map {
+			margin: 0;
+			padding: 0;
+		}
+		#details {
+			margin: 8px 0px 0px 0px;
 			padding: 0;
 		}
 		#list {
@@ -116,7 +128,7 @@
                 font-size: 10px;
                 font-weight: normal;
         }
-	#list_button, #map_button, #list, #map, #create_form, #add_pick {
+	#list_button, #map_button, #list, #map, #details, #create_form, #add_pick {
 		display: none;
 	}
 	.left {
@@ -154,15 +166,11 @@
 	var user
 	var add_user
 	var picks = <%= params["picks"].toSource() %> 
+	var pick_key_map
 	var edit = <%= params["edit"] %>
+	var onLinkClick
 
-	function addMarker(pick) {
-		var marker = new google.maps.Marker({
-			position: new google.maps.LatLng(pick.data.lat, pick.data.lng), 
-			map: map,
-			title: pick.data.name + " by " + pick.data.referer_name
-		})
-
+	function genPickHTMLContent(pick) {
 		var contents = new Array()
 		contents.push("<span id=\"map_name\">")
 		contents.push(pick.data.name)
@@ -181,9 +189,27 @@
 		}
 		contents.push("</div>")
 
+		return contents.join("")
+	}
+
+	function onMobileLinkClick(key) {
+		window.location = "/p/" + key
+	}
+
+	function onWebLinkClick(key) {
+		$("#details").html(genPickHTMLContent(picks[pick_key_map[key]]))
+	}
+
+	function addMarker(pick) {
+		var marker = new google.maps.Marker({
+			position: new google.maps.LatLng(pick.data.lat, pick.data.lng), 
+			map: map,
+			title: pick.data.name + " by " + pick.data.referer_name
+		})
+
 		google.maps.event.addListener(marker, 'click', function(event) {
 			var info = (new google.maps.InfoWindow({
-        			content: contents.join("")
+        			content: genPickHTMLContent(pick)
     			})).open(map, marker)
 		})
 	}
@@ -254,6 +280,7 @@
 		add_map.setCenter(new google.maps.LatLng(position.coords.latitude, position.coords.longitude))
 	}
 
+
 	function refreshList() {
 		if(geolocation && position) {
 			for(var i = 0 ; i < picks.length ; i++) {
@@ -272,9 +299,9 @@
 
 		var contents = new Array()
 		for(var i = 0 ; i < picks.length ; i++) {
-			contents.push("<div class=\"item\" onclick='window.location=\"/p/")
+			contents.push("<div class=\"item\" onclick='onLinkClick(")
 			contents.push(picks[i].key)
-			contents.push("\"'><div class=\"left\"><h1>")
+			contents.push(")'><div class=\"left\"><h1>")
 			contents.push(picks[i].data.name)
 			contents.push("</h1><h2>")
 			contents.push(picks[i].dist > 1 ? picks[i].dist + " km" : parseInt(picks[i].dist * 100) + " m")
@@ -307,19 +334,34 @@
 		}
 	}
 
+	function genPickKeyMap(picks) {
+		var map = new Object()
+		for(var i = 0 ; i < picks.length ; i++) {
+			map[picks.key] = i
+		}
+
+		return map
+	}
+
 	$(document).ready(function () {
 		if($(window).width() >= 640) {
 			var width = Math.min(800, $(window).width())
 			var map_width = parseInt(width * 0.6);
 			var list_width = width - map_width - 10;
 			map_width -= 10;
+			$("#right_pane").width(map_width)
 			$("#map").width(map_width)
 			$("#map").height(3 * map_width / 4)
 			$("#list").width(list_width)
+
+			onLinkClick = onWebLinkClick
+			pick_key_map = genPickKeyMap(picks)
 		} else {
 			$("#map").width($(window).width())
 			$("#map").height($(window).height() - 30)
 			$("#list").width("100%")
+
+			onLinkClick = onMobileLinkClick
 		}
 
 		$("#list_button").click(function() {
@@ -391,6 +433,7 @@
 				onenter: function(fsm, event) {
 					$("#container").show()
 					$("#map").show()
+					$("#details").show()
 					$("#list").show()
 					$("#list_button").hide()
 					$("#map_button").hide()
@@ -537,7 +580,10 @@
 	</div>
 	<div id="container">
 		<div id="list"></div>
-		<div id="map"</div>
+		<div id="right_pane">
+			<div id="map"></div>
+			<div id="details">testing</div>
+		</div>
 	</div>
 	<div id="create_form">
 		<h1>Add Pick</h1>
