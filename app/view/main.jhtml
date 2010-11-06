@@ -23,14 +23,13 @@
 			padding: 0;
 		}
 		#map {
-			position: fixed;
-			top: 30px;
+			width: 100%;
 			margin: 0;
 			padding: 0;
 		}
 		#list {
 			width: 100%;
-			margin: 0px 0px 0px 0px;
+			margin: 0;
 			padding: 0;
 		}
 	}
@@ -400,9 +399,7 @@
 
 			onLinkClick = onWebLinkClick
 		} else {
-			$("#map").width($(window).width())
 			$("#map").height($(window).height() - 30)
-			$("#list").width("100%")
 
 			onLinkClick = onMobileLinkClick
 		}
