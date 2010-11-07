@@ -208,6 +208,7 @@
 	var picks = <%= params["picks"].toSource() %> 
 	var edit = <%= params["edit"] %>
 	var onLinkClick
+	var onMapClick
 
 	function genPickHTMLContent(pick) {
 		var contents = new Array()
@@ -262,18 +263,34 @@
 		}
 	}
 
+	function onMobileMapClick(pick, marker) { return function(event) {
+			(new google.maps.InfoWindow({
+        			content: genPickHTMLContent(pick)
+    			})).open(map, marker)
+		}
+	}
+
+	function onWebMapClick(pick, marker) { return function(event) {
+			$("#details").html(genPickHTMLContent(pick))
+
+			if(map) {
+				map.fitBounds(new google.maps.LatLngBounds(
+					new google.maps.LatLng(Math.max(position.coords.latitude, pick.data.lat),
+							       Math.min(position.coords.longitude, pick.data.lng)),
+					new google.maps.LatLng(Math.min(position.coords.latitude, pick.data.lat),
+							       Math.max(position.coords.longitude, pick.data.lng))))
+			}
+		}
+	}
+
 	function addMarker(pick) {
 		var marker = new google.maps.Marker({
 			position: new google.maps.LatLng(pick.data.lat, pick.data.lng), 
 			map: map,
-			title: pick.data.name + " by " + pick.data.referer_name
+			title: pick.data.name + " recommended by " + pick.data.referer_name
 		})
 
-		google.maps.event.addListener(marker, 'click', function(event) {
-			var info = (new google.maps.InfoWindow({
-        			content: genPickHTMLContent(pick)
-    			})).open(map, marker)
-		})
+		google.maps.event.addListener(marker, 'click', onMapClick(pick, marker))
 	}
 
         function refreshMap() {
@@ -373,7 +390,7 @@
 				contents.push(picks[i].data.tags.join(" "))
 			}
 			contents.push("</h2>")
-			contents.push("<h2>posted by ")
+			contents.push("<h2>recommended by ")
 			contents.push(picks[i].data.referer_name + "</h2></div></div>")
 		}
 
@@ -409,10 +426,12 @@
 			$("#list").height($(window).height() - 30)
 
 			onLinkClick = onWebLinkClick
+			onMapClick = onWebMapClick
 		} else {
 			$("#map").height($(window).height() - 30)
 
 			onLinkClick = onMobileLinkClick
+			onMapClick = onMobileMapClick
 		}
 
 		$("#list_button").click(function() {
@@ -458,26 +477,29 @@
 						}
 					}	
 
-					if(geolocation) {
-						geolocation.getCurrentPosition(
-							function(p) { 
-								updatePosition(p)
-								next()
-							},
-							function() {
-								updatePosition({ coords: { latitude: 35.65857, longitude: 139.74542 }})
-								next()	
-							},
-							{ maximumAge: 0, enableHighAccuracy: true })
-						geolocation.watchPosition(
-							updatePosition,
-							function() {},
-							{ maximumAge: 0, enableHighAccuracy: true })
-					} else {
+					try {
+						if(geolocation) {
+							geolocation.getCurrentPosition(
+								function(p) { 
+									updatePosition(p)
+									next()
+								},
+								function() {
+									updatePosition({ coords: { latitude: 35.65857, longitude: 139.74542 }})
+									next()	
+								},
+								{ maximumAge: 0, enableHighAccuracy: true })
+							geolocation.watchPosition(
+								updatePosition,
+								function() {},
+								{ maximumAge: 0, enableHighAccuracy: true })
+						} else {
+							throw "geolocation not supported"
+						} 
+					} catch(e) {
 						updatePosition({ coords: { latitude: 35.65857, longitude: 139.74542 }})
 						next()	
-					} 
-
+					}
 				}
 			},
 			dual: {
