@@ -138,7 +138,7 @@
 	var lastPosition
 
 	function updatePosition(position) {
-		if(state.state_name != "show" || (lastPosition && calcDist(lastPosition.coords.latitude, lastPosition.coords.longitude, position.coords.latitude, position.coords.longitude) <= 0.02)) {
+		if(lastPosition && (state.state_name != "show" || (lastPosition && calcDist(lastPosition.coords.latitude, lastPosition.coords.longitude, position.coords.latitude, position.coords.longitude) <= 0.02))) {
 			return
 		}
 
@@ -186,20 +186,47 @@
 			mapTypeId: google.maps.MapTypeId.ROADMAP
 		})
 
-		if(geolocation) {
-			geolocation.getCurrentPosition(
-				updatePosition,
-				function() {
-					map.setCenter(new google.maps.LatLng(pick.data.lat, pick.data.lng))
-				}, { maximumAge: 0 }) 
-			geolocation.watchPosition(updatePosition, function() {})
-		} else {
-			map.setCenter(new google.maps.LatLng(pick.data.lat, pick.data.lng))
-		}
+		marker = new google.maps.Marker({
+			position: new google.maps.LatLng(pick.data.lat, pick.data.lng), 
+			map: map,
+			title: pick.data.name + " by " + pick.data.referer_name
+		})
+
 
 		state = new FSM({
 			start: function(fsm, event) {
-				fsm.trans("show")
+				function next() {
+					var tokens = window.location.href.split("#")
+					if(editable && tokens.length > 1 && tokens[1] == "edit") {
+						fsm.trans("edit")
+					} else {
+						fsm.trans("show")
+					}
+				}
+
+				try {
+					if(geolocation) {
+						geolocation.getCurrentPosition(
+							function(p) {
+								updatePosition(p)
+								next()
+							},
+							function() {
+								updatePosition({ coords: { latitude: pick.data.lat, longitude: pick.data.lng }})
+								next()
+							}, 
+							{ maximumAge: 0, enableHighAccuracy: true })
+						geolocation.watchPosition(
+							updatePosition, 
+							function() {},
+							{ maximumAge: 0, enableHighAccuracy: true })
+					} else {
+						throw "geolocation not supported"
+					}
+				} catch(e) {
+					updatePosition({ coords: { latitude: pick.data.lat, longitude: pick.data.lng }})
+					next()
+				}
 			},
 			show: {
 				onenter: function(fsm, event) {
@@ -210,16 +237,6 @@
 					$("#comments").show()
 					$("#name_show").show()
 					$("#tags_show").show()
-
-					if(marker) {
-						marker.setMap(null)
-					}
-
-					marker = new google.maps.Marker({
-						position: new google.maps.LatLng(pick.data.lat, pick.data.lng), 
-						map: map,
-						title: pick.data.name + " by " + pick.data.referer_name
-					})
 
 					if(!self_uid) {
 						$("#recommend").hide()

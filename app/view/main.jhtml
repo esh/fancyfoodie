@@ -168,7 +168,7 @@
                 font-size: 10px;
                 font-weight: normal;
         }
-	#list_button, #map_button, #list, #map, #details, #create_form, #add_pick {
+	#list_button, #map_button, #list, #map, #actions, #details, #create_form, #add_pick, #pick_edit {
 		display: none;
 	}
 	.left {
@@ -205,6 +205,7 @@
 	var position
 	var user
 	var add_user
+	var selected_pick
 	var picks = <%= params["picks"].toSource() %> 
 	var edit = <%= params["edit"] %>
 	var onLinkClick
@@ -252,6 +253,8 @@
 
 	function onWebLinkClick(key) {
 		var pick = getPick(key)
+		selected_pick = pick
+
 		$("#details").html(genPickHTMLContent(pick))
 
 		if(map) {
@@ -260,6 +263,10 @@
 						       Math.min(position.coords.longitude, pick.data.lng)),
 				new google.maps.LatLng(Math.min(position.coords.latitude, pick.data.lat),
 						       Math.max(position.coords.longitude, pick.data.lng))))
+		}
+
+		if(edit) {
+			$("#pick_edit").show()
 		}
 	}
 
@@ -271,6 +278,8 @@
 	}
 
 	function onWebMapClick(pick, marker) { return function(event) {
+			selected_pick = pick
+
 			$("#details").html(genPickHTMLContent(pick))
 
 			if(map) {
@@ -440,7 +449,7 @@
 		$("#map_button").click(function() {
 			state.handle("MAP")		
 		})
-		$("#addButton").click(function() {
+		$("#pick_add").click(function() {
 			state.handle("ADD")
 		})
 		$("#create_add").click(function() {
@@ -449,7 +458,11 @@
 		$("#create_cancel").click(function() {
 			state.handle("CANCEL")
 		})
-		$("#yoursButton").click(function() {
+		$("#pick_edit").click(function() {
+			window.location = "/p/" + selected_pick.key + "#edit"
+			state.handle("EDIT")
+		})
+		$("#yours_button").click(function() {
 			window.location = "/r/<%= params["edit"] ? session["uid"] : "" %>"
 		})
 		$("#name").keypress(function() {
@@ -511,9 +524,10 @@
 					$("#list_button").hide()
 					$("#map_button").hide()
 				
-					if(edit) {	
-						$("#addButton").show()
-						$("#yoursButton").show()
+					if(edit) {
+						$("#yours_button").show()
+						$("#actions").show()	
+						$("#pick_add").show()
 					}
 
 					refreshList()
@@ -533,8 +547,8 @@
 					$("#map_button").show()
 				
 					if(edit) {	
-						$("#addButton").show()
-						$("#yoursButton").show()
+						$("#pick_add").show()
+						$("#yours_button").show()
 					}
 
 					refreshList()
@@ -556,8 +570,8 @@
 					$("#list_button").show()
 
 					if(edit) {	
-						$("#addButton").show()
-						$("#yoursButton").show()
+						$("#pick_add").show()
+						$("#yours_button").show()
 					}
 				
 					refreshMap()	
@@ -646,15 +660,20 @@
 </head>
 <body>
 	<div id="nav">
-		<input type="button" id="addButton" value="+ Pick"/>
+		<input type="button" id="pick_add" value="+ Pick"/>
 		<input type="button" id="list_button" value="List"/>
 		<input type="button" id="map_button" value="Map"/>
-		<input type="button" id="yoursButton" value="Your Picks"/>
+		<input type="button" id="yours_button" value="Your Picks"/>
 	</div>
 	<div id="container">
 		<div id="list"></div>
 		<div id="right_pane">
 			<div id="map"></div>
+			<div id="actions">
+				<input type="button" id="pick_edit" value="Edit"/>
+				<!--input type="button" id="pick_recommend" value="+ to Picks"/-->
+				<!--input type="button" id="pick_remove" value="- from Picks"/-->
+			</div>
 			<div id="details"></div>
 		</div>
 	</div>
