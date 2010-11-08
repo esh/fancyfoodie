@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<create_!DOCTYPE html>
 <html>
 <head>
 <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
@@ -135,6 +135,10 @@
 		font-size: 12px;
 		padding: 0;
 	}
+	input {
+		height: 22px;
+	}
+
 	label {
 		display: block;
 		margin: 0px 5px 0px 5px;
@@ -142,13 +146,13 @@
 	}
 	.input {
 		font-size: 22px;
-		height: 25px;
+		height: 28px;
 		margin: 0px 5px 0px 5px;
 		padding: 0;
 	}
 	textarea {
 		font-size: 22px;
-		height: 45px;
+		height: 55px;
 		margin: 0px 5px 0px 5px;
 		padding: 0;
 	}
@@ -346,7 +350,7 @@
 			$("#add_map").width(width)
 			$("#add_map").height(3 * width / 4)
 			$(".input").width($(window).width() - 16)
-			$("#comment").width($(window).width() - 16)
+			$("#create_add_comment").width($(window).width() - 16)
 
 			add_map = new google.maps.Map(document.getElementById("add_map"), {
 				zoom: 20,
@@ -467,7 +471,7 @@
 		$("#yours_button").click(function() {
 			window.location = "/r/<%= params["edit"] ? session["uid"] : "" %>"
 		})
-		$("#name").keypress(function() {
+		$("#create_name").keypress(function() {
 			$("#create_add").attr("disabled", "")
 		})
 
@@ -591,9 +595,9 @@
 				onenter: function(fsm, event) {
 					$("#nav").hide()
 					$("#create_form").show()
-					$("#name").val("")
-					$("#tags").val("")
-					$("#comment").val("")
+					$("#create_name").val("")
+					$("#create_tags").val("")
+					$("#create_add_comment").val("")
 
 					$("#create_add").attr("disabled", "disabled")
 
@@ -625,11 +629,11 @@
 						contentType: "application/json",
 						dataType: 'json',
 						data: JSON.stringify({
-							name: $("#name").val(),
+							name: $("#create_name").val(),
 							lat: event.latLng.lat(),
 							lng: event.latLng.lng(),
-							tags: $("#tags").val(),
-							comment: $("#comment").val()
+							tags: $("#create_tags").val(),
+							comment: $("#create_add_comment").val()
 						}),
 						success: function(pick) {
 							picks.push(pick)
@@ -675,12 +679,12 @@
 	</div>
 	<div id="create_form">
 		<h1>Add Pick</h1>
-		<label for="name">Name</label>
-		<input class="input" type="text" name="name" id="name"/>
-		<label for="tags">Tag</label>
-		<input class="input" type="text" name="tags" id="tags"/>
-		<label for="comment">Add a comment</label>
-		<textarea name="comment" id="comment"></textarea>
+		<label for="create_name">Name</label>
+		<input class="input" type="text" name="create_name" id="create_name"/>
+		<label for="create_tags">Tag</label>
+		<input class="input" type="text" name="create_tags" id="create_tags"/>
+		<label for="create_add_comment">Add a comment</label>
+		<textarea name="create_add_comment" id="create_add_comment"></textarea>
 		<h2>tip: you can drag the marker around</h2>
 		<div id="add_map"></div>	
 		<input type="button" id="create_add" value="OK"/>

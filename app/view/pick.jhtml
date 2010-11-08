@@ -42,6 +42,10 @@
 		}
 	}
 
+	input {
+		height: 22px;
+	}
+
 	#remove, #recommend, #edit, #save, #cancel, #draggable {
 		display: none;
 	}
