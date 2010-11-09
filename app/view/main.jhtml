@@ -229,8 +229,11 @@
 		contents.push("</div>")
 
 		contents.push("<span id=\"pick_name\">")
+		contents.push("<a href=\"/p/")
+		contents.push(pick.key)
+		contents.push("\">")
 		contents.push(pick.data.name)
-		contents.push("</span><span id=\"pick_tags\">")
+		contents.push("</a></span><span id=\"pick_tags\">")
 		contents.push("(" + (pick.data.tags && pick.data.tags.length > 0 ? pick.data.tags.join(" ") : "&lt;untagged&gt;") + ")")
 		contents.push("</span>")
 		contents.push("<span id=\"pick_referer\">recommended by ")
