@@ -139,14 +139,15 @@
 	var map
 	var user
 	var marker
-	var lastPosition
+	var last_position
+	var map_click_listener 
 
 	function updatePosition(position) {
-		if(lastPosition && (state.state_name != "show" || (lastPosition && calcDist(lastPosition.coords.latitude, lastPosition.coords.longitude, position.coords.latitude, position.coords.longitude) <= 0.02))) {
+		if(last_position && (state.state_name != "show" || (last_position && calcDist(last_position.coords.latitude, last_position.coords.longitude, position.coords.latitude, position.coords.longitude) <= 0.02))) {
 			return
 		}
 
-		lastPosition = position;
+		last_position = position;
 
 		if(user) {
 			user.setMap(null)
@@ -312,6 +313,16 @@
 					$("#draggable").show()
 
 					marker.setDraggable(true)
+					map_click_listener = google.maps.event.addListener(map, 'click', function(event) {
+						marker.setMap(null)
+						marker = new google.maps.Marker({
+								position: event.latLng, 
+								map: map,
+								draggable: true,
+								title: pick.data.name + " by " + pick.data.referer_name
+							})
+					})
+
 				},
 				onexit: function(fsm, event) {
 					$("#edit").show()
@@ -322,6 +333,7 @@
 					$("#draggable").hide()
 
 					marker.setDraggable(false)
+					google.maps.event.removeListener(map_click_listener)
 				},
 				SHOW: function(fsm, event) {
 					fsm.trans("show")
@@ -393,7 +405,7 @@
 	<span id="tags_show"></span><input id="tags_edit" type="text"/>
 	<span id="referer">recommended by <%= params["pick"].data.referer_name %></span>
 	<div id="container">
-		<h3 id="draggable">tip: marker is now draggable</h3>
+		<h3 id="draggable">tip: tap map or drag marker</h3>
 		<div id="map_canvas"></div>
 		<div id="comments">
 			<h2>Comments</h2>
