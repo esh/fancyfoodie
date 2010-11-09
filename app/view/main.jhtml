@@ -172,8 +172,13 @@
                 font-size: 10px;
                 font-weight: normal;
         }
-	#list_button, #map_button, #list, #map, #details, #create_form, #add_pick, #pick_edit, #pick_recommend, #pick_remove {
+	#list_button, #map_button, #list, #map, #details, #create_form, #add_pick, #pick_edit, #pick_recommend, #pick_remove, #pick_add_comment {
 		display: none;
+	}
+	#pick_add_comment_box {
+		display: none;
+		margin: 0;
+		padding: 0;
 	}
 	.left {
 		display: table-cell;
@@ -242,6 +247,8 @@
 			contents.push("</h2></li>")
 		}
 		contents.push("</ul>")
+		contents.push("<textarea id=\"pick_add_comment_box\"></textarea>")
+		contents.push("<input type=\"button\" id=\"pick_add_comment\" value=\"add\"/>")
 		contents.push("</div>")
 
 		return contents.join("")
@@ -301,6 +308,23 @@
 						})
 				})
 			}
+
+			$("#pick_add_comment_box").width(parseInt(Math.min(800, $(window).width()) * 0.6) - 16)
+			$("#pick_add_comment_box").show()
+			$("#pick_add_comment").show()
+			$("#pick_add_comment").click(function() {
+				$.ajax({
+					type: "POST",
+					url: "/comments/post/" + pick.key,
+					contentType: "application/json",
+					dataType: 'json',
+					data: JSON.stringify($("#pick_add_comment_box").val()), success: function(msg) {
+						$("#pick_add_comment_box").val("")
+						$("#pick_comments ul").append("<li><h1>" + msg.comment + "</h1><h2>" + msg.author + ",  Just now</h2></li>")
+					}
+				})
+				$("#pick_add_comment_box").val("")
+			})
 		}
 
 		if(map) {
