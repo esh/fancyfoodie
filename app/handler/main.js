@@ -18,14 +18,14 @@
 				var ids = fb.getFriends().map(function(e) { return e.id })
 				ids.push(fb.getUID())
 							
-				return ["ok", render("view/main.jhtml", { picks: picks.find(links.find(ids)), edit: true })]
+				return ["ok", render("view/main.jhtml", { picks: picks.find(links.find(ids)) })]
 			} else {
 				// show landing page
 				return ["ok", render("view/landing.jhtml", {}) ]
 			}
 		},
 		yours: function(request, response, session) {
-			return ["ok", render("view/main.jhtml", { picks: picks.find(links.find([request.args[0]])), edit: false })]
+			return ["ok", render("view/main.jhtml", { picks: picks.find(links.find([request.args[0]])) })]
 		},
 		auth: function(request, response, session) {
 			if(!session["access_token"] && !request.params["code"]) {

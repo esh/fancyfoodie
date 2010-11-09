@@ -172,7 +172,7 @@
                 font-size: 10px;
                 font-weight: normal;
         }
-	#list_button, #map_button, #list, #map, #details, #create_form, #add_pick {
+	#list_button, #map_button, #list, #map, #details, #create_form, #add_pick, #pick_edit, #pick_recommend, #pick_remove {
 		display: none;
 	}
 	.left {
@@ -204,27 +204,23 @@
 <script type="text/javascript" src="/public/js/geo.js"></script>   
 <script type="text/javascript" src="/public/js/fsm.js"></script>   
 <script type="text/javascript">
+	var self_uid = <%= session["uid"] ? session["uid"] : "null" %>
 	var map
 	var add_map
 	var position
 	var user
-	var add_user
+	var add_marker
 	var selected_pick
 	var picks = <%= params["picks"].toSource() %> 
-	var edit = <%= params["edit"] %>
 	var onLinkClick
 	var onMapClick
-
-	function pick_edit() {
-		window.location = "/p/" + selected_pick.key + "#edit"
-	}
 
 	function genPickHTMLContent(pick) {
 		var contents = new Array()
 		contents.push("<div>")
-		contents.push("<input type=\"button\" id=\"pick_edit\" value=\"Edit\" onclick=\"pick_edit()\"/>")
-		//contents.push("<input type=\"button\" id=\"pick_recommend\" value=\"+ to Picks\"/>")
-		//contents.push("<input type=\"button\" id=\"pick_remove\" value=\"- from Picks\"/>")
+		contents.push("<input type=\"button\" id=\"pick_edit\" value=\"Edit\"/>")
+		contents.push("<input type=\"button\" id=\"pick_recommend\" value=\"+ to Picks\"/>")
+		contents.push("<input type=\"button\" id=\"pick_remove\" value=\"- from Picks\"/>")
 		contents.push("</div>")
 
 		contents.push("<span id=\"pick_name\">")
@@ -261,15 +257,21 @@
 		return null;
 	}
 
-	function onMobileLinkClick(key) {
-		window.location = "/p/" + key
-	}
-
-	function onWebLinkClick(key) {
-		var pick = getPick(key)
-		selected_pick = pick
-
+	function showPick(pick) {
 		$("#details").html(genPickHTMLContent(pick))
+
+		if(self_uid) {
+			$("#pick_edit").show()
+			$("#pick_edit").click(function() {
+				window.location = "/p/" + selected_pick.key + "#edit"
+			})
+
+			if($.inArray(self_uid, pick.referees) > -1) {
+				$("#pick_remove").show()
+			} else {
+				$("#pick_recommend").show()
+			}
+		}
 
 		if(map) {
 			map.fitBounds(new google.maps.LatLngBounds(
@@ -278,27 +280,31 @@
 				new google.maps.LatLng(Math.min(position.coords.latitude, pick.data.lat),
 						       Math.max(position.coords.longitude, pick.data.lng))))
 		}
+
 	}
 
-	function onMobileMapClick(pick, marker) { return function(event) {
+	function onMobileLinkClick(key) {
+		window.location = "/p/" + key
+	}
+
+
+	function onMobileMapClick(pick, marker) {
+		return function(event) {
 			(new google.maps.InfoWindow({
         			content: genPickHTMLContent(pick)
     			})).open(map, marker)
 		}
 	}
 
-	function onWebMapClick(pick, marker) { return function(event) {
-			selected_pick = pick
+	function onWebLinkClick(key) {
+		selected_pick = getPick(key)
+		showPick(selected_pick)
+	}
 
-			$("#details").html(genPickHTMLContent(pick))
-
-			if(map) {
-				map.fitBounds(new google.maps.LatLngBounds(
-					new google.maps.LatLng(Math.max(position.coords.latitude, pick.data.lat),
-							       Math.min(position.coords.longitude, pick.data.lng)),
-					new google.maps.LatLng(Math.min(position.coords.latitude, pick.data.lat),
-							       Math.max(position.coords.longitude, pick.data.lng))))
-			}
+	function onWebMapClick(pick, marker) {
+		return function(event) {
+			selected_pick = getPick(key)
+			showPick(selected_pick)
 		}
 	}
 
@@ -359,7 +365,7 @@
 				mapTypeId: google.maps.MapTypeId.ROADMAP
 			})
 
-			add_user = new google.maps.Marker({
+			add_marker = new google.maps.Marker({
 						position: new google.maps.LatLng(position.coords.latitude, position.coords.longitude), 
 						map: add_map,
 						draggable: true,
@@ -367,8 +373,8 @@
 					})
 
 			google.maps.event.addListener(add_map, 'click', function(event) {
-				add_user.setMap(null)
-				add_user = new google.maps.Marker({
+				add_marker.setMap(null)
+				add_marker = new google.maps.Marker({
 						position: event.latLng, 
 						map: add_map,
 						draggable: true,
@@ -376,8 +382,8 @@
 					})
  		 	})
 		} else {
-			add_user.setMap(null)
-			add_user = new google.maps.Marker({
+			add_marker.setMap(null)
+			add_marker = new google.maps.Marker({
 						position: new google.maps.LatLng(position.coords.latitude, position.coords.longitude), 
 						map: add_map,
 						draggable: true,
@@ -479,7 +485,7 @@
 			state.handle("CANCEL")
 		})
 		$("#yours_button").click(function() {
-			window.location = "/r/<%= params["edit"] ? session["uid"] : "" %>"
+			window.location = "/r/<%= session["uid"] ? session["uid"] : "" %>"
 		})
 		$("#create_name").keypress(function() {
 			$("#create_add").attr("disabled", "")
@@ -540,7 +546,7 @@
 					$("#list_button").hide()
 					$("#map_button").hide()
 				
-					if(edit) {
+					if(self_uid) {
 						$("#yours_button").show()
 						$("#pick_add").show()
 					}
@@ -561,7 +567,7 @@
 					$("#list_button").hide()
 					$("#map_button").show()
 				
-					if(edit) {	
+					if(self_uid) {	
 						$("#pick_add").show()
 						$("#yours_button").show()
 					}
@@ -584,7 +590,7 @@
 					$("#map_button").hide()
 					$("#list_button").show()
 
-					if(edit) {	
+					if(self_uid) {	
 						$("#pick_add").show()
 						$("#yours_button").show()
 					}
@@ -618,7 +624,7 @@
 					$("#nav").show()
 				},
 				ADD: function(fsm, event) {
-					fsm.trans('add_marker', { latLng: add_user.getPosition() })
+					fsm.trans('add_marker', { latLng: add_marker.getPosition() })
 				},
 				CANCEL: function(fsm, event) {
 					if($(window).width() >= 640) {
