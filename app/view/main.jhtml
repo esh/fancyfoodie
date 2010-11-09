@@ -16,45 +16,7 @@
 		margin: 0;
 		padding: 0;
 	}
-
-	@media only screen and (max-width: 639px) {
-		#right_pane {
-			margin: 0;
-			padding: 0;
-		}
-		#map {
-			width: 100%;
-			margin: 0;
-			padding: 0;
-		}
-		#list {
-			width: 100%;
-			margin: 0;
-			padding: 0;
-		}
-	}
-
-	@media only screen and (min-width: 639px) {
-		#right_pane {
-			float: left;
-			margin: 0px 5px 0px 5px;
-			padding: 0;
-		}
-		#map {
-			margin: 0;
-			padding: 0;
-		}
-		#details {
-			margin: 8px 0px 0px 0px;
-			padding: 0;
-		}
-		#list {
-			float: left;
-			margin: 0px 5px 0px 5px;
-			padding: 0;
-			overflow: auto;
-		}
-	}
+	
 
 	span {
 		margin: 0px;
@@ -360,7 +322,7 @@
 
 	function onWebMapClick(pick, marker) {
 		return function(event) {
-			selected_pick = getPick(key)
+			selected_pick = pick 
 			showPick(selected_pick)
 		}
 	}
@@ -507,6 +469,18 @@
 
 	$(document).ready(function () {
 		if($(window).width() >= 640) {
+			$("#list").css("float", "left")
+			$("#list").css("margin", "0px 5px 0px 5px")
+			$("#list").css("padding", "0")
+			$("#list").css("overflow", "auto")
+			$("#right_pane").css("float", "left")
+			$("#right_pane").css("margin", "0px 5px 0px 5px")
+			$("#right_pane").css("padding", "0")
+			$("#map").css("margin", "0")
+			$("#map").css("padding", "0")
+			$("#details").css("margin", "8px 0px 0px 0px")
+			$("#details").css("padding", "0")
+
 			var width = Math.min(800, $(window).width())
 			var map_width = parseInt(width * 0.6);
 			var list_width = width - map_width - 10;
@@ -520,6 +494,14 @@
 			onLinkClick = onWebLinkClick
 			onMapClick = onWebMapClick
 		} else {
+			$("#list").css("width", "100%")
+			$("#list").css("margin", "0")
+			$("#list").css("padding", "0")
+			$("#right_pane").css("margin", "0")
+			$("#right_pane").css("padding", "0")
+			$("#map").css("width", "100%")
+			$("#map").css("margin", "0")
+			$("#map").css("padding", "0")
 			$("#map").height($(window).height() - 30)
 
 			onLinkClick = onMobileLinkClick
