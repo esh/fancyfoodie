@@ -365,6 +365,16 @@
 						draggable: true,
 						title: "New pick" 
 					})
+
+			google.maps.event.addListener(add_map, 'click', function(event) {
+				add_user.setMap(null)
+				add_user = new google.maps.Marker({
+						position: event.latLng, 
+						map: add_map,
+						draggable: true,
+						title: "New pick" 
+					})
+ 		 	})
 		} else {
 			add_user.setMap(null)
 			add_user = new google.maps.Marker({
@@ -685,7 +695,7 @@
 		<input class="input" type="text" name="create_tags" id="create_tags"/>
 		<label for="create_add_comment">Add a comment</label>
 		<textarea name="create_add_comment" id="create_add_comment"></textarea>
-		<h2>tip: you can drag the marker around</h2>
+		<h2>tip: tap the map or drag the marker</h2>
 		<div id="add_map"></div>	
 		<input type="button" id="create_add" value="OK"/>
 		<input type="button" id="create_cancel" value="Cancel"/>
