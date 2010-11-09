@@ -261,15 +261,45 @@
 		$("#details").html(genPickHTMLContent(pick))
 
 		if(self_uid) {
-			$("#pick_edit").show()
-			$("#pick_edit").click(function() {
-				window.location = "/p/" + selected_pick.key + "#edit"
-			})
+			if(pick.editable) {
+				$("#pick_edit").show()
+				$("#pick_edit").click(function() {
+					window.location = "/p/" + selected_pick.key + "#edit"
+				})
+			}
 
 			if($.inArray(self_uid, pick.referees) > -1) {
 				$("#pick_remove").show()
+				$("#pick_remove").click(function() {
+					if(pick.data.referer_uid == self_uid) {
+						if(confirm("remove " + pick.data.name + "?")) {
+							$("#pick_remove").attr("disabled", "disabled")
+							$.post("/pick/remove/" + pick.key,
+								function() {
+									window.location = "/"	
+								})
+						}
+					} else {
+						$("#pick_remove").attr("disabled", "disabled")
+						$.post("/pick/remove/" + pick.key, 
+							function() {
+								$("#pick_recommend").show()
+								$("#pick_remove").attr("disabled", "")
+								$("#pick_remove").hide()
+							})
+					}
+				})
 			} else {
 				$("#pick_recommend").show()
+				$("#pick_recommend").click(function() {
+					$("#pick_recommend").attr("disabled", "disabled")
+					$.post("/pick/recommend/" + pick.key,
+						function() {
+							$("#pick_recommend").attr("disabled", "")
+							$("#pick_recommend").hide()
+							$("#pick_remove").show()
+						})
+				})
 			}
 		}
 
@@ -652,6 +682,7 @@
 							comment: $("#create_add_comment").val()
 						}),
 						success: function(pick) {
+							pick.editable = true
 							picks.push(pick)
 							if($(window).width() >= 640) {
 								fsm.trans("dual", event)
