@@ -133,9 +133,9 @@
 <script type="text/javascript" src="/public/js/geo.js"></script>   
 <script type="text/javascript" src="/public/js/fsm.js"></script>   
 <script type="text/javascript">
-	var pick = <%= params["pick"].toSource() %>
+	var self_uid = <%= session != null && session["uid"] ? session["uid"] : "null" %>
 	var editable = <%= params["editable"] %>
-	var self_uid = <%= session["uid"] ? session["uid"] : "null" %>
+	var pick = <%= params["pick"].toSource() %>
 	var map
 	var user
 	var marker

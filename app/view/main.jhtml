@@ -171,14 +171,14 @@
 <script type="text/javascript" src="/public/js/geo.js"></script>   
 <script type="text/javascript" src="/public/js/fsm.js"></script>   
 <script type="text/javascript">
-	var self_uid = <%= session["uid"] ? session["uid"] : "null" %>
+	var self_uid = <%= params["uid"] ? params["uid"] : "null" %>
+	var picks = <%= params["picks"].toSource() %> 
 	var map
 	var add_map
 	var position
 	var user
 	var add_marker
 	var selected_pick
-	var picks = <%= params["picks"].toSource() %> 
 	var onLinkClick
 	var onMapClick
 
@@ -524,7 +524,7 @@
 			state.handle("CANCEL")
 		})
 		$("#yours_button").click(function() {
-			window.location = "/r/<%= session["uid"] ? session["uid"] : "" %>"
+			window.location = "/r/<%= params["uid"] ? params["uid"] : "" %>"
 		})
 		$("#create_name").keypress(function() {
 			$("#create_add").attr("disabled", "")

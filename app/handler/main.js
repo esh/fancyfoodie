@@ -18,11 +18,12 @@
 				var ids = fb.getFriends().map(function(e) { return e.id })
 				ids.push(fb.getUID())
 						
-				return ["ok", render("view/main.jhtml", { 
-					picks: picks.find(links.find(ids)).map(function(p) {
-					p.editable = ids.some(function(e) { return p.data.referer_uid == e })
-					return p
-				})})]
+				return ["ok", render("view/main.jhtml", {
+						uid: session["uid"],
+						picks: picks.find(links.find(ids)).map(function(p) {
+							p.editable = ids.some(function(e) { return p.data.referer_uid == e })
+							return p
+						})})]
 			} else {
 				// show landing page
 				return ["ok", render("view/landing.jhtml", {}) ]
