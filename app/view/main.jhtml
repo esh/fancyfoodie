@@ -134,7 +134,7 @@
                 font-size: 10px;
                 font-weight: normal;
         }
-	#list_button, #map_button, #list, #map, #details, #create_form, #add_pick, #pick_edit, #pick_recommend, #pick_remove, #pick_add_comment {
+	#pick_add, #yours_button, #list_button, #map_button, #list, #map, #details, #create_form, #add_pick, #pick_edit, #pick_recommend, #pick_remove, #pick_add_comment {
 		display: none;
 	}
 	#pick_add_comment_box {
@@ -291,15 +291,6 @@
 				$("#pick_add_comment_box").val("")
 			})
 		}
-
-		if(map) {
-			map.fitBounds(new google.maps.LatLngBounds(
-				new google.maps.LatLng(Math.max(position.coords.latitude, pick.data.lat),
-						       Math.min(position.coords.longitude, pick.data.lng)),
-				new google.maps.LatLng(Math.min(position.coords.latitude, pick.data.lat),
-						       Math.max(position.coords.longitude, pick.data.lng))))
-		}
-
 	}
 
 	function onMobileLinkClick(key) {
@@ -316,25 +307,51 @@
 	}
 
 	function onWebLinkClick(key) {
-		selected_pick = getPick(key)
-		showPick(selected_pick)
+		swapPick(getPick(key))
 	}
 
 	function onWebMapClick(pick, marker) {
 		return function(event) {
-			selected_pick = pick 
-			showPick(selected_pick)
+			swapPick(pick)
 		}
 	}
 
-	function addMarker(pick) {
-		var marker = new google.maps.Marker({
+	function swapPick(newPick) {
+		if(map && selected_pick) {
+			removeMarker(selected_pick)
+			addMarker(selected_pick)
+		}
+		selected_pick = newPick 
+		removeMarker(selected_pick)
+		addMarker(selected_pick, "http://www.google.com/mapfiles/marker_yellow.png")
+		showPick(selected_pick)
+		if(map) {
+			map.fitBounds(new google.maps.LatLngBounds(
+				new google.maps.LatLng(Math.max(position.coords.latitude, selected_pick.data.lat),
+						       Math.min(position.coords.longitude, selected_pick.data.lng)),
+				new google.maps.LatLng(Math.min(position.coords.latitude, selected_pick.data.lat),
+						       Math.max(position.coords.longitude, selected_pick.data.lng))))
+		}
+	}
+
+	function addMarker(pick, icon) {
+		var opt = {
 			position: new google.maps.LatLng(pick.data.lat, pick.data.lng), 
 			map: map,
 			title: pick.data.name + " recommended by " + pick.data.referer_name
-		})
+		}
+		if(icon) {
+			opt.icon = icon
+		}
+		var marker = new google.maps.Marker(opt)
 
 		google.maps.event.addListener(marker, 'click', onMapClick(pick, marker))
+		pick.marker = marker
+	}
+
+	function removeMarker(pick) {
+		pick.marker.setMap(null)
+		pick.marker = null
 	}
 
         function refreshMap() {
@@ -539,6 +556,11 @@
 					function next() {
 						$("#loading").hide()
 
+						if(self_uid) {
+							$("#pick_add").show()
+							$("#yours_button").show()
+						}
+
 						if($(window).width() >= 640) {
 							fsm.trans("dual")
 						} else {
@@ -592,6 +614,10 @@
 
 					refreshList()
 					refreshMap()
+	
+					if(picks.length > 0) {	
+						showPick(picks[0])
+					}
 				},
 				onexit: function(fsm, event) {
 					$("#container").hide()
