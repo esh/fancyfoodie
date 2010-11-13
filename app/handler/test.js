@@ -1,6 +1,4 @@
 (function() {
-	require("utils/json2.js")
-
 	var picks = require("model/picks.js")()
 
 	function rgeocode(lat, lng) {
@@ -39,7 +37,15 @@
 		locationLookup: function(request, response, session) {
 			var pick = picks.get(request.args[0])
 
-			return ["ok", populateAddressDetails(pick.data.name, pick.data.lat, pick.data.lng).toSource()]
+			var res = populateAddressDetails(pick.data.name, pick.data.lat, pick.data.lng)
+			pick.data.title = res.title
+			pick.data.address_lines = res.address_lines
+			pick.data.phones = res.phones
+			pick.data.url = res.url
+					
+			picks.persist(pick)
+			
+			return ["ok", "ok"]
 		}
 	}
 })

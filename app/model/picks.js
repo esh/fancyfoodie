@@ -1,6 +1,7 @@
 (function() {
 	importPackage(com.google.appengine.api.datastore)
 	require("utils/json2.js")
+
 	var ds = DatastoreServiceFactory.getDatastoreService()
 
 	return {
