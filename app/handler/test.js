@@ -14,22 +14,17 @@
 	function populateAddressDetails(name, lat, lng) {
 		var geo = eval("(" + rgeocode(lat, lng) + ")")
 		if(geo.status == "OK") {
-			try {
-				var html = lookup(name, geo.results[0].formatted_address)
-				var scrape = eval("({" + html.match(/infoWindow:.*basics:/)[0] + "\"\"}})").infoWindow
+			var html = lookup(name, geo.results[0].formatted_address)
+			var scrape = eval("({" + html.match(/infoWindow:.*basics:/)[0] + "\"\"}})").infoWindow
 
-				return {
-					title: scrape.title,
-					address_lines: scrape.addressLines,
-					phones: scrape.phones,
-					url: scrape.hp.actual_url
-				}
-			} catch(e) {
-				log.severe(e)
-				log.severe("by " + name + " latLng: " + lat + ":" + lng)
+			return {
+				title: scrape.title,
+				address_lines: scrape.addressLines,
+				phones: scrape.phones,
+				url: scrape.hp.actual_url
 			}
 		} else {
-			log.severe("geolookup failed for:" + lat + ":" + lng)
+			throw "geolookup failed for:" + lat + ":" + lng
 		}
 	}
 
@@ -37,14 +32,18 @@
 		locationLookup: function(request, response, session) {
 			var pick = picks.get(request.args[0])
 
-			var res = populateAddressDetails(pick.data.name, pick.data.lat, pick.data.lng)
-			pick.data.title = res.title
-			pick.data.address_lines = res.address_lines
-			pick.data.phones = res.phones
-			pick.data.url = res.url
-					
-			picks.persist(pick)
-			
+			try {
+				var res = populateAddressDetails(pick.data.name, pick.data.lat, pick.data.lng)
+				pick.data.title = res.title
+				pick.data.address_lines = res.address_lines
+				pick.data.phones = res.phones
+				pick.data.url = res.url
+						
+				picks.persist(pick)
+			} catch(e) {
+				log.severe(e)
+				log.severe("by pick:" + request.args[0])
+			}	
 			return ["ok", "ok"]
 		}
 	}

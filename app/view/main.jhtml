@@ -194,13 +194,31 @@
 		contents.push("<a href=\"/p/")
 		contents.push(pick.key)
 		contents.push("\">")
-		contents.push(pick.data.name)
+		contents.push(pick.data.title ? pick.data.title : pick.data.name)
 		contents.push("</a></span><span id=\"pick_tags\">")
 		contents.push("(" + (pick.data.tags && pick.data.tags.length > 0 ? pick.data.tags.join(" ") : "&lt;untagged&gt;") + ")")
 		contents.push("</span>")
 		contents.push("<span id=\"pick_referer\">recommended by ")
 		contents.push(pick.data.referer_name)
 		contents.push("</span>")
+
+		if(pick.data.address_lines) {
+			contents.push("<br/>")
+			contents.push(pick.data.address_lines.join(", "))
+		}
+		if(pick.data.phones) {
+			contents.push("<br/>")
+			contents.push(pick.data.phones.map(function(e) { return e.number }).join(", "))
+		}
+		if(pick.data.url) {
+			contents.push("<br/>")
+			contents.push("<a href=\"")
+			contents.push(pick.data.url)
+			contents.push("\">")
+			contents.push(pick.data.url)
+			contents.push("</a>")
+		}
+
 		contents.push("<div id=\"pick_comments\">")
 		contents.push("<h1>Comments</h1>")
 		contents.push("<ul>")
@@ -435,7 +453,7 @@
 			contents.push("<div class=\"item\" onclick='onLinkClick(")
 			contents.push(picks[i].key)
 			contents.push(")'><div class=\"left\"><h1>")
-			contents.push(picks[i].data.name)
+			contents.push(picks[i].data.title ? picks[i].data.title : picks[i].data.name)
 			contents.push("</h1><h2>")
 			contents.push(picks[i].dist > 1 ? picks[i].dist + " km" : parseInt(picks[i].dist * 100) + " m")
 			contents.push(" away")

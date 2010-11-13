@@ -404,6 +404,29 @@
 	<span id="name_show"></span><input id="name_edit" type="text"/>
 	<span id="tags_show"></span><input id="tags_edit" type="text"/>
 	<span id="referer">recommended by <%= params["pick"].data.referer_name %></span>
+	<%
+		var pick = params["pick"]
+		var contents = new Array()
+		if(pick.data.address_lines) {
+			contents.push("<br/>")
+			contents.push(pick.data.address_lines.join(", "))
+		}
+		if(pick.data.phones) {
+			contents.push("<br/>")
+			contents.push(pick.data.phones.map(function(e) { return e.number }).join(", "))
+		}
+		if(pick.data.url) {
+			contents.push("<br/>")
+			contents.push("<a href=\"")
+			contents.push(pick.data.url)
+			contents.push("\">")
+			contents.push(pick.data.url)
+			contents.push("</a>")
+		}
+
+		echo(contents.join(""))
+	%>
+
 	<div id="container">
 		<h3 id="draggable">tip: tap map or drag marker</h3>
 		<div id="map_canvas"></div>
