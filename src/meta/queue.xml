@@ -3,4 +3,8 @@
     <name>tasks</name>
     <rate>10/s</rate>
   </queue>
+  <queue>
+    <name>lookup</name>
+    <rate>1/m</rate>
+  </queue>
 </queue-entries>

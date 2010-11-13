@@ -3,7 +3,8 @@ var main = require("handler/main.js")()
 var pick = require("handler/pick.js")()
 var comments = require("handler/comments.js")()
 var tasks = require("handler/tasks.js")()
-var test = require("handler/test.js")()
+
+//	{ route: /^\/_test\/(.*)$/, handler: tasks.locationLookup },
 
 httpserver(config, require("utils/dispatcher.js")([
 	{ route: /^\/p\/([0-9]+)$/, handler: pick.show },
@@ -18,6 +19,6 @@ httpserver(config, require("utils/dispatcher.js")([
 	{ route: /^\/_tasks\/remove$/, handler: tasks.remove },
 	{ route: /^\/_tasks\/addLink$/, handler: tasks.addLink },
 	{ route: /^\/_tasks\/addComment$/, handler: tasks.addComment },	
+	{ route: /^\/_tasks\/locationLookup\/(.*)$/, handler: tasks.locationLookup },	
 	{ route: /^\/_auth.*$/, handler: main.auth },
-	{ route: /^\/_test\/(.*)$/, handler: test.locationLookup },
 	{ route: /./, handler: main.show }]))
