@@ -13,13 +13,16 @@ function populateAddressDetails(name, lat, lng) {
 	if(geo.status == "OK") {
 		try {
 			var html = lookup(name, geo.results[0].formatted_address)
+			var latLng = eval("({" + html.match(/latlng:{lat:\d+\.\d+,lng:\d+\.\d+}/)[0] + "})").latlng
 			var scrape = eval("({" + html.match(/infoWindow:.*basics:/)[0] + "\"\"}})").infoWindow
-
+			
 			return {
 				title: scrape.title,
 				address_lines: scrape.addressLines,
 				phones: scrape.phones,
-				url: scrape.hp.actual_url
+				url: scrape.hp.actual_url,
+				lat: latLng.lat,
+				lng: latLng.lng
 			}
 		} catch(e) {
 			log.severe(e)

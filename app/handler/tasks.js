@@ -5,6 +5,20 @@
 	var ds = DatastoreServiceFactory.getDatastoreService()
 	var links = require("model/links.js")()
 	var picks = require("model/picks.js")()
+	
+	function calcDist(lat1, lon1, lat2, lon2) {
+		lat1 = lat1 * Math.PI / 180
+		lat2 = lat2 * Math.PI / 180
+		lon1 = lon1 * Math.PI / 180
+		lon2 = lon2 * Math.PI / 180
+
+		var R = 6371 // km
+		var dLat = lat2-lat1
+		var dLon = lon2-lon1 
+		var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon/2) * Math.sin(dLon/2) 
+		var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+		return parseInt(R * c * 100) / 100
+	}
 
 	function rgeocode(lat, lng) {
 		return hget("http://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat + "," + lng + "&sensor=false")
@@ -20,13 +34,16 @@
 		var geo = eval("(" + rgeocode(lat, lng) + ")")
 		if(geo.status == "OK") {
 			var html = lookup(name, geo.results[0].formatted_address)
+			var latLng = eval("({" + html.match(/latlng:{lat:\d+\.\d+,lng:\d+\.\d+}/)[0] + "})").latlng
 			var scrape = eval("({" + html.match(/infoWindow:.*basics:/)[0] + "\"\"}})").infoWindow
-
+			
 			return {
 				title: scrape.title,
 				address_lines: scrape.addressLines,
 				phones: scrape.phones,
-				url: scrape.hp.actual_url
+				url: scrape.hp.actual_url,
+				lat: latLng.lat,
+				lng: latLng.lng
 			}
 		} else {
 			throw "geolookup failed for:" + lat + ":" + lng
@@ -79,11 +96,21 @@
 
 			try {
 				var res = populateAddressDetails(pick.data.name, pick.data.lat, pick.data.lng)
-				pick.data.title = res.title
-				pick.data.address_lines = res.address_lines
-				pick.data.phones = res.phones
-				pick.data.url = res.url
-						
+				log.info("got scrape: " + res.toSource())
+				if(calcDist(pick.data.lat, pick.data.lng, res.lat, res.lng) <= 0.015) {
+					log.info("scrape is within 15m of pick")
+					pick.data.title = res.title
+					pick.data.address_lines = res.address_lines
+					pick.data.phones = res.phones
+					pick.data.url = res.url
+				} else {
+					log.info("scrape outside of 15m of pick")
+					delete pick.data.title 
+					delete pick.data.address_lines
+					delete pick.data.phones
+					delete pick.data.url
+				}
+	
 				picks.persist(pick)
 			} catch(e) {
 				log.severe(e)
