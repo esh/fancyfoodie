@@ -455,7 +455,7 @@
 			contents.push(")'><div class=\"left\"><h1>")
 			contents.push(picks[i].data.title ? picks[i].data.title : picks[i].data.name)
 			contents.push("</h1><h2>")
-			contents.push(picks[i].dist > 1 ? picks[i].dist + " km" : parseInt(picks[i].dist * 100) + " m")
+			contents.push(picks[i].dist > 1 ? picks[i].dist + " km" : parseInt(picks[i].dist * 1000) + " m")
 			contents.push(" away")
 			contents.push("</h2></div><div class=\"right\"><h2>")
 			if(picks[i].data.tags) {
