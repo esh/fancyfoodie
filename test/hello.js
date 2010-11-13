@@ -1,8 +1,14 @@
 function lookup(place) {
-	return hget("http://maps.google.com/maps?view=text&q=" + escape(place))
+	var uri = new java.net.URI("http", "a.com", "/" + place, null)
+	uri = "http://maps.google.com/maps?view=text&q=" + uri.toASCIIString().slice("http://a.com/".length)
+	return hget(uri)
 }
 
-var scrape = eval("({" + lookup("hatos bar tokyo").match(/infoWindow:.*basics:/)[0] + "\"\"}})").infoWindow
+
+var html = lookup("Jasmine thai near Japan, Tokyo Minato六本木５丁目１８−２２")
+
+//java.lang.System.out.print(html)
+var scrape = eval("({" + html.match(/infoWindow:.*basics:/)[0] + "\"\"}})").infoWindow
 
 scrape = {
 	title: scrape.title,
