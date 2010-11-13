@@ -3,7 +3,6 @@
 	require("utils/json2.js")
 
 	var ds = DatastoreServiceFactory.getDatastoreService()
-	var queue = QueueFactory.getQueue("tasks")
 	var links = require("model/links.js")()
 	var picks = require("model/picks.js")()
 
@@ -94,9 +93,13 @@
 		},
 		refreshLocations: function(request, response, session) {
 			var queue = QueueFactory.getQueue("lookup")
+			var keys = picks.keys()
+			keys.forEach(function(key) {
+				queue.add(TaskOptions.Builder.url("/_tasks/locationLookup/" + key))
+			})
+
 			return ["ok", "ok"]
 		}
-
 	}
 })
 

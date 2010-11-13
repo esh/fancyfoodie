@@ -19,7 +19,12 @@
 			}
 		},
 		keys: function() {
+			var keys = []
+			for(var e in Iterator(ds.prepare(new Query("picks").setKeysOnly()).asIterator())) {
+				keys.push(e.getKey().getId())
+			}
 
+			return keys
 		},
 		find: function(keys) {
 			log.info("finding: " + keys.toSource())
