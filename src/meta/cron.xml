@@ -3,6 +3,6 @@
   <cron>
     <url>/_tasks/refreshLocations</url>
     <description>kick off job to refresh all addresses</description>
-    <schedule>every day 00:00</schedule>
+    <schedule>every 2 hours</schedule>
   </cron>
 </cronentries>
