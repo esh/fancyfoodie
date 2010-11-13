@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cronentries>
+  <cron>
+    <url>/_tasks/refreshLocations</url>
+    <description>kick off job to refresh all addresses</description>
+    <schedule>every day 00:00</schedule>
+  </cron>
+</cronentries>

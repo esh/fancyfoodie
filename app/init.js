@@ -20,5 +20,6 @@ httpserver(config, require("utils/dispatcher.js")([
 	{ route: /^\/_tasks\/addLink$/, handler: tasks.addLink },
 	{ route: /^\/_tasks\/addComment$/, handler: tasks.addComment },	
 	{ route: /^\/_tasks\/locationLookup\/(.*)$/, handler: tasks.locationLookup },	
+	{ route: /^\/_tasks\/refreshLocations$/, handler: tasks.refreshLocations },	
 	{ route: /^\/_auth.*$/, handler: main.auth },
 	{ route: /./, handler: main.show }]))

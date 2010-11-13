@@ -91,7 +91,12 @@
 				log.severe("by pick:" + request.args[0])
 			}	
 			return ["ok", "ok"]
+		},
+		refreshLocations: function(request, response, session) {
+			var queue = QueueFactory.getQueue("lookup")
+			return ["ok", "ok"]
 		}
+
 	}
 })
 

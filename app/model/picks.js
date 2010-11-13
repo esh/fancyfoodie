@@ -18,6 +18,9 @@
 				throw "pick not found: " + key
 			}
 		},
+		keys: function() {
+
+		},
 		find: function(keys) {
 			log.info("finding: " + keys.toSource())
 			var t = new java.util.ArrayList()
