@@ -1,4 +1,3 @@
-
 function lookup(place) {
 	return hget("http://maps.google.com/maps?view=text&q=" + escape(place))
 }
