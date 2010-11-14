@@ -41,7 +41,7 @@
 				title: scrape.title,
 				address_lines: scrape.addressLines,
 				phones: scrape.phones,
-				url: scrape.hp.actual_url,
+				url: scrape.hp.actual_url ? scrape.hp.actual_url : null,
 				lat: latLng.lat,
 				lng: latLng.lng
 			}
@@ -97,7 +97,7 @@
 			try {
 				var res = populateAddressDetails(pick.data.name, pick.data.lat, pick.data.lng)
 				log.info("got scrape: " + res.toSource())
-				if(calcDist(pick.data.lat, pick.data.lng, res.lat, res.lng) <= 0.015) {
+				if(calcDist(pick.data.lat, pick.data.lng, res.lat, res.lng) <= 0.025) {
 					log.info("scrape is within 15m of pick")
 					pick.data.title = res.title
 					pick.data.address_lines = res.address_lines

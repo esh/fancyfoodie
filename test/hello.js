@@ -1,3 +1,17 @@
+function calcDist(lat1, lon1, lat2, lon2) {
+	lat1 = lat1 * Math.PI / 180
+	lat2 = lat2 * Math.PI / 180
+	lon1 = lon1 * Math.PI / 180
+	lon2 = lon2 * Math.PI / 180
+
+	var R = 6371 // km
+	var dLat = lat2-lat1
+	var dLon = lon2-lon1 
+	var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon/2) * Math.sin(dLon/2) 
+	var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+	return R * c * 100 / 100
+}
+
 function rgeocode(lat, lng) {
 	return hget("http://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat + "," + lng + "&sensor=false")
 }
@@ -33,4 +47,11 @@ function populateAddressDetails(name, lat, lng) {
 	}
 }
 
-log.info(populateAddressDetails("Jasmine thai", 35.66111479675315, 139.73684287834791).toSource())
+function test(name, lat, lng) {
+	var scrape = populateAddressDetails(name, lat, lng)
+	log.info("in: " + name + " " + lat + " " + lng)
+	log.info(scrape.toSource())
+	log.info("dist:" + calcDist(lat, lng, scrape.lat, scrape.lng))
+}
+
+test("Tap Room", 35.643551078793934, 139.6990793465672)
