@@ -30,10 +30,12 @@
 	}
 </style>
 <title>Fancy Foodie</title>
+<link rel="icon" type="image/png" href="/public/img/favicon.png">
+<link rel="apple-touch-icon" type="image/png" href="/public/img/touch.png">
 </head>
 <body>
 	<img src="/public/img/logo.gif"/>
-	<p>Fancy foodie helps you find places your friends love! Check out <a href="/r/122607547">Ed's picks</a>
+	<p>Fancy foodie helps you find places your friends love! Check out <a href="/r/122607547">Ed's picks</a>, Or login via facebook.
 	<div>
 		<a href="/_auth"><img src="/public/img/login.png"/></a>
 	</div>

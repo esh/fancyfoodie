@@ -164,6 +164,8 @@
 	}
 </style>
 <title>Fancy Foodie</title>
+<link rel="icon" type="image/png" href="/public/img/favicon.png">
+<link rel="apple-touch-icon" type="image/png" href="/public/img/touch.png">
 <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
 <script type="text/javascript" src="http://code.google.com/apis/gears/gears_init.js"></script>
 <script type="text/javascript" src="/public/js/jquery-1.4.2.min.js"></script>
@@ -200,6 +202,11 @@
 		contents.push("</span>")
 		contents.push("<span id=\"pick_referer\">recommended by ")
 		contents.push(pick.data.referer_name)
+		if(pick.referees.length > 1) {
+			contents.push(" and ")
+			contents.push(pick.referees.length - 1)
+			contents.push(" others")	
+		}
 		contents.push("</span>")
 
 		if(pick.data.address_lines) {

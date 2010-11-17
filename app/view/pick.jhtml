@@ -2,6 +2,8 @@
 <html>
 <head>
 <title>Fancy Foodie</title>
+<link rel="icon" type="image/png" href="/public/img/favicon.png">
+<link rel="apple-touch-icon" type="image/png" href="/public/img/touch.png">
 <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
 <style type="text/css">
 	html, body {
@@ -403,7 +405,7 @@
 
 	<span id="name_show"></span><input id="name_edit" type="text"/>
 	<span id="tags_show"></span><input id="tags_edit" type="text"/>
-	<span id="referer">recommended by <%= params["pick"].data.referer_name %></span>
+	<span id="referer">recommended by <%= params["pick"].data.referer_name %><% if(params["pick"].referees.length > 1) { echo(" and " + (params["pick"].referees.length - 1) + " others") } %></span>
 	<%
 		var pick = params["pick"]
 		var contents = new Array()
