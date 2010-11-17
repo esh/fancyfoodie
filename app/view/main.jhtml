@@ -16,7 +16,6 @@
 		margin: 0;
 		padding: 0;
 	}
-	
 
 	span {
 		margin: 0px;
@@ -344,11 +343,11 @@
 	function swapPick(newPick) {
 		if(map && selected_pick) {
 			removeMarker(selected_pick)
-			addMarker(selected_pick)
+			addMarker(selected_pick, "http://www.google.com/mapfiles/marker_yellow.png")
 		}
 		selected_pick = newPick 
 		removeMarker(selected_pick)
-		addMarker(selected_pick, "http://www.google.com/mapfiles/marker_yellow.png")
+		addMarker(selected_pick)
 		showPick(selected_pick)
 		if(map) {
 			map.fitBounds(new google.maps.LatLngBounds(
@@ -502,7 +501,7 @@
 			})
 
 			for(var i = 0 ; i < picks.length ; i++) {
-				addMarker(picks[i])
+				addMarker(picks[i], "http://www.google.com/mapfiles/marker_yellow.png")
 			}
 		}
 	}
