@@ -19,36 +19,11 @@
 		padding: 0;
 	}
 
-	@media only screen and (max-width: 639px) {
-		#map_canvas {
-			margin: 0px 5px 8px 5px;
-			padding: 0;
-		}
-		#comments {
-			width: 100%;
-			margin: 8px 0px 0px 0px;
-			padding: 0;
-		}
-	}
-
-	@media only screen and (min-width: 639px) {
-		#map_canvas {
-			float: left;
-			margin: 0px 5px 0px 5px;
-			padding: 0;
-		}
-		#comments {
-			float: left;
-			margin: 0px 5px 0px 5px;
-			padding: 0;
-		}
-	}
-
 	input {
 		height: 22px;
 	}
 
-	#remove, #recommend, #edit, #save, #cancel, #draggable {
+	#list, #map, #remove, #recommend, #edit, #save, #cancel, #draggable {
 		display: none;
 	}
 
@@ -175,11 +150,22 @@
 			var map_width = parseInt(width * 0.6);
 			var comments_width = width - map_width - 10;
 			map_width -= 10;
+
+			$("#map_canvas").css("float", "left")	
+			$("#map_canvas").css("margin", "0px 5px 0px 5px")	
+			$("#map_canvas").css("padding", "0")	
+			$("#comments").css("float", "left")	
+			$("#comments").css("margin", "0px 5px 0px 5px")	
+			$("#comments").css("padding", "0")	
 			$("#map_canvas").width(map_width)
 			$("#map_canvas").height(3 * map_width / 4)
 			$("#comments").width(comments_width)
 			$("#comment").width(comments_width - 6)
 		} else {
+			$("#map_canvas").css("margin", "0px 5px 8px 5px")	
+			$("#map_canvas").css("padding", "0")	
+			$("#comments").css("margin", "8px 0px 0px 0px")	
+			$("#comments").css("padding", "0")	
 			$("#map_canvas").width($(window).width() - 10)
 			$("#map_canvas").height(3 * $(window).width() / 4)
 			$("#comments").width($(window).width() - 10)
@@ -239,8 +225,14 @@
 				onenter: function(fsm, event) {
 					$("#name_show").html(pick.data.name)
 					$("#tags_show").html("(" + (pick.data.tags && pick.data.tags.length > 0 ? pick.data.tags.join(" ") : "&lt;untagged&gt;") + ")")
-					$("#list").show()
-					$("#map").show()
+
+					if($(window).width() >= 640) {
+						$("#list").show()
+					} else {
+						$("#list").show()
+						$("#map").show()
+					}
+
 					$("#comments").show()
 					$("#name_show").show()
 					$("#tags_show").show()
